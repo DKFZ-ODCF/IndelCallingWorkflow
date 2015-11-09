@@ -1,0 +1,58 @@
+#!/bin/bash
+
+#PBS -l walltime=50:00:00
+#PBS -l nodes=1:ppn=12
+#PBS -l mem=14g
+
+source ${CONFIG_FILE}
+set -o pipefail
+
+### Create temporary filenames used in this script:
+useCustomScratchDir=false
+SCRATCH_DIR=${RODDY_SCRATCH}
+
+LOG_TMP=${SCRATCH_DIR}/platyLog.tmp
+mkfifo ${PLATYPIPE} ${PLATYPIPE_1} ${PLATYPIPE_2} ${PLATYPIPE_3}
+####################################### Calling Script #################################################
+CALL_SNP=${CALL_SNP-0}
+source ${TOOL_ANALYZE_BAM_HEADER}
+
+getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
+
+mkdir -p ${DIR_TEMP}/indelCalling
+fileECPlatypus=${DIR_TEMP}/indelCalling/ecplatypus.txt
+fileECCat=${DIR_TEMP}/indelCalling/eccat.txt
+fileECBGZip=${DIR_TEMP}/indelCalling/ecbgzip.txt
+fileECConfAnno=${DIR_TEMP}/indelCalling/ecconfanno.txt
+
+# Default those values to the defaults.
+PLATYPUS_BUFFER_SIZE=${PLATYPUS_BUFFER_SIZE-100000}
+PLATYPUS_MAX_READS=${PLATYPUS_MAX_READS-5000000}
+
+[[ ! -e ${FILENAME_CONTROL_BAM} ]] && echo "Control bam is missing or not right." && exit 200
+[[ ! -e ${FILENAME_TUMOR_BAM} ]] && echo "Tumor bam is missing or not right." && exit 201
+
+${PYTHON_BINARY} `which ${PLATYPUS_BINARY}` callVariants \
+	--refFile=${REFERENCE_GENOME} \
+	--output=${FILENAME_VCF_RAW}.tmp.platypus \
+	--bamFiles=${FILENAME_CONTROL_BAM},${FILENAME_TUMOR_BAM} \
+	--nCPU=${CPU_COUNT} \
+	--genIndels=1 \
+	--genSNPs=${CALL_SNP} \
+	--logFileName=${LOG_TMP} \
+	--verbosity=1 \
+	--bufferSize=${PLATYPUS_BUFFER_SIZE} \
+	--maxReads=${PLATYPUS_MAX_READS} \
+	${PLATYPUS_PARAMS}
+
+[[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 1
+
+${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus
+
+[[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 2
+
+lineCount=`zgrep -v "^#" ${FILENAME_VCF_RAW}.tmp | cut -f 12 | sort | uniq -c | wc -l`
+
+[[ $lineCount -gt 1 ]] && echo "Error during platypus indel calling." && exit 3
+
+mv ${FILENAME_VCF_RAW}.tmp ${FILENAME_VCF_RAW} && ${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_RAW}

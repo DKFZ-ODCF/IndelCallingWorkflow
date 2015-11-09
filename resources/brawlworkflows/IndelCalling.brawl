@@ -1,0 +1,29 @@
+# Override the execute method of a workflow
+# The method is automatically chosen with things like parameter count and names.
+input bamControlMerged
+input bamTumorMerged
+
+runflag runIndelAnnotation
+runflag runIndelDeepAnnotation
+runflag runIndelVCFFilter
+
+set rawVCFFile = call bamTumorMerged.callIndels(bamControlMerged)
+
+if !runIndelAnnotation; then
+then
+  return true
+fi
+
+set annotatedVCFFile = call "indelAnnotation" (bamTumorMerged, bamControlMerged, rawVCFFile)
+
+if !runIndelDeepAnnotation ; then
+  return true
+fi
+
+set deepAnnotatedVCFFile = call "indelDeepAnnotation" (bamTumorMerged, bamControlMerged, rawVCFFile, "PIPENAME=INDEL_DEEPANNOTATION")
+
+if !runIndelVCFFilter  ; then
+  return true
+fi
+
+call "indelVcfFilter" (bamTumorMerged, bamControlMerged, deepAnnotatedVCFFile.value0)
