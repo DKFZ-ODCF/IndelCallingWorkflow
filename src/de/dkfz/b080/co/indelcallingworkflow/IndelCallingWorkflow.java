@@ -4,8 +4,11 @@ import de.dkfz.b080.co.common.WorkflowUsingMergedBams;
 import de.dkfz.b080.co.files.*;
 import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
 import de.dkfz.roddy.core.ExecutionContext;
+import de.dkfz.roddy.knowledge.files.BaseFile;
 import de.dkfz.roddy.knowledge.files.Tuple2;
 import de.dkfz.roddy.knowledge.methods.GenericMethod;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Indel calling based on the platypus pipeline.
@@ -14,7 +17,6 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
 
     @Override
     public boolean execute(ExecutionContext context, BasicBamFile _bamControlMerged, BasicBamFile _bamTumorMerged) {
-
         BamFile bamControlMerged = new BamFile(_bamControlMerged);
         BamFile bamTumorMerged = new BamFile(_bamTumorMerged);
 

@@ -1,10 +1,12 @@
 <configuration name='indelCallingAnalysis' description='Indel Calling for NGS data using platypus.'
                configurationType='analysis' class='de.dkfz.roddy.core.Analysis' workflowClass='de.dkfz.b080.co.indelcallingworkflow.IndelCallingWorkflow'
-               imports="snvCallingAnalysis"
+               runtimeServiceClass='de.dkfz.b080.co.common.BasicCOProjectsRuntimeService'
+               imports="commonCOWorkflowsSettings"
                canCreateTestdata='true'
                listOfUsedTools="indelCalling,indelAnnotation,indelDeepAnnotation,indelVcfFilter,platypusIndelExtractor"
-               usedToolFolders="snvPipeline,indelCallingWorkflow,tools">
+               usedToolFolders="indelCallingWorkflow,tools">
     <configurationvalues>
+        <cvalue name='INDELFILE_PREFIX' value='indel_' type="string"/>
         <cvalue name='PLATYPUS_PARAMS' value="''" type="string"/>
         <cvalue name='INDEL_ANNOTATION_PADDING' value="10" type="string"/>
         <cvalue name='INDEL_ANNOTATION_MINOVERLAPFRACTION' value="0.7" type="string"/>
@@ -29,6 +31,43 @@
 
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
         <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_141/00-All.INDEL.vcf.gz" type="path"/>
+
+        <!--#>PIPE_CONFIG-->
+
+        <!--Taken from SNV base config. Needs adaption and cleanup-->
+        <cvalue name='GHOSTSCRIPT_BINARY' value='/usr/bin/gs' type='path'/>
+
+        <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
+        <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
+        <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Nov2014/annotate_variation.pl' type='path'/>
+        <cvalue name='ANNOVAR_BUILDVER' value='hg19' type='string'/>
+        <cvalue name='ANNOVAR_DBPATH' value='${sharedFilesBaseDirectory}/annovar/annovar_Nov2014/humandb/' type='path'/>
+        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV19'" type='string'/>
+        <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
+        <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
+        <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
+        <cvalue name="GERMLINE_AVAILABLE" value="1" type="string"/>
+        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+
+        <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
+        <cvalue name="ALLELE_FREQ" value="0" type="integer" description="ignore SNVs with MAF below that value (rainfall plot)"/>
+        <cvalue name="CLINICALANNO" value='""' type="string" description="tab separated file with fields in the following order: ID, decoded PID, gender, age, subgroup"/>
+
+        <!--### Bias filter parameters-->
+        <!--## Thresholds to determine if a field is biased. A field is biased if (and only if) its p value is smaller then biasPVal. If that is the case the bias ratio determines if it is a weak bias (ratio smaller biasRatioThreshold) or a strong bias (ratio larger biasRatioThreshold)-->
+        <cvalue name="biasPValThreshold" value="0.01" type="float" description=" probability threshold to accept bias. The p value gives the probability to observe the same or stronger bias by chance when assuming a binomial distribution with event probability of 0.5"/>
+        <cvalue name="biasRatioMinimum" value="0.53" type="float" description=" minimum fraction of reads in direction of bias / total variant reads we require to call a field biased"/>
+        <cvalue name="biasRatioThreshold" value="0.63" type="float" description="threshold for fraction of reads in direction of bias / total variant reads above which it will be considered a strong bias"/>
+        <cvalue name="nReads" value="20" type="integer" description=" number of reads in one field above which a bias is possible"/>
+        <cvalue name="nMuts" value="4" type="integer" description=" number of muts above which a bias is possible"/>
+
+        <!--## Thresholds to determine if a variant call is an artifact-->
+        <!--#max mumber of reads we will tolerate in the direction opposite to the bias for it to be called an artefact-->
+        <cvalue name="maxNumOppositeReadsSequencingWeakBias" value="0" type="integer"/>
+        <cvalue name="maxNumOppositeReadsSequenceWeakBias" value="0" type="integer"/>
+        <cvalue name="maxNumOppositeReadsSequencingStrongBias" value="1" type="integer"/>
+        <cvalue name="maxNumOppositeReadsSequenceStrongBias" value="1" type="integer"/>
+        <cvalue name="rVcf" value="0.1" type="float" description="max fraction of reads (reads/total reads) we tolerate in the direction opposite to the bias for it to be called an artefact"/>
 
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
             <cvalue name='MAPABILITY' value='${hg19DatabaseUCSCDirectory}/"wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path" />
@@ -63,7 +102,6 @@
             <cvalue name='ENCODE_DNASE' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_DNase_cluster_V2.bed.gz' type="path" />
             <cvalue name='ENCODE_TFBS' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz' type="path" />
         </configurationValueBundle>
-        <!--#>PIPE_CONFIG-->
     </configurationvalues>
     <processingTools>
         <tool name="platypusConfidenceAnnotation" value="platypusConfidenceAnnotation.pl" basepath="indelCallingWorkflow"/>
