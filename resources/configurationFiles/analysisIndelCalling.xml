@@ -2,7 +2,6 @@
                configurationType='analysis' class='de.dkfz.roddy.core.Analysis' workflowClass='de.dkfz.b080.co.indelcallingworkflow.IndelCallingWorkflow'
                runtimeServiceClass='de.dkfz.b080.co.common.BasicCOProjectsRuntimeService'
                imports="commonCOWorkflowsSettings"
-               canCreateTestdata='true'
                listOfUsedTools="indelCalling,indelAnnotation,indelDeepAnnotation,indelVcfFilter,platypusIndelExtractor"
                usedToolFolders="indelCallingWorkflow,tools">
     <configurationvalues>

@@ -25,7 +25,7 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
         boolean runDeepAnnotation = configurationValues.getBoolean("runIndelDeepAnnotation", true);
         boolean runAnnotation = configurationValues.getBoolean("runIndelAnnotation", true);
 
-        VCFFileForIndels rawVCF = (VCFFileForIndels) GenericMethod.callGenericTool(COConstants.TOOL_INDEL_CALLING, bamTumorMerged, bamControlMerged);
+        VCFFileForIndels rawVCF = GenericMethod.callGenericTool(COConstants.TOOL_INDEL_CALLING, bamTumorMerged, bamControlMerged);
 
         if (!runAnnotation) return true;
         VCFFileForIndels vcfFileForIndels = rawVCF; //Use the raw vcf for further processing.
