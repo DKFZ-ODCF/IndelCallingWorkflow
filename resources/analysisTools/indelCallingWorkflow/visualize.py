@@ -16,7 +16,7 @@ from matplotlib import gridspec
 argument_parser = argparse.ArgumentParser(
   description='This script generates a png file for each entry in a vcf file, a bed file or a manually specified region.' )
 argument_parser.add_argument('--control', metavar='FILE', type=str,
-    required=True, help='input bam file of the control')
+    default=None, help='input bam file of the control')
 argument_parser.add_argument('--tumor', metavar='FILE', type=str, 
     required=True, help='input bam file of the tumor')
 argument_parser.add_argument('--ref', metavar='FILE', type=str,
@@ -271,102 +271,96 @@ def plot_cigars( cigars, sequences, reverses, ax, reference_function ):
 def  plot_region( region_chrom, region_center, region_left, region_right, plot_title ):
 
 	region_string = "%s:%i-%i" % ( region_chrom, region_left, region_right )
-
-	samtools_call1   = ( parsed_arguments.samtoolsbin, "view", "-q", "20", "-F", "1024", parsed_arguments.control, region_string )
-	samtools_output1 = subprocess.check_output( samtools_call1 )
-	samtools_output1 = [ line.split('\t') for line in samtools_output1.split('\n') ]
-	samtools_reads1  = [ line for line in samtools_output1 if len(line) > 5 ]
-
-	samtools_call2   = ( parsed_arguments.samtoolsbin, "view", "-q", "20", "-F", "1024", parsed_arguments.tumor, region_string )
-	samtools_output2 = subprocess.check_output( samtools_call2 )
-	samtools_output2 = [ line.split('\t') for line in samtools_output2.split('\n') ]
-	samtools_reads2  = [ line for line in samtools_output2 if len(line) > 5 ]
-
 	annotations = get_annotations( region_string )
+	#	print( "region %s annotations: " % region_string, annotations )
 
-#	print( "region %s annotations: " % region_string, annotations )
-
-	reference_buffer = ReferenceBuffer( parsed_arguments.ref, region_chrom )
-
-	fig = plot.figure(figsize=(19.2, 10.8))
+	bams = [ parsed_arguments.tumor ]
+	if parsed_arguments.control is not None:
+		fig = plot.figure(figsize=(19.2, 10.8))
+		bams.insert(0, parsed_arguments.control)
+		rows = 7
+		cols = 3
+		h_ratios = [1,5,15,2,5,15]
+		ax_indices = [1,2,4,5]
+		if annotations:
+			ax_indices += [7]
+	else:
+		fig = plot.figure(figsize=(19.2, 5.4))
+		rows = 4
+		cols = 3
+		h_ratios = [1,5,15]
+		ax_indices = [1,2]
+		if annotations:
+			ax_indices += [4]
 
 	if annotations:
+		rows += 2
+		h_ratios += [2,1]
 
-		grid = gridspec.GridSpec( 9, 3, height_ratios=[1,5,15,2,5,15,2,1,1], hspace=0,
-			                      width_ratios=[1,42,1], wspace=0,
-			                      left=0, right=1, bottom=0, top=1 )
-		ax = [ plot.subplot( grid[i,1] ) for i in [1,2,4,5,7] ]
+	h_ratios += [1]
 
-	else:
+	grid = gridspec.GridSpec( rows, cols, height_ratios=h_ratios, hspace=0,
+							width_ratios=[1,42,1], wspace=0,
+							left=0, right=1, bottom=0, top=1 )
+	
+	ax = [ plot.subplot( grid[i,1] ) for i in ax_indices ]
 
-		grid = gridspec.GridSpec( 7, 3, height_ratios=[1,5,15,2,5,15,1], hspace=0,
-			                      width_ratios=[1,42,1], wspace=0,
-			                      left=0, right=1, bottom=0, top=1 )
-		ax = [ plot.subplot( grid[i,1] ) for i in [1,2,4,5] ]
+	reference_buffer = ReferenceBuffer( parsed_arguments.ref, region_chrom )
+	visible_basepairs = [ reference_buffer[i] for i in range( region_left, region_right + 1 ) ]
 
-	plot_histogram( [ parse_cigar( read[5], int(read[3]) ) for read in samtools_reads1 if read[5] != "*" ], ax[0] )
-	plot_cigars( [ parse_cigar( read[5], int(read[3]) ) for read in samtools_reads1 if read[5] != "*"  ],
-	             [ read[9] for read in samtools_reads1 if read[5] != "*"  ],
-	             [ bool(int(read[1])&0x10) for read in samtools_reads1 if read[5] != "*"  ],
-	             ax[1], reference_buffer )
-	plot_histogram( [ parse_cigar( read[5], int(read[3]) ) for read in samtools_reads2 if read[5] != "*"  ], ax[2] )
-	plot_cigars( [ parse_cigar( read[5], int(read[3]) ) for read in samtools_reads2 if read[5] != "*"  ],
-	             [ read[9] for read in samtools_reads2 if read[5] != "*"  ],
-	             [ bool(int(read[1])&0x10) for read in samtools_reads2 if read[5] != "*"  ],
-	             ax[3], reference_buffer )
+	for idx, bam in enumerate(bams):
+		samtools_call   = ( parsed_arguments.samtoolsbin, "view", "-q", "20", "-F", "1024", bam, region_string )
+		samtools_output = subprocess.check_output( samtools_call )
+		samtools_output = [ line.split('\t') for line in samtools_output.split('\n') ]
+		samtools_reads = [ line for line in samtools_output if len(line) > 5 ]
+
+		plot_histogram( [ parse_cigar( read[5], int(read[3]) ) for read in samtools_reads if read[5] != "*" ], ax[idx*2] )
+		plot_cigars( [ parse_cigar( read[5], int(read[3]) ) for read in samtools_reads if read[5] != "*"  ],
+	    	         [ read[9] for read in samtools_reads if read[5] != "*"  ],
+	        	     [ bool(int(read[1])&0x10) for read in samtools_reads if read[5] != "*"  ],
+	            	 ax[idx*2+1], reference_buffer )
+
+		if len(bams) == 2:
+			if idx == 0:
+				ax[idx*2].set_title( "%s - control" % plot_title )
+			else:
+				ax[idx*2].set_title( "%s - tumor" % plot_title)
+		else:
+			ax[idx*2].set_title( "%s - tumor" % plot_title )
+		ax[idx*2].set_xticks([])
+		ax[idx*2].yaxis.set_tick_params( labelleft=True, labelright=True )
+		ax[idx*2].ticklabel_format( style='plain', axis='x', useOffset=False )
+
+		ax[idx*2+1].xaxis.set_tick_params( width=0 )
+		ax[idx*2+1].set_xticks([ i for i in range( region_left, region_right + 1 ) ])
+		ax[idx*2+1].xaxis.set_ticklabels( visible_basepairs )
+
+		for tick in ax[idx*2+1].get_xticklabels():
+			tick.set_color( basepair_colors[tick._text] )
+
+		for axis in ax[idx*2:(idx+1)*2]:
+			axis.axvline( region_center - 0.5, color="black", linewidth=0.5 )
+			axis.axvline( region_center + 0.5, color="black", linewidth=0.5 )
+			for x in range( 10, parsed_arguments.window, 10 ):
+				axis.axvline( region_center - x - 0.5, color="black", linewidth=0.25 )
+				axis.axvline( region_center + x + 0.5, color="black", linewidth=0.25 )
 
 	for axis in ax:
 		axis.set_xlim( xmin=region_left-0.5, xmax=region_right+0.5 )
 
-	ax[0].set_xticks([])
-	ax[2].set_xticks([])
-
-	ax[0].yaxis.set_tick_params( labelleft=True, labelright=True )
-	ax[2].yaxis.set_tick_params( labelleft=True, labelright=True )
-
-	visible_basepairs = [ reference_buffer[i] for i in range( region_left, region_right + 1 ) ]
-
-	ax[1].xaxis.set_tick_params( width=0 )
-	ax[1].set_xticks([ i for i in range( region_left, region_right + 1 ) ])
-	ax[1].xaxis.set_ticklabels( visible_basepairs )
-
-	for tick in ax[1].get_xticklabels():
-		tick.set_color( basepair_colors[tick._text] )
-
-	ax[3].xaxis.set_tick_params( width=0 )
-	ax[3].set_xticks([ i for i in range( region_left, region_right + 1 ) ])
-	ax[3].xaxis.set_ticklabels( visible_basepairs )
-
-	for tick in ax[3].get_xticklabels():
-		tick.set_color( basepair_colors[tick._text] )
-
-	for axis in ax[:4]:
-		axis.axvline( region_center - 0.5, color="black", linewidth=0.5 )
-		axis.axvline( region_center + 0.5, color="black", linewidth=0.5 )
-		for x in range( 10, parsed_arguments.window, 10 ):
-			axis.axvline( region_center - x - 0.5, color="black", linewidth=0.25 )
-			axis.axvline( region_center + x + 0.5, color="black", linewidth=0.25 )
-
-	ax[0].set_title( "%s - control" % plot_title )
-	ax[2].set_title( "%s - tumor" % plot_title)
-
-	ax[0].ticklabel_format( style='plain', axis='x', useOffset=False )
-	ax[2].ticklabel_format( style='plain', axis='x', useOffset=False )
-
 	if annotations:
-
-		ax[4].set_title( "annotations from " + parsed_arguments.annotations.split('/')[-1] )
-		ax[4].set_xticks([])
-		ax[4].set_yticks([])
-		ax[4].axis('off')
+		ax[-1].set_title( "annotations from " + parsed_arguments.annotations.split('/')[-1] )
+		ax[-1].set_xticks([])
+		ax[-1].set_yticks([])
+		ax[-1].axis('off')
 
 		for ann in annotations:
 
 			ann[1]=max( ann[1], region_left )
 			ann[2]=min( ann[2], region_right )
 
-			ax[4].barh( 0, ann[2]-ann[1]+1, height=1, left=ann[1]-0.5, color="#c8c8c8" )
-			ax[4].text( float( ann[1] + ann[2] ) / 2.0, 0.5, ann[0], ha='center', va='center' )
+			ax[-1].barh( 0, ann[2]-ann[1]+1, height=1, left=ann[1]-0.5, color="#c8c8c8" )
+			ax[-1].text( float( ann[1] + ann[2] ) / 2.0, 0.5, ann[0], ha='center', va='center' )
 
 
 

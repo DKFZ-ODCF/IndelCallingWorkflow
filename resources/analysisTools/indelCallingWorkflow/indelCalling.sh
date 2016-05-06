@@ -29,13 +29,17 @@ fileECConfAnno=${DIR_TEMP}/indelCalling/ecconfanno.txt
 PLATYPUS_BUFFER_SIZE=${PLATYPUS_BUFFER_SIZE-100000}
 PLATYPUS_MAX_READS=${PLATYPUS_MAX_READS-5000000}
 
-[[ ! -e ${FILENAME_CONTROL_BAM} ]] && echo "Control bam is missing or not right." && exit 200
 [[ ! -e ${FILENAME_TUMOR_BAM} ]] && echo "Tumor bam is missing or not right." && exit 201
+bamFiles=${FILENAME_TUMOR_BAM}
+if [[ ${GERMLINE_AVAILABLE} == "1" ]]; then
+    [[ ! -e ${FILENAME_CONTROL_BAM} ]] && echo "Control bam is missing or not right." && exit 200
+    bamFiles="${FILENAME_CONTROL_BAM},${bamFiles}"
+fi
 
 ${PYTHON_BINARY} `which ${PLATYPUS_BINARY}` callVariants \
 	--refFile=${REFERENCE_GENOME} \
 	--output=${FILENAME_VCF_RAW}.tmp.platypus \
-	--bamFiles=${FILENAME_CONTROL_BAM},${FILENAME_TUMOR_BAM} \
+	--bamFiles=${bamFiles} \
 	--nCPU=${CPU_COUNT} \
 	--genIndels=1 \
 	--genSNPs=${CALL_SNP} \

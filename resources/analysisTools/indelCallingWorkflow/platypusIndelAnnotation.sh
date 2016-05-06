@@ -105,17 +105,42 @@ mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
 ################################## Confidence annotation ############################################
 
 ### Get the real names of the columns created by Platypus
-control_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_CONTROL_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
 tumor_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_TUMOR_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
-
 target=/dev/null
 [[ ${runOnPancan-false} == true ]] && target=${filenameVCFPancanTemp}
 
-${PERL_BINARY} ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --fileName=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
+if [[ ${GERMLINE_AVAILABLE} == "1" ]]; then
+    control_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_CONTROL_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
+    ${PERL_BINARY} ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --fileName=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 
-[[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6
+    [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6
 
-mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
+    mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
+
+else
+    ${PERL_BINARY} ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION_NO_CONTROL} --fileName=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
+    [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 7
+
+    mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
+
+    cmdFilter="cat ${filenameVCFFinalUnzipped} | \
+        ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${ExAC} --columnName ExAC --bFileType vcf | \
+        ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName EVS --bFileType vcf | \
+        ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName CountInLocalControl --bReportColumn 5 --reportMatchType --minOverlapFraction 1 --bFileType vcf | \
+        ${PYPY_BINARY} -u ${TOOL_ONLY_EXTRACT_MATCH}"
+
+    if [[ -f ${RECURRENCE} ]]; then
+        cmdFilter="${cmdFilter} | ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${RECURRENCE} --columnName RecurrenceInPIDs --bFileType vcf"
+    fi
+    cmdFilter="${cmdFilter} > ${filenameVCFTemp}"
+
+    eval ${cmdFilter}
+
+    exitCode=$?
+    [[ $exitCode == 0 ]] && mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
+    [[ $exitCode != 0 ]] && echo "There was a non-zero exit code in ExAC, EVS, lowMAF, LocalControl, or Recurrence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6
+fi
+
 [[ ${runOnPancan-false} == true ]] && mv ${filenameVCFPancanTemp} ${filenameVCFPancanUnzipped}
 
 ${BGZIP_BINARY} -f ${filenameVCFFinalUnzipped} && ${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_OUT}

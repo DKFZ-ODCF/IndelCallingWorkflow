@@ -68,6 +68,37 @@
         <cvalue name="maxNumOppositeReadsSequenceStrongBias" value="1" type="integer"/>
         <cvalue name="rVcf" value="0.1" type="float" description="max fraction of reads (reads/total reads) we tolerate in the direction opposite to the bias for it to be called an artefact"/>
 
+        <!--## If GERMLINE_AVAILABLE is set, then the extra annotation & filtering step will be omitted -->
+        <cvalue name="GERMLINE_AVAILABLE" value="0" type="string"/>
+
+        <!--#### EXTRA ANNOTATION AND FILTERING -->
+        <!--#### BELOW VALUES WILL BE NEGLECTED WHEN GERMLINE_AVAILABLE IS SET -->
+            <!--## Recurrence file -->
+            <!-- If the file does not exist, then skipped -->
+            <cvalue name="RECURRENCE" value="${outputAnalysisBaseDirectory}/../Recurrence/recurrent_SNVs_among_allPIDs_withoutMultiAlt.vcf.gz" type="path" />
+
+            <!--## Databases -->
+            <cvalue name="ExAC" value="/icgc/ngs_share/assemblies/hg19_GRCh37_1000genomes/databases/ExAC/ExAC.r0.1.sites.vep.vcf.gz" type="path" />
+            <cvalue name="EVS" value="/icgc/ngs_share/assemblies/hg19_GRCh37_1000genomes/databases/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
+            <cvalue name="LOCALCONTROL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
+
+            <!--## Filter switch -->
+            <cvalue name="FILTER_ExAC" value="true" type="boolean" />
+            <cvalue name="FILTER_EVS" value="true" type="boolean" />
+            <cvalue name="FILTER_1KGENOMES" value="true" type="boolean" />
+            <cvalue name="FILTER_RECURRENCE" value="false" type="boolean" />
+            <cvalue name="FILTER_LOCALCONTROL" value="true" type="boolean" />
+            <cvalue name="FILTER_NON_CLINIC" value="true" type="boolean" />
+
+            <!--## Filter criteria -->
+            <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
+            <cvalue name="CRIT_ExAC_maxMAF" value="0.01" type="float" />
+            <cvalue name="CRIT_EVS_maxMAF" value="0.01" type="float" />
+            <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float" />
+            <cvalue name="CRIT_RECURRENCE" value="7" type="integer" />
+            <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float" />
+        <!--#### END EXTRA ANNOTATION AND FILTERING -->
+
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
             <cvalue name='MAPABILITY' value='${hg19DatabaseUCSCDirectory}/"wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path" />
             <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path" />
@@ -104,9 +135,11 @@
     </configurationvalues>
     <processingTools>
         <tool name="platypusConfidenceAnnotation" value="platypusConfidenceAnnotation.pl" basepath="indelCallingWorkflow"/>
+        <tool name="platypusConfidenceAnnotationNoControl" value="platypusConfidenceAnnotation_noControl.pl" basepath="indelCallingWorkflow"/>
         <tool name="platypusIndelExtractor" value="indel_extractor_v1.pl" basepath="indelCallingWorkflow"/>
+        <tool name="onlyExtractMatch" value="extract_match_only.py" basepath="indelCallingWorkflow"/>
         <tool name="screenshot" value="visualize.py" basepath="indelCallingWorkflow"/>
-
+        <tool name="vcfFilterByCrit" value="vcf_filter_by_crit.py" basepath="indelCallingWorkflow"/>
         <tool name="indelCalling" value="indelCalling.sh" basepath="indelCallingWorkflow">
             <resourcesets>
                 <rset size="xs" memory="16" cores="8" nodes="1" walltime="1"/>

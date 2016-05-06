@@ -18,11 +18,31 @@ source ${CONFIG_FILE}
 
 ########################################## Filter ###############################################
 
+outputFilenamePrefix=${FILENAME_VCF%.vcf.gz}
+
+if [[ "$GERMLINE_AVAILABLE" == 0 ]]; then
+    FILTER_VALUES=""
+    [[ ${FILTER_ExAC} == 'true' ]]             && FILTER_VALUES="${FILTER_VALUES} ExAC AF ${CRIT_ExAC_maxMAF}+"
+    [[ ${FILTER_EVS} == 'true' ]]              && FILTER_VALUES="${FILTER_VALUES} EVS MAF ${CRIT_EVS_maxMAF}+"
+    [[ ${FILTER_1KGENOMES} == 'true' ]]        && FILTER_VALUES="${FILTER_VALUES} 1K_GENOMES AF,ASN_AF,AMR_AF,AFR_AF,EUR_AF ${CRIT_1KGENOMES_maxMAF}+"
+    [[ ${FILTER_NON_CLINIC} == 'true' ]]       && FILTER_VALUES="${FILTER_VALUES} DBSNP CLN nonexist"
+    [[ ${FILTER_RECURRENCE} == 'true' ]]       && FILTER_VALUES="${FILTER_VALUES} RecurrenceInPIDs . ${CRIT_RECURRENCE}+"
+    [[ ${FILTER_LOCALCONTROL} == 'true' ]]  && FILTER_VALUES="${FILTER_VALUES} CountInLocalControl . ${CRIT_LOCALCONTROL_maxMAF}+"
+
+    if [[ ${FILTER_VALUES} != "" ]]; then
+        outputFilenamePrefix="${outputFilenamePrefix}_nocontrol"
+        FILTERED_VCF="${outputFilenamePrefix}.vcf"
+        ${PYPY_BINARY} -u ${TOOL_VCF_FILTER_BY_CRIT} ${FILENAME_VCF} ${FILTERED_VCF}${FILTER_VALUES}
+        ${BGZIP_BINARY} -f ${FILTERED_VCF} && ${TABIX_BINARY} -f -p vcf ${FILTERED_VCF}.gz
+        FILENAME_VCF=${FILTERED_VCF}.gz
+    fi
+fi
+
 ##### Set filenames #####
-somatic_indels_vcf=${FILENAME_VCF%.vcf.gz}_somatic_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
-somatic_functional_indel_vcf=${FILENAME_VCF%.vcf.gz}_somatic_functional_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
-somatic_ncRNA_indel_vcf=${FILENAME_VCF%.vcf.gz}_somatic_ncRNA_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
-germline_functional_indel_vcf=${FILENAME_VCF%.vcf.gz}_germline_functional_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
+somatic_indels_vcf=${outputFilenamePrefix}_somatic_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
+somatic_functional_indel_vcf=${outputFilenamePrefix}_somatic_functional_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
+somatic_ncRNA_indel_vcf=${outputFilenamePrefix}_somatic_ncRNA_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
+germline_functional_indel_vcf=${outputFilenamePrefix}_germline_functional_indels_conf_${MIN_CONFIDENCE_SCORE}_to_10.vcf
 combined_screen_shots=indel_somatic_functional_combined.pdf
 
 screenshot_dir=$(dirname ${FILENAME_VCF})/screenshots
@@ -37,7 +57,11 @@ ${PERL_BINARY} ${TOOL_PLATYPUS_INDEL_EXTRACTOR} --bgzip=${BGZIP_BINARY} --tabix=
 
 [[ -d ${screenshot_dir} ]] && rm -rf ${screenshot_dir}
 
-[[ ! -d ${screenshot_dir} ]] && mkdir ${screenshot_dir} && cd ${screenshot_dir} && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILE_CONTROL_BAM} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+[[ ! -d ${screenshot_dir} ]] && mkdir ${screenshot_dir} && cd ${screenshot_dir}
+
+[[ "$GERMLINE_AVAILABLE" == 1 ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILE_CONTROL_BAM} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+[[ "$GERMLINE_AVAILABLE" == 0 ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+
 
 pngs=(`ls *.pdf`)
 sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
