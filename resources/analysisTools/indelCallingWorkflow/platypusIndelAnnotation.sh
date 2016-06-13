@@ -46,13 +46,17 @@ ANNOVAR_VARIANT_EXON=${TMP_FILENAME_PREFIX}.ForAnnovar.bed.exonic_variant_functi
 set -x
 set -o pipefail
 
-### Annotate with polymorphisms (dbSNP and 1K genomes) and prepare annovar input file
-zcat ${FILENAME_VCF_RAW} |
-perl ${TOOL_ANNOTATE_VCF_FILE} -a - -b "${DBSNP_INDEL}" --columnName=${DBSNP_COL} --reportMatchType  --bAdditionalColumn=2 --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} |
-perl ${TOOL_ANNOTATE_VCF_FILE} -a - -b "${KGENOME}" --columnName=${KGENOMES_COL}  --reportMatchType --bAdditionalColumn=2  --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} |
-tee ${filenameVCFTemp} |
-perl ${TOOL_VCF_TO_ANNOVAR} ${CHR_PREFIX} ${CHR_SUFFIX} > ${FOR_ANNOVAR}.tmp
+### Annotate with polymorphisms (dbSNP, 1K genomes, ExAC, EVS, and local controls) and prepare annovar input file
+cmdAnnotation="zcat ${FILENAME_VCF_RAW} | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${DBSNP_INDEL} --columnName=${DBSNP_COL} --reportMatchType  --bAdditionalColumn=2 --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${KGENOME} --columnName=${KGENOMES_COL} --reportMatchType --bAdditionalColumn=2  --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${ExAC} --columnName=${ExAC_COL} --bFileType vcf | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName=${EVS_COL} --bFileType vcf | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName=${LOCALCONTROL_COL} --bReportColumn 5 --reportMatchType --minOverlapFraction 1 --bFileType vcf | \
+    ${PYPY_BINARY} -u ${TOOL_ONLY_EXTRACT_MATCH} | \
+    tee ${filenameVCFTemp} | perl ${TOOL_VCF_TO_ANNOVAR} ${CHR_PREFIX} ${CHR_SUFFIX} > ${FOR_ANNOVAR}.tmp"
 
+eval ${cmdAnnotation}
 
 [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the polymorphism annotation pipe; exiting..." && exit 3
 
@@ -106,40 +110,19 @@ mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
 
 ### Get the real names of the columns created by Platypus
 tumor_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_TUMOR_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
+
 target=/dev/null
 [[ ${runOnPancan-false} == true ]] && target=${filenameVCFPancanTemp}
 
 if [[ ${GERMLINE_AVAILABLE} == "1" ]]; then
     control_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_CONTROL_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
-    ${PERL_BINARY} ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --fileName=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
-
-    [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6
-
-    mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
-
+    ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --infile=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 else
-    ${PERL_BINARY} ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION_NO_CONTROL} --fileName=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
-    [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 7
-
-    mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
-
-    cmdFilter="cat ${filenameVCFFinalUnzipped} | \
-        ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${ExAC} --columnName ExAC --bFileType vcf | \
-        ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName EVS --bFileType vcf | \
-        ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName CountInLocalControl --bReportColumn 5 --reportMatchType --minOverlapFraction 1 --bFileType vcf | \
-        ${PYPY_BINARY} -u ${TOOL_ONLY_EXTRACT_MATCH}"
-
-    if [[ -f ${RECURRENCE} ]]; then
-        cmdFilter="${cmdFilter} | ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${RECURRENCE} --columnName RecurrenceInPIDs --bFileType vcf"
-    fi
-    cmdFilter="${cmdFilter} > ${filenameVCFTemp}"
-
-    eval ${cmdFilter}
-
-    exitCode=$?
-    [[ $exitCode == 0 ]] && mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
-    [[ $exitCode != 0 ]] && echo "There was a non-zero exit code in ExAC, EVS, lowMAF, LocalControl, or Recurrence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6
+    ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --nocontrol --infile=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 fi
+
+[[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6
+mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
 
 [[ ${runOnPancan-false} == true ]] && mv ${filenameVCFPancanTemp} ${filenameVCFPancanUnzipped}
 

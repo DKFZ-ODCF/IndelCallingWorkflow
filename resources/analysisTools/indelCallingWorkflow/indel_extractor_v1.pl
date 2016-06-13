@@ -87,7 +87,7 @@ while(<IN>)
 	chomp;
 	next if($_ =~ /^#/);
 	my @line = split("\t", $_);
-	if (defined $germlineout && $line[$col{"REGION_CONFIDENCE"}] >= $minconf && $line[$col{"CLASSIFICATION"}] eq "germline" && ($line[$col{"ANNOVAR_FUNCTION"}] eq "exonic" || $line[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/) && $line[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA_exonic/)
+	if (defined $germlineout && $line[$col{"REGION_CONFIDENCE"}] >= $minconf && ($line[$col{"CLASSIFICATION"}] eq "germline" || $line[$col{"CLASSIFICATION"}] eq "SNP_support_germline") && ($line[$col{"ANNOVAR_FUNCTION"}] eq "exonic" || $line[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/) && $line[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA_exonic/)
 	{
 		print GER $_, "\n";
 	}

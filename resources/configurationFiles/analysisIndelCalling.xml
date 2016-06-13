@@ -21,15 +21,19 @@
         <cvalue name='runIndelAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelDeepAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelVCFFilter' value="true" type="boolean"/>
-        <cvalue name="CONFIDENCE_OPTS_INDEL" value='"--debug=0"' type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+        <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
         <cvalue name='REPEAT_MASKER' value="" type="string"/>
         <cvalue name="PLATYPUS_BINARY" value="Platypus.py"/>
 
+        <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
-        <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_141/00-All.INDEL.vcf.gz" type="path"/>
+        <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/All_20160408.INDEL.vcf.gz" type="path"/>
+        <cvalue name="ExAC" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/ExAC/ExAC.r0.3.1.sites.vep.vcf.gz" type="path" />
+        <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
+        <cvalue name="LOCALCONTROL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
 
         <!--#>PIPE_CONFIG-->
 
@@ -38,9 +42,12 @@
 
         <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
-        <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Nov2014/annotate_variation.pl' type='path'/>
+        <cvalue name="ExAC_COL" value="ExAC" type="string"/>
+        <cvalue name="EVS_COL" value="EVS" type="string"/>
+        <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
+        <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/annotate_variation.pl' type='path'/>
         <cvalue name='ANNOVAR_BUILDVER' value='hg19' type='string'/>
-        <cvalue name='ANNOVAR_DBPATH' value='${sharedFilesBaseDirectory}/annovar/annovar_Nov2014/humandb/' type='path'/>
+        <cvalue name='ANNOVAR_DBPATH' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/humandb/' type='path'/>
         <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV19'" type='string'/>
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
         <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
@@ -73,15 +80,6 @@
 
         <!--#### EXTRA ANNOTATION AND FILTERING -->
         <!--#### BELOW VALUES WILL BE NEGLECTED WHEN GERMLINE_AVAILABLE IS SET -->
-            <!--## Recurrence file -->
-            <!-- If the file does not exist, then skipped -->
-            <cvalue name="RECURRENCE" value="${outputAnalysisBaseDirectory}/../Recurrence/recurrent_SNVs_among_allPIDs_withoutMultiAlt.vcf.gz" type="path" />
-
-            <!--## Databases -->
-            <cvalue name="ExAC" value="/icgc/ngs_share/assemblies/hg19_GRCh37_1000genomes/databases/ExAC/ExAC.r0.1.sites.vep.vcf.gz" type="path" />
-            <cvalue name="EVS" value="/icgc/ngs_share/assemblies/hg19_GRCh37_1000genomes/databases/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
-            <cvalue name="LOCALCONTROL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
-
             <!--## Filter switch -->
             <cvalue name="FILTER_ExAC" value="true" type="boolean" />
             <cvalue name="FILTER_EVS" value="true" type="boolean" />
@@ -128,13 +126,13 @@
             <cvalue name='miRNAtargets' value='${hg19DatabasesDirectory}/miRNA/miRNAsites_TargetScan_BartelLab_2011_01_14_chr.bed.gz' type="path" />
             <cvalue name='phastConsElem20bp' value='${hg19DatabaseUCSCDirectory}/phastConsElem_min20bp_chr.bed.gz:4' type="path" />
             <cvalue name='TFBScons' value='${hg19DatabaseUCSCDirectory}/tfbsConsSites_noncoding_merged_chr.bed.gz' type="path" />
-            <cvalue name='COSMIC' value='${hg19DatabasesDirectory}/COSMIC/Cosmic_v66_hg19_coding_SNVs.bed.gz:7,8,9:1' type="path" />
+            <cvalue name='COSMIC' value='${hg19DatabasesDirectory}/COSMIC/Cosmic_v77_hg19_coding_SNVs.bed.gz:7,8,9:1' type="path" />
             <cvalue name='ENCODE_DNASE' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_DNase_cluster_V2.bed.gz' type="path" />
             <cvalue name='ENCODE_TFBS' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz' type="path" />
         </configurationValueBundle>
     </configurationvalues>
     <processingTools>
-        <tool name="platypusConfidenceAnnotation" value="platypusConfidenceAnnotation.pl" basepath="indelCallingWorkflow"/>
+        <tool name="platypusConfidenceAnnotation" value="confidenceAnnotation_Indels.py" basepath="indelCallingWorkflow"/>
         <tool name="platypusConfidenceAnnotationNoControl" value="platypusConfidenceAnnotation_noControl.pl" basepath="indelCallingWorkflow"/>
         <tool name="platypusIndelExtractor" value="indel_extractor_v1.pl" basepath="indelCallingWorkflow"/>
         <tool name="onlyExtractMatch" value="extract_match_only.py" basepath="indelCallingWorkflow"/>
@@ -157,10 +155,10 @@
         </tool>
         <tool name="indelAnnotation" value="platypusIndelAnnotation.sh" basepath="indelCallingWorkflow">
             <resourcesets>
-				<rset size="s" memory="3" cores="1" nodes="1" walltime="2"/>
-				<rset size="m" memory="3" cores="1" nodes="1" walltime="5"/>
-                <rset size="l" memory="3" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="8" cores="2" nodes="1" walltime="10"/>
+				<rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
+				<rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
+                <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
+                <rset size="xl" memory="8" cores="3" nodes="1" walltime="10"/>
             </resourcesets>
             <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILENAME_CONTROL_BAM"/>

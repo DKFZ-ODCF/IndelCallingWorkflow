@@ -22,12 +22,16 @@ outputFilenamePrefix=${FILENAME_VCF%.vcf.gz}
 
 if [[ "$GERMLINE_AVAILABLE" == 0 ]]; then
     FILTER_VALUES=""
-    [[ ${FILTER_ExAC} == 'true' ]]             && FILTER_VALUES="${FILTER_VALUES} ExAC AF ${CRIT_ExAC_maxMAF}+"
-    [[ ${FILTER_EVS} == 'true' ]]              && FILTER_VALUES="${FILTER_VALUES} EVS MAF ${CRIT_EVS_maxMAF}+"
-    [[ ${FILTER_1KGENOMES} == 'true' ]]        && FILTER_VALUES="${FILTER_VALUES} 1K_GENOMES AF,ASN_AF,AMR_AF,AFR_AF,EUR_AF ${CRIT_1KGENOMES_maxMAF}+"
-    [[ ${FILTER_NON_CLINIC} == 'true' ]]       && FILTER_VALUES="${FILTER_VALUES} DBSNP CLN nonexist"
-    [[ ${FILTER_RECURRENCE} == 'true' ]]       && FILTER_VALUES="${FILTER_VALUES} RecurrenceInPIDs . ${CRIT_RECURRENCE}+"
-    [[ ${FILTER_LOCALCONTROL} == 'true' ]]  && FILTER_VALUES="${FILTER_VALUES} CountInLocalControl . ${CRIT_LOCALCONTROL_maxMAF}+"
+    [[ ${FILTER_ExAC} == 'true' ]]         && FILTER_VALUES="${FILTER_VALUES} ${ExAC_COL} AF ${CRIT_ExAC_maxMAF}+"
+    [[ ${FILTER_EVS} == 'true' ]]          && FILTER_VALUES="${FILTER_VALUES} ${EVS_COL} MAF ${CRIT_EVS_maxMAF}+"
+    #[[ ${FILTER_1KGENOMES} == 'true' ]]    && FILTER_VALUES="${FILTER_VALUES} ${KGENOMES_COL} AF ${CRIT_1KGENOMES_maxMAF}+"
+    #[[ ${FILTER_1KGENOMES} == 'true' ]]    && FILTER_VALUES="${FILTER_VALUES} ${KGENOMES_COL} ASN_AF ${CRIT_1KGENOMES_maxMAF}+"
+    #[[ ${FILTER_1KGENOMES} == 'true' ]]    && FILTER_VALUES="${FILTER_VALUES} ${KGENOMES_COL} AMR_AF ${CRIT_1KGENOMES_maxMAF}+"
+    #[[ ${FILTER_1KGENOMES} == 'true' ]]    && FILTER_VALUES="${FILTER_VALUES} ${KGENOMES_COL} AFR_AF ${CRIT_1KGENOMES_maxMAF}+"
+    [[ ${FILTER_1KGENOMES} == 'true' ]]    && FILTER_VALUES="${FILTER_VALUES} ${KGENOMES_COL} EUR_AF ${CRIT_1KGENOMES_maxMAF}+"
+    [[ ${FILTER_NON_CLINIC} == 'true' ]]   && FILTER_VALUES="${FILTER_VALUES} ${DBSNP_COL} CLN,COMMON nonexist,exist"
+    [[ ${FILTER_LOCALCONTROL} == 'true' ]] && FILTER_VALUES="${FILTER_VALUES} ${LOCALCONTROL_COL} . ${CRIT_LOCALCONTROL_maxMAF}+"
+    [[ ${FILTER_RECURRENCE} == 'true' ]]   && FILTER_VALUES="${FILTER_VALUES} ${RECURRENCE_COL} . ${CRIT_RECURRENCE}+"
 
     if [[ ${FILTER_VALUES} != "" ]]; then
         outputFilenamePrefix="${outputFilenamePrefix}_nocontrol"
