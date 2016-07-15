@@ -30,7 +30,7 @@
 
         <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
-        <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/All_20160408.INDEL.vcf.gz" type="path"/>
+        <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.INDEL.vcf.gz" type="path"/>
         <cvalue name="ExAC" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/ExAC/ExAC.r0.3.1.sites.vep.vcf.gz" type="path" />
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
         <cvalue name="LOCALCONTROL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
