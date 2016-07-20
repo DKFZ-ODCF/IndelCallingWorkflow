@@ -52,7 +52,6 @@
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
         <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
-        <cvalue name="GERMLINE_AVAILABLE" value="1" type="string"/>
         <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
