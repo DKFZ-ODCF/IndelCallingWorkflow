@@ -214,13 +214,13 @@ def main(args):
             infos.append("1000G")
 
         if args.no_control:
-            if help["ExAC_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["ExAC_COL"], "AF").split(','))):
+            if help["ExAC_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["ExAC_COL"], "AF").split(','))):
                 inExAC = True
                 infos.append("ExAC")
-            if help["EVS_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["EVS_COL"], "MAF").split(','))):
+            if help["EVS_COL_VALID"] and any(af > 1.0 for af in map(float, extract_info(help["EVS_COL"], "MAF").split(','))):
                 inEVS = True
                 infos.append("EVS")
-            if help["LOCALCONTROL_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_COL"], "AF").split(','))):
+            if help["LOCALCONTROL_COL_VALID"] and any(af > 0.02 for af in map(float, extract_info(help["LOCALCONTROL_COL"], "AF").split(','))):
                 inLocalControl = True
                 infos.append("LOCALCONTROL")
 

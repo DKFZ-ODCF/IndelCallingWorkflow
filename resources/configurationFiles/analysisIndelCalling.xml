@@ -31,7 +31,7 @@
         <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
         <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.INDEL.vcf.gz" type="path"/>
-        <cvalue name="ExAC" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/ExAC/ExAC.r0.3.1.sites.vep.vcf.gz" type="path" />
+        <cvalue name="ExAC" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path" />
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
         <cvalue name="LOCALCONTROL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
 
@@ -80,17 +80,17 @@
         <!--#### EXTRA ANNOTATION AND FILTERING -->
         <!--#### BELOW VALUES WILL BE NEGLECTED WHEN GERMLINE_AVAILABLE IS SET -->
             <!--## Filter switch -->
-            <cvalue name="FILTER_ExAC" value="true" type="boolean" />
-            <cvalue name="FILTER_EVS" value="true" type="boolean" />
-            <cvalue name="FILTER_1KGENOMES" value="true" type="boolean" />
+            <cvalue name="FILTER_ExAC" value="false" type="boolean" />
+            <cvalue name="FILTER_EVS" value="false" type="boolean" />
+            <cvalue name="FILTER_1KGENOMES" value="false" type="boolean" />
             <cvalue name="FILTER_RECURRENCE" value="false" type="boolean" />
-            <cvalue name="FILTER_LOCALCONTROL" value="true" type="boolean" />
-            <cvalue name="FILTER_NON_CLINIC" value="true" type="boolean" />
+            <cvalue name="FILTER_LOCALCONTROL" value="false" type="boolean" />
+            <cvalue name="FILTER_NON_CLINIC" value="false" type="boolean" />
 
             <!--## Filter criteria -->
             <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
             <cvalue name="CRIT_ExAC_maxMAF" value="0.01" type="float" />
-            <cvalue name="CRIT_EVS_maxMAF" value="0.01" type="float" />
+            <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float" />
             <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float" />
             <cvalue name="CRIT_RECURRENCE" value="7" type="integer" />
             <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float" />
