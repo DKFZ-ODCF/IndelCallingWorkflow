@@ -26,14 +26,14 @@
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
         <cvalue name='REPEAT_MASKER' value="" type="string"/>
-        <cvalue name="PLATYPUS_BINARY" value="Platypus.py"/>
+        <cvalue name="PLATYPUS_BINARY" value="Platypus-0.8.1.py"/>
 
         <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
         <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.INDEL.vcf.gz" type="path"/>
-        <cvalue name="ExAC" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path" />
+	<cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path" />
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
-        <cvalue name="LOCALCONTROL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
+	<cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
 
         <!--#>PIPE_CONFIG-->
 
