@@ -72,4 +72,8 @@ sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
 
 ${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
 
+#### Indel QC json file
+resultBasePath=`dirname ${FILENAME_VCF}`
+${PERL_BINARY} ${TOOL_PLATYPUS_INDEL_JSON} ${somatic_indels_vcf} > ${resultBasePath}/indel.json
+
 touch ${FILENAME_CHECKPOINT}

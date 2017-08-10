@@ -1,0 +1,183 @@
+library(tidyverse)
+library(optparse)
+library(grid)
+library(gridExtra)
+library(Canopy)
+library(jsonlite)
+
+### Reading in arguments
+
+option_list = list(
+  make_option(c("-f", "--file"), type="character", default=NULL, help="All base coverage file"),
+  make_option(c("-oP", "--oPlot"), type="character", default=NULL, help="Output png file path"),
+  make_option(c("-oF", "--oFile"), type="character", default=NULL, help="Output table file path"),
+  make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
+  make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
+  make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function")
+)
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+if(is.null(opt$file)) {
+  print_help(opt_parser)
+  stop("Input file name missing\n", call.=F)
+} else if (is.null(opt$oPlot)) {
+    print_help(opt_parser)
+    stop("ouput png file name missing\n", call.=F)
+} else if (is.null(opt$oFile)) {
+    print_help(opt_parser)
+    stop("ouput table file name missing\n", call.=F)
+} else if(is.null(opt$pid)) {
+    print_help(opt_parser)
+    stop("Name of the PID missing\n", call.=F)
+} else if(is.null(opt$cFunction)) {
+    print_help(opt_parser)
+    stop("Canopy updated function not provided\n", call.=F)
+}
+
+## 
+source(opt$cFunction)
+##### Data Analysis
+# read the Rare.txt file and chromosome left file
+dat<-read.delim(opt$file, header=T, sep="\t")
+chr.length <- read.table(opt$chrLength, header=T)
+
+
+# Running Canopy
+R <-as.matrix(dat[,c(7,9)])
+X <-as.matrix(dat[,c(8,10)])
+
+# Initial cluster centroid
+mu.init = cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
+                c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
+
+# Canopy run and assigning centers
+canopy.clust<-canopy.cluster(R, X, num_cluster = 11, num_run = 1, Mu.init = mu.init)
+dat$canopyCluster<-canopy.clust$sna_cluster
+
+## Select the TiN cluster
+somaticClass <- dat %>%  
+  mutate(squareRescue = Control_AF < 0.45 & Tumor_AF > 0.01) %>% 
+  mutate(diagonalRescue = Control_AF < Tumor_AF) %>% 
+  group_by(canopyCluster) %>%
+  dplyr::summarise(prop1 = mean(squareRescue == T), prop2 = mean(diagonalRescue==T)) %>% 
+  filter(prop1 > 0.85 & prop2 > 0.85) %>% 
+  select(canopyCluster) %>% collect() %>% .[[1]]
+
+
+## Trying to rescue the homozygous cluster left alone
+if(length(somaticClass) != 0) {
+  dat %>% group_by(canopyCluster) %>% 
+      summarise(max_C = max(Control_AF), med_T = quantile(Tumor_AF, 0.80)) %>% 
+      filter(canopyCluster %in% somaticClass ) %>% filter(med_T == max(med_T)) -> homo.threshold
+  
+  # Couting the total number of TiN variants if we rescue the homozygous variants we well
+  dat %>% filter((Tumor_AF > homo.threshold$med_T & 
+                   Control_AF < homo.threshold$max_C) |
+                   canopyCluster %in% somaticClass) %>% nrow() -> TiN.homo.updated
+  # Only the variants from Tin Clusters
+  dat %>% filter(canopyCluster %in% somaticClass) %>% nrow() -> TiN.not.homo.updated
+  
+  # The Rescued TiN should only add 25% more variants
+  if(TiN.homo.updated <= (TiN.not.homo.updated + (TiN.not.homo.updated/4))) {
+    dat %>% 
+      mutate(TiN_Class = ifelse((Tumor_AF > homo.threshold$med_T & 
+                                 Control_AF < homo.threshold$max_C) |
+                                  Control_AF == 0 | 
+                                canopyCluster %in% somaticClass, "Somatic_Rescue", "Germline")) -> dat
+  } else {
+    dat %>% mutate(TiN_Class = ifelse(Control_AF == 0 | 
+                                        canopyCluster %in% somaticClass, "Somatic_Rescue", "Germline")) -> dat
+  } 
+} else {
+  dat %>% mutate(TiN_Class = ifelse(Control_AF == 0, "Somatic_Rescue", "Germline")) -> dat
+}
+
+# Plot 1 with canopy cluster 
+p1 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=factor(canopyCluster)), alpha=0.5, data=dat) + 
+  theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
+  xlab("Control VAF") + ylab("Tumor VAF") + 
+  xlim(0,1) + ylim(0,1) +
+  guides(color=guide_legend("Canopy clusters")) + 
+  ggtitle(paste0("Clusters from Canopy"))
+
+# Plot 2 with TiN cluster
+p2 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=TiN_Class), alpha=0.3, data=dat) + 
+  theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
+  xlab("Control VAF") + ylab("Tumor VAF") + 
+  xlim(0,1) + ylim(0,1) +
+  guides(color=guide_legend("TiN clusters")) + 
+  ggtitle(paste0("TiN clusters"))
+  
+## function to plot linear chromosome
+plotGenome_ggplot <- function(data, Y, chr.length, colorCol) {
+  chr.length$cumShiftLength <- cumsum(as.numeric(chr.length$shiftLength))
+  chr.length$cumLength <- cumsum(as.numeric(chr.length$Length))
+  chrTotalLength <- sum(as.numeric(chr.length$Length))
+  
+  data %>% mutate(CHR=as.factor(CHR)) %>% left_join(chr.length, by="CHR") %>% 
+    mutate(cumPOS = POS + cumShiftLength) %>% 
+    ggplot() + geom_point(aes_string(x="cumPOS", y=Y, color=colorCol), shape=124) + theme_bw() + 
+    scale_x_continuous(breaks = chr.length$cumLength - (chr.length$Length/2),
+                       labels = chr.length$CHR,
+                       minor_breaks = chr.length$cumShiftLength,
+                       expand = c(0, 0)) + 
+    theme(axis.title.x = element_blank(), text = element_text(size=15),
+          panel.grid.major.x = element_line(color="lightgrey", linetype = 0),
+          panel.grid.minor.x = element_line(color="grey")) 
+}
+
+## Plot whole genome
+p3<-plotGenome_ggplot(dat, 'Control_AF', chr.length, 'TiN_Class')
+p4<-plotGenome_ggplot(dat, 'Tumor_AF', chr.length, 'TiN_Class')
+
+#### multi plotting
+# Blank region 
+#blank <- grid.rect(gp=gpar(col="white"))
+
+# Rescue info table
+#rescueInfo<-as.data.frame(table(dat$TiN_Class))
+#colnames(rescueInfo)<-c("Reclassification", "Counts")
+
+rescueInfo <- dat %>% 
+  group_by(TiN_Class) %>% 
+  summarise(Count =n(), Median_Control_VAF = formatC(median(Control_AF), digits=5, format="f"),
+                        Median_Tumor_VAF = formatC(median(Tumor_AF), digits=5, format="f"))
+
+rescueInfo.toFile <- rescueInfo
+if("Somatic_Rescue" %in% rescueInfo.toFile$TiN_Class) {
+  rescueInfo.toFile$Pid<-opt$pid
+} else {
+  rescueInfo.toFile<-rbind(rescueInfo.toFile, c("Somatic_Rescue", 0, 0, 0))
+  rescueInfo.toFile$Pid<-opt$pid
+}
+write_json(rescueInfo.toFile, path=paste0(opt$oFile, "_summary.json"))
+
+TableTheme <- gridExtra::ttheme_default(
+  core = list(fg_params=list(cex = 1, hjust=1, x=0.95)),
+  colhead = list(fg_params=list(cex = 1, hjust=1, x=0.95)),
+  rowhead = list(fg_params=list(cex = 1, hjust=1, x=0.95)))
+
+TableAnn <-tableGrob(rescueInfo, rows = c(), theme=TableTheme)
+
+PlotLayout <-rbind(c(1,2,3),
+                   c(1,2,3),
+                   c(4,4,4),
+                   c(5,5,5))
+
+### Writing as png file
+
+
+png(file = opt$oPlot, width=1500, height=800)
+grid.arrange(p1, p2, TableAnn, p3, p4, 
+             layout_matrix = PlotLayout,
+             top=textGrob(paste0('TiN Detection Analysis - TiNDA : ', opt$pid), gp=gpar(cex=2)))
+
+dev.off()
+
+# Saving the rescue table file 
+write.table(dat, file=opt$oFile, sep="\t", row.names = F, quote = F)
+
+## 
+#reg.finalizer(environment(), cleanup, onexit = FALSE)

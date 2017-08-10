@@ -16,12 +16,13 @@
         <cvalue name='PLOIDY_LEVEL' value="2" type="integer"/>
         <cvalue name='INDIVIDUAL_COUNT' value="2" type="integer"/>
         <cvalue name='CPU_COUNT' value="10" type="integer"/>
-        <cvalue name='CALL_SNP' value="0" type="integer"/>
+        <cvalue name='CALL_SNP' value="1" type="integer"/>
 
         <cvalue name='runIndelAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelDeepAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelVCFFilter' value="true" type="boolean"/>
-        <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+        <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string"
+                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
@@ -31,11 +32,18 @@
         <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
         <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.INDEL.vcf.gz" type="path"/>
-	<cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path" />
-        <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path" />
-	<cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path" />
+        <cvalue name="DBSNP_SNV" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.SNV.vcf.gz" type="path"/>
+        <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
+        <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
+        <cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path"/>
+        <cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
+        <cvalue name="LOCAL_CONTROL_COMMON_SNV" value="${hg19DatabasesDirectory}/LocalControls/pcawg_AF.All.CommonArtifacts.vcf.gz" type="path"/>
+        <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/>
+        <!--cvalue name="CHR_LENGTH_FILE" value="${indelCallingWorkflow}/chrlengths.plain.sorted.txt" type="path"/-->
+        <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string" />
+        <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string" />
 
-        <!--#>PIPE_CONFIG-->
+        <!--#>PIPE_CONFIG-->        
 
         <!--Taken from SNV base config. Needs adaption and cleanup-->
         <cvalue name='GHOSTSCRIPT_BINARY' value='/usr/bin/gs' type='path'/>
@@ -52,7 +60,8 @@
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
         <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
-        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
+                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
         <cvalue name="ALLELE_FREQ" value="0" type="integer" description="ignore SNVs with MAF below that value (rainfall plot)"/>
@@ -60,7 +69,8 @@
 
         <!--### Bias filter parameters-->
         <!--## Thresholds to determine if a field is biased. A field is biased if (and only if) its p value is smaller then biasPVal. If that is the case the bias ratio determines if it is a weak bias (ratio smaller biasRatioThreshold) or a strong bias (ratio larger biasRatioThreshold)-->
-        <cvalue name="biasPValThreshold" value="0.01" type="float" description=" probability threshold to accept bias. The p value gives the probability to observe the same or stronger bias by chance when assuming a binomial distribution with event probability of 0.5"/>
+        <cvalue name="biasPValThreshold" value="0.01" type="float"
+                description=" probability threshold to accept bias. The p value gives the probability to observe the same or stronger bias by chance when assuming a binomial distribution with event probability of 0.5"/>
         <cvalue name="biasRatioMinimum" value="0.53" type="float" description=" minimum fraction of reads in direction of bias / total variant reads we require to call a field biased"/>
         <cvalue name="biasRatioThreshold" value="0.63" type="float" description="threshold for fraction of reads in direction of bias / total variant reads above which it will be considered a strong bias"/>
         <cvalue name="nReads" value="20" type="integer" description=" number of reads in one field above which a bias is possible"/>
@@ -75,35 +85,35 @@
         <cvalue name="rVcf" value="0.1" type="float" description="max fraction of reads (reads/total reads) we tolerate in the direction opposite to the bias for it to be called an artefact"/>
 
         <!--## If GERMLINE_AVAILABLE is set, then the extra annotation & filtering step will be omitted -->
-        <cvalue name="GERMLINE_AVAILABLE" value="1" type="string"/>
+        <cvalue name="GERMLINE_AVAILABLE" value="1" type="string"/>       
 
         <!--#### EXTRA ANNOTATION AND FILTERING -->
         <!--#### BELOW VALUES WILL BE NEGLECTED WHEN GERMLINE_AVAILABLE IS SET -->
-            <!--## Filter switch -->
-            <cvalue name="FILTER_ExAC" value="false" type="boolean" />
-            <cvalue name="FILTER_EVS" value="false" type="boolean" />
-            <cvalue name="FILTER_1KGENOMES" value="false" type="boolean" />
-            <cvalue name="FILTER_RECURRENCE" value="false" type="boolean" />
-            <cvalue name="FILTER_LOCALCONTROL" value="false" type="boolean" />
-            <cvalue name="FILTER_NON_CLINIC" value="false" type="boolean" />
+        <!--## Filter switch -->
+        <cvalue name="FILTER_ExAC" value="false" type="boolean"/>
+        <cvalue name="FILTER_EVS" value="false" type="boolean"/>
+        <cvalue name="FILTER_1KGENOMES" value="false" type="boolean"/>
+        <cvalue name="FILTER_RECURRENCE" value="false" type="boolean"/>
+        <cvalue name="FILTER_LOCALCONTROL" value="false" type="boolean"/>
+        <cvalue name="FILTER_NON_CLINIC" value="false" type="boolean"/>
 
-            <!--## Filter criteria -->
-            <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
-            <cvalue name="CRIT_ExAC_maxMAF" value="0.01" type="float" />
-            <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float" />
-            <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float" />
-            <cvalue name="CRIT_RECURRENCE" value="7" type="integer" />
-            <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float" />
+        <!--## Filter criteria -->
+        <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
+        <cvalue name="CRIT_ExAC_maxMAF" value="0.01" type="float"/>
+        <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float"/>
+        <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float"/>
+        <cvalue name="CRIT_RECURRENCE" value="7" type="integer"/>
+        <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float"/>
         <!--#### END EXTRA ANNOTATION AND FILTERING -->
 
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
-            <cvalue name='MAPABILITY' value='${hg19DatabaseUCSCDirectory}/"wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path" />
-            <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path" />
-            <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg19DatabaseUCSCDirectory}/repeats/SimpleTandemRepeats_chr.bed.gz:4' type="path" />
-            <cvalue name='REPEAT_MASKER' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_RepeatMasker.bed.gz' type="path" />
-            <cvalue name='DUKE_EXCLUDED' value='${hg19DatabaseUCSCDirectory}/DukeExcluded_chr.bed.gz' type="path" />
-            <cvalue name='DAC_BLACKLIST' value='${hg19DatabaseUCSCDirectory}/DACBlacklist_chr.bed.gz' type="path" />
-            <cvalue name='SELFCHAIN' value='${hg19DatabaseUCSCDirectory}/selfChain_chr.bed.gz:4::--maxNrOfMatches=5' type="path" />
+            <cvalue name='MAPABILITY' value='${hg19DatabaseUCSCDirectory}/"wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
+            <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path"/>
+            <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg19DatabaseUCSCDirectory}/repeats/SimpleTandemRepeats_chr.bed.gz:4' type="path"/>
+            <cvalue name='REPEAT_MASKER' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_RepeatMasker.bed.gz' type="path"/>
+            <cvalue name='DUKE_EXCLUDED' value='${hg19DatabaseUCSCDirectory}/DukeExcluded_chr.bed.gz' type="path"/>
+            <cvalue name='DAC_BLACKLIST' value='${hg19DatabaseUCSCDirectory}/DACBlacklist_chr.bed.gz' type="path"/>
+            <cvalue name='SELFCHAIN' value='${hg19DatabaseUCSCDirectory}/selfChain_chr.bed.gz:4::--maxNrOfMatches=5' type="path"/>
         </configurationValueBundle>
 
         <!--#<PIPE_CONFIG:INDEL_DEEPANNOTATION
@@ -117,17 +127,17 @@
             # see also the usage report of ngs2/trunk/tools/annotate_vcf.pl
             # if any whitespaces are required, use quotation marks like in this example: #MAPABILITY="/ibios/co02/annotation/hg19/wgEncodeCrgMapabilityAlign100mer.bedGraph.gz:::-breakPointMode -aEndOffset=1"-->
         <configurationValueBundle name='PIPE_CONFIG:INDEL_DEEPANNOTATION'>
-            <cvalue name='CpGislands' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_CpG_islands.bed.gz' type="path" />
-            <cvalue name='CgiMountains' value='${assembliesHG191000GenomesDirectory}/CustomDeepAnnotation/CgiMountains_chr.bed.gz:4' type="path" />
-            <cvalue name='Enhancers' value='${hg19DatabaseUCSCDirectory}/Enhancers_Vista_2011_01_14_chr.bed.gz' type="path" />
-            <cvalue name='miRNAs_snoRNAs' value='${hg19DatabasesDirectory}/miRNA/miRNA_snoRNAs_miRBaseRelease15_chr.bed.gz' type="path" />
-            <cvalue name='miRBase18' value='${hg19DatabasesDirectory}/miRNA/miRBase_version-18_chr.bed.gz' type="path" />
-            <cvalue name='miRNAtargets' value='${hg19DatabasesDirectory}/miRNA/miRNAsites_TargetScan_BartelLab_2011_01_14_chr.bed.gz' type="path" />
-            <cvalue name='phastConsElem20bp' value='${hg19DatabaseUCSCDirectory}/phastConsElem_min20bp_chr.bed.gz:4' type="path" />
-            <cvalue name='TFBScons' value='${hg19DatabaseUCSCDirectory}/tfbsConsSites_noncoding_merged_chr.bed.gz' type="path" />
-            <cvalue name='COSMIC' value='${hg19DatabasesDirectory}/COSMIC/Cosmic_v77_hg19_coding_SNVs.bed.gz:7,8,9:1' type="path" />
-            <cvalue name='ENCODE_DNASE' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_DNase_cluster_V2.bed.gz' type="path" />
-            <cvalue name='ENCODE_TFBS' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz' type="path" />
+            <cvalue name='CpGislands' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_CpG_islands.bed.gz' type="path"/>
+            <cvalue name='CgiMountains' value='${assembliesHG191000GenomesDirectory}/CustomDeepAnnotation/CgiMountains_chr.bed.gz:4' type="path"/>
+            <cvalue name='Enhancers' value='${hg19DatabaseUCSCDirectory}/Enhancers_Vista_2011_01_14_chr.bed.gz' type="path"/>
+            <cvalue name='miRNAs_snoRNAs' value='${hg19DatabasesDirectory}/miRNA/miRNA_snoRNAs_miRBaseRelease15_chr.bed.gz' type="path"/>
+            <cvalue name='miRBase18' value='${hg19DatabasesDirectory}/miRNA/miRBase_version-18_chr.bed.gz' type="path"/>
+            <cvalue name='miRNAtargets' value='${hg19DatabasesDirectory}/miRNA/miRNAsites_TargetScan_BartelLab_2011_01_14_chr.bed.gz' type="path"/>
+            <cvalue name='phastConsElem20bp' value='${hg19DatabaseUCSCDirectory}/phastConsElem_min20bp_chr.bed.gz:4' type="path"/>
+            <cvalue name='TFBScons' value='${hg19DatabaseUCSCDirectory}/tfbsConsSites_noncoding_merged_chr.bed.gz' type="path"/>
+            <cvalue name='COSMIC' value='${hg19DatabasesDirectory}/COSMIC/Cosmic_v77_hg19_coding_SNVs.bed.gz:7,8,9:1' type="path"/>
+            <cvalue name='ENCODE_DNASE' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_DNase_cluster_V2.bed.gz' type="path"/>
+            <cvalue name='ENCODE_TFBS' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz' type="path"/>
         </configurationValueBundle>
     </configurationvalues>
     <processingTools>
@@ -149,13 +159,34 @@
             <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
             <output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="rawVCF" scriptparameter="FILENAME_VCF_RAW"/>
             <!--<output type="tuple">-->
-                <!--<output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="rawVCFConfidenceAnnotation" scriptparameter="FILENAME_VCF_OUT"/>-->
+            <!--<output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="rawVCFConfidenceAnnotation" scriptparameter="FILENAME_VCF_OUT"/>-->
             <!--</output>-->
         </tool>
+
+        <!--## SwapChecker -->
+        <tool name="checkSampleSwapScript" value="checkSampleSwap_TiN.pl" basepath="indelCallingWorkflow"/>
+        <tool name="strandBiasFilterPythonFile" value="biasFilter.py" basepath='indelCallingWorkflow'/>
+        <tool name="tumorInNormalPlotRscript" value="TiN_CanopyBasedClustering.R" basepath='indelCallingWorkflow'/>
+        <tool name="canopyClusterFunctionRscript" value="canopyCluster_updatedFunction.R" basepath='indelCallingWorkflow'/>
+        <tool name="CanopyLinearChrData" value="chrlengths.plain.sorted.txt" basepath='indelCallingWorkflow'/>
+
+        <tool name="checkSampleSwap" value="checkSampleSwap_TiN.sh" basepath="indelCallingWorkflow">
+            <resourcesets>
+                <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
+                <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
+                <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
+            </resourcesets>
+
+            <input type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" scriptparameter="FILENAME_VCF_RAW"/>
+            <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
+            <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
+            <output type="file" typeof="de.dkfz.b080.co.files.TextFile" scriptparameter="FILENAME_CHECKPOINT"/>
+        </tool>
+        <!--# SwapChecker ends here-->
         <tool name="indelAnnotation" value="platypusIndelAnnotation.sh" basepath="indelCallingWorkflow">
             <resourcesets>
-				<rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
-				<rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
+                <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
+                <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
                 <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
                 <rset size="xl" memory="8" cores="3" nodes="1" walltime="10"/>
             </resourcesets>
@@ -168,9 +199,9 @@
             </output>
         </tool>
         <tool name="indelDeepAnnotation" value="vcf_pipeAnnotator.sh" basepath="indelCallingWorkflow">
-			<resourcesets>
-				<rset size="s" memory="1" cores="3" nodes="1" walltime="2"/>
-				<rset size="m" memory="1" cores="3" nodes="1" walltime="2"/>
+            <resourcesets>
+                <rset size="s" memory="1" cores="3" nodes="1" walltime="2"/>
+                <rset size="m" memory="1" cores="3" nodes="1" walltime="2"/>
                 <rset size="l" memory="1" cores="3" nodes="1" walltime="20"/>
                 <rset size="xl" memory="8" cores="2" nodes="1" walltime="10"/>
             </resourcesets>
@@ -183,10 +214,11 @@
                 <output type="file" typeof="de.dkfz.b080.co.files.TextFile" scriptparameter="FILENAME_CHECKPOINT"/>
             </output>
         </tool>
+        <tool name="platypusIndelJson" value="indel_json_v1.0.pl" basepath="indelCallingWorkflow"/>
         <tool name="indelVcfFilter" value="filter_vcf.sh" basepath="indelCallingWorkflow">
-			<resourcesets>
-				<rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
-				<rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
+            <resourcesets>
+                <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
+                <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
                 <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
                 <rset size="xl" memory="1" cores="1" nodes="1" walltime="4"/>
             </resourcesets>
@@ -194,9 +226,9 @@
             <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILE_CONTROL_BAM"/>
             <input type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" scriptparameter="FILENAME_VCF"/>
             <!--<output type="tuple">-->
-				<output type="file" typeof="de.dkfz.b080.co.files.TextFile" scriptparameter="FILENAME_CHECKPOINT"/>
-				<!--<output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="somatic" scriptparameter="FILENAME_VCF_SOMATIC"/>-->
-                <!--<output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="somatic_functional" scriptparameter="FILENAME_VCF_SOMATIC_FUNCTIONAL"/>-->
+            <output type="file" typeof="de.dkfz.b080.co.files.TextFile" scriptparameter="FILENAME_CHECKPOINT"/>
+            <!--<output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="somatic" scriptparameter="FILENAME_VCF_SOMATIC"/>-->
+            <!--<output type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" fnpatternselectiontag="somatic_functional" scriptparameter="FILENAME_VCF_SOMATIC_FUNCTIONAL"/>-->
             <!--</output>-->
         </tool>
     </processingTools>
@@ -204,12 +236,18 @@
         <filename class='VCFFileForIndels' selectiontag="rawVCF" derivedFrom="BamFile" pattern="${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}.vcf.raw.gz"/>
         <filename class='VCFFileForIndels' selectiontag="rawVCFConfidenceAnnotation" derivedFrom="BamFile" pattern="${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}.vcf.gz"/>
         <filename class='VCFFileForIndels' derivedFrom="VCFFileForIndels" pattern="${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}.vcf.gz"/>
-        <filename class='VCFFileForIndels' selectiontag="somatic" derivedFrom='VCFFileForIndels' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}_somatic_indels_conf_${cvalue,name="MIN_CONFIDENCE_SCORE"}_to_10.vcf'/>
-        <filename class='VCFFileForIndels' selectiontag="somatic_functional" derivedFrom='VCFFileForIndels' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}_somatic_functional_indels_conf_${cvalue,name="MIN_CONFIDENCE_SCORE"}_to_10.vcf'/>
+        <filename class='VCFFileForIndels' selectiontag="somatic" derivedFrom='VCFFileForIndels'
+                  pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}_somatic_indels_conf_${cvalue,name="MIN_CONFIDENCE_SCORE"}_to_10.vcf'/>
+        <filename class='VCFFileForIndels' selectiontag="somatic_functional" derivedFrom='VCFFileForIndels'
+                  pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}_somatic_functional_indels_conf_${cvalue,name="MIN_CONFIDENCE_SCORE"}_to_10.vcf'/>
+        <!--onScriptParameter="checkSampleSwap:FILENAME_VCF_TUMOR_SOMATIC_RAW"-->
+        <!--filename class='VCFFileForIndels' derivedFrom="VCFFileForIndels" selectiontag="vcf1" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indel_${pid}_1.vcf'/-->
 
         <filename class='TextFile' onMethod="VCFFileForIndels.annotate" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${jobParameter,name="TOOL_ID"}'/>
         <filename class='TextFile' onMethod="VCFFileForIndels.deepAnnotate" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${jobParameter,name="TOOL_ID"}'/>
         <filename class='TextFile' onMethod="VCFFileForIndels.filter" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${jobParameter,name="TOOL_ID"}'/>
+
+        <filename class='TextFile' onTool="checkSampleSwap" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${jobParameter,name="TOOL_ID"}'/>
 
     </filenames>
 </configuration>

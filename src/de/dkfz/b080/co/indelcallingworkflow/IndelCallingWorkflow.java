@@ -6,6 +6,7 @@ import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValu
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.knowledge.files.BaseFile;
 import de.dkfz.roddy.knowledge.files.Tuple2;
+import de.dkfz.roddy.knowledge.files.Tuple5;
 import de.dkfz.roddy.knowledge.methods.GenericMethod;
 
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +27,8 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
         boolean runAnnotation = configurationValues.getBoolean("runIndelAnnotation", true);
 
         VCFFileForIndels rawVCF = GenericMethod.callGenericTool(COConstants.TOOL_INDEL_CALLING, bamTumorMerged, bamControlMerged);
+
+        call("checkSampleSwap", rawVCF, bamTumorMerged, bamControlMerged);
 
         if (!runAnnotation) return true;
         VCFFileForIndels vcfFileForIndels = rawVCF; //Use the raw vcf for further processing.
