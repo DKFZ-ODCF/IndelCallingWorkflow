@@ -26,7 +26,6 @@
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
         <cvalue name='REPEAT_MASKER' value="" type="string"/>
-        <cvalue name="PLATYPUS_BINARY" value="Platypus-0.8.1.py"/>
 
         <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
@@ -38,8 +37,6 @@
         <!--#>PIPE_CONFIG-->
 
         <!--Taken from SNV base config. Needs adaption and cleanup-->
-        <cvalue name='GHOSTSCRIPT_BINARY' value='/usr/bin/gs' type='path'/>
-
         <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
         <cvalue name="ExAC_COL" value="ExAC" type="string"/>
@@ -52,7 +49,8 @@
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
         <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
-        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string" description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
+                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
         <cvalue name="ALLELE_FREQ" value="0" type="integer" description="ignore SNVs with MAF below that value (rainfall plot)"/>
