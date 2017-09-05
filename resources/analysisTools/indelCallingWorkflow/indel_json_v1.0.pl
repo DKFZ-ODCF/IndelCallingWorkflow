@@ -11,6 +11,11 @@
 # - Samples details : file, pid
 # - Indel stats     : numIndels, numIns, numDels, ratioInsToDels, numSize1_3, numSize4_10, numSize11plus, percentSize1_3, percentSize4_10, percentSize11plus, 
 #
+# CHANGELOG
+#
+# v1.1
+# Bugix - the last entry had a comma
+#
 ###################################################################
 
 # Libraries
@@ -145,6 +150,6 @@ print "    \"percentInsSize4_10\": ".(100*$numInsSize4_10/$numIndels).",\n";
 print "    \"percentInsSize11plus\": ".(100*$numInsSize11plus/$numIndels).",\n";
 print "    \"percentDelsSize1_3\": ".(100*$numDelsSize1_3/$numIndels).",\n";
 print "    \"percentDelsSize4_10\": ".(100*$numDelsSize4_10/$numIndels).",\n";
-print "    \"percentDelsSize11plus\": ".(100*$numDelsSize11plus/$numIndels).",\n";
+print "    \"percentDelsSize11plus\": ".(100*$numDelsSize11plus/$numIndels)."\n";
 print "  }\n";
 print "}\n";
