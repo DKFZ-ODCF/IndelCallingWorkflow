@@ -12,7 +12,7 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function);
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType);
 
 GetOptions ("pid=s"                      => \$pid,
             "raw_file=s"                 => \$rawFile,
@@ -25,10 +25,11 @@ GetOptions ("pid=s"                      => \$pid,
             "control_bam=s"              => \$controlBAM,
             "reference=s"                => \$ref,
             "TiN_R_script=s"             => \$TiN_R,
-            "canopyFunction=s" => \$canopy_Function,
-            "chrLengthFile=s" => \$chrLengthFile,
-            "normal_header_col=s" => \$normal_header_pattern,
-            "tumor_header_col=s" => \$tumor_header_pattern)
+            "canopyFunction=s"           => \$canopy_Function,
+            "chrLengthFile=s"            => \$chrLengthFile,
+            "normal_header_col=s"        => \$normal_header_pattern,
+            "tumor_header_col=s"         => \$tumor_header_pattern,
+            "sequenceType=s"             => \$seqType)
 or die("Error in SwapChecker input parameters");
 
 die("ERROR: PID is not provided\n") unless defined $pid;
@@ -199,7 +200,7 @@ open(ANN, "<$snvsGT_gnomADFile") || die "cant open the $snvsGT_gnomADFile\n";
 open(GermlineRareFile, ">$snvsGT_germlineRare") || die "cant create the $snvsGT_germlineRare\n";
 open(GermlineRareFileText, ">$snvsGT_germlineRare_txt") || die "cant create the $snvsGT_germlineRare_txt\n";
 
-print GermlineRareFileText "CHR\tPOS\tREF\tALT\tControl_AF\tTumor_AF\tTumor_dpALT\tTumor_dp\tControl_dpALT\tControl_dp\n";
+print GermlineRareFileText "CHR\tPOS\tREF\tALT\tControl_AF\tTumor_AF\tTumor_dpALT\tTumor_dp\tControl_dpALT\tControl_dp\tRareness\n";
 
 open(SomaticFile, ">$snvsGT_somatic") || die "cant create the $snvsGT_somatic\n";
 
@@ -230,11 +231,23 @@ while(<ANN>) {
         }
       }
       else {
-	if($annLine =~ /GermlineInBoth/ && $annLine !~ /MATCH/) {
+	if($annLine =~ /GermlineInBoth/ && $annLine !~ /MATCH/ && $seqType eq 'WGS') {
 	  $json{'GermlineSNVs_HeterozygousInBoth_Rare'}++;
 	  print GermlineRareFile "$annLine\n";
-	  print GermlineRareFileText "$germlineTextInfo\n";
+	  print GermlineRareFileText "$germlineTextInfo\tRare\n";
 	}
+        elsif($annLine =~ /GermlineInBoth/ && $seqType eq 'WES') {
+          my $rareness;
+          if($annLine !~ /MATCH/) {
+            $json{'GermlineSNVs_HeterozygousInBoth_Rare'}++;
+            $rareness = "Rare";
+          }
+          else {
+            $rareness = "Common";
+          }
+          print GermlineRareFile "$annLine\n";
+          print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
+        }
       }  
     }
   }

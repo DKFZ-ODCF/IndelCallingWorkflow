@@ -27,7 +27,8 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --canopyFunction=${TOOL_CANOPY_CLUSTER_FUNCTION_RSCRIPT} \
     --chrLengthFile=${TOOL_CANOPY_LINEAR_CHR_DATA} \
     --normal_header_col=${VCF_NORMAL_HEADER_COL} \
-    --tumor_header_col=${VCF_TUMOR_HEADER_COL}
+    --tumor_header_col=${VCF_TUMOR_HEADER_COL} \
+    --sequenceType=${SEQUENCE_TYPE}
 
 ### Check the perl run was success or not
 if [[ $? == 0 ]] 

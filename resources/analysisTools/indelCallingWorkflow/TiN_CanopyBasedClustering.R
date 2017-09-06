@@ -94,6 +94,16 @@ if(length(somaticClass) != 0) {
   dat %>% mutate(TiN_Class = ifelse(Control_AF == 0, "Somatic_Rescue", "Germline")) -> dat
 }
 
+## Exome removing common variants from somatic rescue
+dat %>% filter(grepl("Somatic_Rescue", TiN_Class)) %>% 
+  mutate(TiN_Class = ifelse(grepl("Common", Rareness) & 
+                              grepl("Somatic_Rescue", TiN_Class), "Germline", "Somatic_Rescue")) -> somRes
+
+dat %>% filter(grepl("Germline", TiN_Class)) %>% 
+  rbind(somRes) -> dat
+
+dat %>% group_by(Rareness, TiN_Class) %>% summarise(count=n())
+
 # Plot 1 with canopy cluster 
 p1 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=factor(canopyCluster)), alpha=0.5, data=dat) + 
   theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
