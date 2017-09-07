@@ -11,6 +11,15 @@ getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and R
 VCF_TUMOR_HEADER_COL=`samtools view -H ${FILENAME_TUMOR_BAM} | grep -P "^@RG" | perl -ne 'chomp; @s=split(/\t/, $_) ; map{if($_=~/SM:/){$_=~/SM:(.*)/; print "$1\n"}} @s;' | sort | uniq`
 VCF_CONTROL_HEADER_COL=`samtools view -H ${FILENAME_CONTROL_BAM} | grep -P "^@RG" | perl -ne 'chomp; @s=split(/\t/, $_) ; map{if($_=~/SM:/){$_=~/SM:(.*)/; print "$1\n"}} @s;' | sort | uniq`
 
+if [[ -z $VCF_TUMOR_HEADER_COL ]] 
+then
+  VCF_TUMOR_HEADER_COL=`basename ${FILENAME_TUMOR_BAM} | sed 's/.bam$//'`
+fi
+
+if [[ -z $VCF_CONTROL_HEADER_COL ]]
+then
+  VCF_CONTROL_HEADER_COL=`basename ${FILENAME_CONTROL_BAM} | sed 's/.bam$//'`
+fi
 
 ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
