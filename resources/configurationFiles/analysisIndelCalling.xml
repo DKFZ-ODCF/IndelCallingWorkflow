@@ -43,6 +43,8 @@
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string" />
         <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string" />
         <cvalue name="SEQUENCE_TYPE" value='WGS' type='string' />
+        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path" />
+        <cvalue name="BEDTOOLS_2_24_BINARY" value='/ibios/tbi_cluster/13.1/x86_64/bin/bedtools-2.24.0' type='path' />
 
         <!--#>PIPE_CONFIG-->        
 

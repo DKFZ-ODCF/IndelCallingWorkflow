@@ -12,7 +12,7 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType);
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary);
 
 GetOptions ("pid=s"                      => \$pid,
             "raw_file=s"                 => \$rawFile,
@@ -29,7 +29,9 @@ GetOptions ("pid=s"                      => \$pid,
             "chrLengthFile=s"            => \$chrLengthFile,
             "normal_header_col=s"        => \$normal_header_pattern,
             "tumor_header_col=s"         => \$tumor_header_pattern,
-            "sequenceType=s"             => \$seqType)
+            "sequenceType=s"             => \$seqType,
+            "exome_capture_kit_bed=s"    => \$captureKit,
+            "bedtools2_24_binary=s"      => \$bedtoolsBinary)
 or die("Error in SwapChecker input parameters");
 
 die("ERROR: PID is not provided\n") unless defined $pid;
@@ -80,8 +82,19 @@ my %json = (
 );
 
 ###########
-## 
-open(my $IN, 'zcat '. $rawFile.'| ') || die "Cant read in the $rawFile.temp2\n";
+### WES vs WGS 
+# If WES filter for the seq kit
+my $updated_rawFile;
+# update in WES
+if($seqType eq 'WES') {
+   $updated_rawFile = $rawFile.".intersect.gz";
+  `$bedtoolsBinary intersect -header -a $rawFile -b $captureKit | bgzip > $updated_rawFile ; tabix -p vcf $updated_rawFile`;
+}
+elsif($seqType eq 'WGS') {
+   $updated_rawFile = $rawFile;
+}
+
+open(my $IN, 'zcat '. $updated_rawFile.'| ') || die "Cant read in the $updated_rawFile\n";
 open(JSON, ">$jsonFile") || die "Can't craete the $jsonFile\n";
 
 ## Filtering for Somatic variants and germline based on platypus genotype

@@ -37,7 +37,9 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --chrLengthFile=${TOOL_CANOPY_LINEAR_CHR_DATA} \
     --normal_header_col=${VCF_NORMAL_HEADER_COL} \
     --tumor_header_col=${VCF_TUMOR_HEADER_COL} \
-    --sequenceType=${SEQUENCE_TYPE}
+    --sequenceType=${SEQUENCE_TYPE} \
+    --exome_capture_kit_bed=${EXOME_CAPTURE_KIT_BEDFILE} \
+    --bedtools2_24_binary=${BEDTOOLS_2_24_BINARY}
 
 ### Check the perl run was success or not
 if [[ $? == 0 ]] 
