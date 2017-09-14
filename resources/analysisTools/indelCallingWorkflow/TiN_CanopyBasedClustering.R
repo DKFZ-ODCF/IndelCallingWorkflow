@@ -13,7 +13,8 @@ option_list = list(
   make_option(c("-oF", "--oFile"), type="character", default=NULL, help="Output table file path"),
   make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
   make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
-  make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function")
+  make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function"),
+  make_option(c("-t", "--SeqType"), type="character", default = NULL, help="WES or WGS")
 )
 
 opt_parser = OptionParser(option_list=option_list);
@@ -34,6 +35,9 @@ if(is.null(opt$file)) {
 } else if(is.null(opt$cFunction)) {
     print_help(opt_parser)
     stop("Canopy updated function not provided\n", call.=F)
+} else if(is.null(opt$SeqType)) {
+    print_help(opt_parser)
+    stop("Sequence type not provided\n", call.=F)
 }
 
 ## 
@@ -43,17 +47,24 @@ source(opt$cFunction)
 dat<-read.delim(opt$file, header=T, sep="\t")
 chr.length <- read.table(opt$chrLength, header=T)
 
+# Initial cluster centroid
+if(opt$SeqType == "WGS") {
+  mu.init <- cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
+                c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
+  numberCluster <- 11
+} else if(opt$SeqType == "WES") {
+  mu.init <- cbind(c(0.5, 0.02, 0.02, 0.1, 0.02), 
+                  c(0.5, 0.30, 0.5,  0.1, 0.10))
+  numberCluster <- 5
+  dat %>% filter(Rareness == "Rare") -> dat
+}
 
 # Running Canopy
 R <-as.matrix(dat[,c(7,9)])
 X <-as.matrix(dat[,c(8,10)])
 
-# Initial cluster centroid
-mu.init = cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
-                c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
-
 # Canopy run and assigning centers
-canopy.clust<-canopy.cluster(R, X, num_cluster = 11, num_run = 1, Mu.init = mu.init)
+canopy.clust<-canopy.cluster(R, X, num_cluster = numberCluster, num_run = 1, Mu.init = mu.init)
 dat$canopyCluster<-canopy.clust$sna_cluster
 
 ## Select the TiN cluster
@@ -102,7 +113,7 @@ dat %>% filter(grepl("Somatic_Rescue", TiN_Class)) %>%
 dat %>% filter(grepl("Germline", TiN_Class)) %>% 
   rbind(somRes) -> dat
 
-dat %>% group_by(Rareness, TiN_Class) %>% summarise(count=n())
+#dat %>% group_by(Rareness, TiN_Class) %>% summarise(count=n())
 
 # Plot 1 with canopy cluster 
 p1 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=factor(canopyCluster)), alpha=0.5, data=dat) + 

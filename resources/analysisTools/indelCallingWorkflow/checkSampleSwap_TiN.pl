@@ -64,21 +64,22 @@ my %json = (
   SomaticSNVsInControl => 0,
   GermlineSNVs_HeterozygousInBoth => 0,  
   GermlineSNVs_HeterozygousInBoth_Rare => 0,
-  RestOfVariant => 0,
   SomaticSNVsInTumor_CommonIn_gnomAD => 0,
   SomaticSNVsInTumor_CommonIn_gnomAD_Per => 0,
   SomaticSNVsInControl_CommonIn_gnomAD => 0,
   SomaticSNVsInControl_CommonIn_gnomAD_Per => 0,
-  SomaticSNVSInTumor_inBias => 0,
-  SomaticSNVSInTumor_inBias_Per => 0,
+  SomaticSNVsInTumor_inBias => 0,
+  SomaticSNVsInTumor_inBias_Per => 0,
   SomaticSNVsInControl_inBias => 0,
   SomaticSNVsInControl_inBias_Per => 0,
   SomaticSNVsInTumor_PASS => 0,
   SomaticSNVsInTumor_PASS_Per => 0,
   SomaticSNVsInControl_PASS => 0,
   SomaticSNVsInControl_PASS_Per => 0,
-  TumorInNormal_Germline_afterResuce => 0,
-  TumorInNormal_Somatic_afterResuce => 0
+  TiNDA_GermlineRare_afterResuce => 0,
+  TiNDA_Somatic_afterResuce => 0,
+  TiNDA_estimatedContamination => 0,
+  TiNDA_MedianRescuedSomaticAF => 0
 );
 
 ###########
@@ -124,7 +125,6 @@ while(<$IN>) {
 
       if($controlCol =~ /^$/ || $tumorCol =~ /^$/) {
         # stop if header doesn't control or tumor in the column header
-        $json{"Comment_SwapChecker"} = "VCF doesn't have control-tumor pair info in the column header";
         print JSON create_json (\%json);
         print "Normal header patter provided : $normal_header_pattern\n";
         print "Tumor header patter provided : $tumor_header_pattern\n";
@@ -179,13 +179,15 @@ while(<$IN>) {
           my $tumor_AF = $tumor_nv[$i]/$tumor_dp[$i] ;
           my $control_AF = $control_nv[$i]/$control_dp[$i] ;
 
-          if($tumor_AF > 0 && $control_AF == 0 ) {
+          if($tumor_nv[$i] > 3 && $control_AF == 0) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tTumor_Somatic\n";
+            $json{'SomaticSNVsInTumor'}++;
           }
-          elsif($tumor_AF == 0 && $control_AF > 0) {
+          elsif($tumor_AF == 0 && $control_nv[$i] > 3) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tControl_Somatic\n";
+            $json{'SomaticSNVsInControl'}++;
           }
-          else {
+          elsif($tumor_AF > 0 && $control_AF > 0) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tGermlineInBoth\n";
           }
         }
@@ -225,42 +227,40 @@ while(<ANN>) {
     print SomaticFile "$annLine\n";    
   }
   else {
-
     my @annLineSplit = split(/\t/, $annLine);
     my $start_col = $columnCounter+1;
     my $end_col = $columnCounter+6;
     my $gnomAD_col = $columnCounter+8; 
 
     my $germlineTextInfo = join("\t", @annLineSplit[0..1], @annLineSplit[3..4], @annLineSplit[$start_col..$end_col]);
-    if($annLineSplit[$gnomAD_col] =~/;FILTER=PASS|^\.$/) {
-      if($annLine=~/_Somatic/) {
-	if($annLine=~/MATCH/) {
-	  $annLine =~ s/_Somatic/_Somatic_Common/;
-	  print SomaticFile "$annLine\n"; 
-	}
-	else {
-	  $annLine =~ s/_Somatic/_Somatic_Rare/;
-	  print SomaticFile "$annLine\n";
-        }
+
+    if($annLine=~/_Somatic/) {
+      if($annLine=~/MATCH/) {
+        $annLine =~ s/_Somatic/_Somatic_Common/;
+        print SomaticFile "$annLine\n"; 
       }
       else {
-	if($annLine =~ /GermlineInBoth/ && $annLine !~ /MATCH/ && $seqType eq 'WGS') {
-	  $json{'GermlineSNVs_HeterozygousInBoth_Rare'}++;
-	  print GermlineRareFile "$annLine\n";
-	  print GermlineRareFileText "$germlineTextInfo\tRare\n";
-	}
-        elsif($annLine =~ /GermlineInBoth/ && $seqType eq 'WES') {
-          my $rareness;
-          if($annLine !~ /MATCH/) {
-            $json{'GermlineSNVs_HeterozygousInBoth_Rare'}++;
-            $rareness = "Rare";
-          }
-          else {
-            $rareness = "Common";
-          }
-          print GermlineRareFile "$annLine\n";
-          print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
+        $annLine =~ s/_Somatic/_Somatic_Rare/;
+        print SomaticFile "$annLine\n";
+      }
+    }
+    elsif($annLine=~/Germline/) {
+      if($annLine =~ /GermlineInBoth/ && $annLine !~ /MATCH/ && $seqType eq 'WGS') {
+        $json{'GermlineSNVs_HeterozygousInBoth_Rare'}++;
+        print GermlineRareFile "$annLine\n";
+	print GermlineRareFileText "$germlineTextInfo\tRare\n";
+      }
+      elsif($annLine =~ /GermlineInBoth/ && $seqType eq 'WES') {
+        my $rareness;
+        if($annLine !~ /MATCH/) {
+          $json{'GermlineSNVs_HeterozygousInBoth_Rare'}++;
+          $rareness = "Rare";
         }
+        else {
+          $rareness = "Common";
+        }
+        print GermlineRareFile "$annLine\n";
+        print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
       }  
     }
   }
@@ -273,28 +273,28 @@ close Ann;
 #######################################
 ### Finding and plotting TiN
 
-print "Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function\n" ;
+#print "Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType\n" ;
 
-my $runRscript = system("Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function" ) ;
+my $runRscript = system("Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType" ) ;
 
 if($runRscript != 0) { 
   `rm $jsonFile`;
   die "Error while running $TiN_R in swapChecker\n";
 }
  
-chomp($json{'TumorInNormal_Germline_afterResuce'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
-chomp($json{'TumorInNormal_Somatic_afterResuce'}  = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | wc -l`);
+chomp($json{'TiNDA_GermlineRare_afterResuce'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
+chomp($json{'TiNDA_Somatic_afterResuce'}  = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | wc -l`);
 
-if($json{'TumorInNormal_Somatic_afterResuce'} > 0) {
+if($json{'TiNDA_Somatic_afterResuce'} > 0) {
 
-  my $rescuedTumorAF = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | perl -lne '\$x += \$_; END { print \$x; }'`;
-  $json{'averageRescuedTumorAF'} = $rescuedTumorAF/$json{'TumorInNormal_Somatic_afterResuce'};
-  $json{'estimatedContamination'} = $json{'averageRescuedTumorAF'}*2;
+  $json{'TiNDA_MedianRescuedSomaticAF'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
+
+  $json{'TiNDA_estimatedContamination'} = $json{'TiNDA_MedianRescuedSomaticAF'}*2;
 }
 else
 {
-  $json{'averageRescuedTumorAF'} = 0;
-  $json{'estimatedContamination'} = 0;
+  $json{'TiNDA_MedianRescuedSomaticAF'} = 0;
+  $json{'TiNDA_estimatedContamination'} = 0;
 }
 
 #######################################
@@ -317,7 +317,7 @@ while(<SOM_RareBias>) {
       $json{'SomaticSNVsInTumor_CommonIn_gnomAD'}++;
     }
     elsif($_=~/Tumor_Somatic/ && $_=~/bPcr|bSeq/) {
-      $json{'SomaticSNVSInTumor_inBias'}++;
+      $json{'SomaticSNVsInTumor_inBias'}++;
     }
     elsif($_=~/Tumor_Somatic_Rare/) {
       $json{'SomaticSNVsInTumor_PASS'}++;
@@ -336,43 +336,17 @@ while(<SOM_RareBias>) {
 }
 
 ##################
-## Creating json file 
-
-if($json{'SomaticSNVsInTumor_PASS'} < $json{'SomaticSNVsInControl'}) {
-  # Potential sample swap
-
-  if($json{'SomaticSNVsInTumor_PASS'} > ($json{'SomaticSNVsInControl'} - $json{'SomaticSNVsInControl_CommonIn_gnomAD'})) {
-      # Control somatic with lots of dbSNP variants
-    $json{"Comment_SwapChecker"} = "Common-gnomAD-variants contamination in control-somatic variants.";
-  }
-  elsif($json{'SomaticSNVsInTumor_PASS'} > ($json{'SomaticSNVsInControl'} - $json{'SomaticSNVsInControl_inBias'})) {
-    # Control somatic with lots of bias variants
-     $json{"Comment_SwapChecker"} = "Bias-variants contamination among control-somatic variants.";
-  }
-  elsif($json{'SomaticSNVsInTumor_PASS'} > ($json{'SomaticSNVsInControl'} - ($json{'SomaticSNVsInControl_inBias'} + $json{'SomaticSNVsInControl_CommonIn_gnomAD'}))) {
-    # Control somatic with lots of bias and dbSNP variants 
-    $json{"Comment_SwapChecker"} = "Common-gnomAD-variants and bias-variants among control-somatic variants.";
-  }
-  else
-  {
-    ## this is $tumorGood < $controlGood
-    $json{"Comment_SwapChecker"} = "Potential tumor-control swap or Common-gnomAD/bias variants are not completely removed.";
-  }
-}
-else {
-  # No swap
-  $json{"Comment_SwapChecker"} = "No tumor-control swap detected.";
-}
+## Creating sample swap json file 
 
 ## Percentage calculations
 if($json{'SomaticSNVsInTumor'} > 0) {
   $json{'SomaticSNVsInTumor_CommonIn_gnomAD_Per'} = $json{'SomaticSNVsInTumor_CommonIn_gnomAD'}/$json{'SomaticSNVsInTumor'};
-  $json{'SomaticSNVSInTumor_inBias_Per'} = $json{'SomaticSNVSInTumor_inBias'}/$json{'SomaticSNVsInTumor'};
+  $json{'SomaticSNVsInTumor_inBias_Per'} = $json{'SomaticSNVsInTumor_inBias'}/$json{'SomaticSNVsInTumor'};
   $json{'SomaticSNVsInTumor_PASS_Per'} = $json{'SomaticSNVsInTumor_PASS'}/$json{'SomaticSNVsInTumor'};
 }
 else {
   $json{'SomaticSNVsInTumor_CommonIn_gnomAD_Per'} = 0;
-  $json{'SomaticSNVSInTumor_inBias_Per'} = 0;
+  $json{'SomaticSNVsInTumor_inBias_Per'} = 0;
   $json{'SomaticSNVsInTumor_PASS_Per'} = 0;
 }
 
