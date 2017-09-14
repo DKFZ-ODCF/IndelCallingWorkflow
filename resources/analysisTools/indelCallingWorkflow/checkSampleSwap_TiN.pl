@@ -60,26 +60,26 @@ my $jsonFile                    = $analysisBasePath."/checkSampleSwap.json"; # c
 
 my %json = (  
   pid => $pid,
-  SomaticSNVsInTumor => 0,
-  SomaticSNVsInControl => 0,
+  SomaticSmallVarsInTumor => 0,
+  SomaticSmallVarsInControl => 0,
   GermlineSNVs_HeterozygousInBoth => 0,  
   GermlineSNVs_HeterozygousInBoth_Rare => 0,
-  SomaticSNVsInTumor_CommonIn_gnomAD => 0,
-  SomaticSNVsInTumor_CommonIn_gnomAD_Per => 0,
-  SomaticSNVsInControl_CommonIn_gnomAD => 0,
-  SomaticSNVsInControl_CommonIn_gnomAD_Per => 0,
-  SomaticSNVsInTumor_inBias => 0,
-  SomaticSNVsInTumor_inBias_Per => 0,
-  SomaticSNVsInControl_inBias => 0,
-  SomaticSNVsInControl_inBias_Per => 0,
-  SomaticSNVsInTumor_PASS => 0,
-  SomaticSNVsInTumor_PASS_Per => 0,
-  SomaticSNVsInControl_PASS => 0,
-  SomaticSNVsInControl_PASS_Per => 0,
+  SomaticSmallVarsInTumor_CommonIn_gnomAD => 0,
+  SomaticSmallVarsInTumor_CommonIn_gnomAD_Per => 0,
+  SomaticSmallVarsInControl_CommonIn_gnomAD => 0,
+  SomaticSmallVarsInControl_CommonIn_gnomAD_Per => 0,
+  SomaticSmallVarsInTumor_inBias => 0,
+  SomaticSmallVarsInTumor_inBias_Per => 0,
+  SomaticSmallVarsInControl_inBias => 0,
+  SomaticSmallVarsInControl_inBias_Per => 0,
+  SomaticSmallVarsInTumor_PASS => 0,
+  SomaticSmallVarsInTumor_PASS_Per => 0,
+  SomaticSmallVarsInControl_PASS => 0,
+  SomaticSmallVarsInControl_PASS_Per => 0,
   TiNDA_GermlineRare_afterResuce => 0,
   TiNDA_Somatic_afterResuce => 0,
   TiNDA_estimatedContamination => 0,
-  TiNDA_MedianRescuedSomaticAF => 0
+  TiNDA_Somatic_afterResuce_MedianAF_inControl => 0
 );
 
 ###########
@@ -181,11 +181,11 @@ while(<$IN>) {
 
           if($tumor_nv[$i] > 3 && $control_AF == 0) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tTumor_Somatic\n";
-            $json{'SomaticSNVsInTumor'}++;
+            $json{'SomaticSmallVarsInTumor'}++;
           }
           elsif($tumor_AF == 0 && $control_nv[$i] > 3) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tControl_Somatic\n";
-            $json{'SomaticSNVsInControl'}++;
+            $json{'SomaticSmallVarsInControl'}++;
           }
           elsif($tumor_AF > 0 && $control_AF > 0) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tGermlineInBoth\n";
@@ -287,13 +287,13 @@ chomp($json{'TiNDA_Somatic_afterResuce'}  = `cat $snvsGT_germlineRare_oFile | gr
 
 if($json{'TiNDA_Somatic_afterResuce'} > 0) {
 
-  $json{'TiNDA_MedianRescuedSomaticAF'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
+  $json{'TiNDA_Somatic_afterResuce_MedianAF_inControl'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
 
-  $json{'TiNDA_estimatedContamination'} = $json{'TiNDA_MedianRescuedSomaticAF'}*2;
+  $json{'TiNDA_estimatedContamination'} = $json{'TiNDA_Somatic_afterResuce_MedianAF_inControl'}*2;
 }
 else
 {
-  $json{'TiNDA_MedianRescuedSomaticAF'} = 0;
+  $json{'TiNDA_Somatic_afterResuce_MedianAF_inControl'} = 0;
   $json{'TiNDA_estimatedContamination'} = 0;
 }
 
@@ -314,23 +314,23 @@ while(<SOM_RareBias>) {
   chomp;
   if($_!~/^#/) {
     if($_=~/Tumor_Somatic_Common/ && $_!~/bPcr|bSeq/) {
-      $json{'SomaticSNVsInTumor_CommonIn_gnomAD'}++;
+      $json{'SomaticSmallVarsInTumor_CommonIn_gnomAD'}++;
     }
     elsif($_=~/Tumor_Somatic/ && $_=~/bPcr|bSeq/) {
-      $json{'SomaticSNVsInTumor_inBias'}++;
+      $json{'SomaticSmallVarsInTumor_inBias'}++;
     }
     elsif($_=~/Tumor_Somatic_Rare/) {
-      $json{'SomaticSNVsInTumor_PASS'}++;
+      $json{'SomaticSmallVarsInTumor_PASS'}++;
     }
 
     if($_=~/Control_Somatic_Common/ && $_!~/bPcr|bSeq/) {
-      $json{'SomaticSNVsInControl_CommonIn_gnomAD'}++;    
+      $json{'SomaticSmallVarsInControl_CommonIn_gnomAD'}++;    
     }
     elsif($_=~/Control_Somatic/ && $_=~/bPcr|bSeq/) {
-      $json{'SomaticSNVsInControl_inBias'}++;
+      $json{'SomaticSmallVarsInControl_inBias'}++;
     }
     elsif($_=~/Control_Somatic_Rare/) {
-      $json{'SomaticSNVsInControl_PASS'}++;
+      $json{'SomaticSmallVarsInControl_PASS'}++;
     }   
   }
 }
@@ -339,26 +339,26 @@ while(<SOM_RareBias>) {
 ## Creating sample swap json file 
 
 ## Percentage calculations
-if($json{'SomaticSNVsInTumor'} > 0) {
-  $json{'SomaticSNVsInTumor_CommonIn_gnomAD_Per'} = $json{'SomaticSNVsInTumor_CommonIn_gnomAD'}/$json{'SomaticSNVsInTumor'};
-  $json{'SomaticSNVsInTumor_inBias_Per'} = $json{'SomaticSNVsInTumor_inBias'}/$json{'SomaticSNVsInTumor'};
-  $json{'SomaticSNVsInTumor_PASS_Per'} = $json{'SomaticSNVsInTumor_PASS'}/$json{'SomaticSNVsInTumor'};
+if($json{'SomaticSmallVarsInTumor'} > 0) {
+  $json{'SomaticSmallVarsInTumor_CommonIn_gnomAD_Per'} = $json{'SomaticSmallVarsInTumor_CommonIn_gnomAD'}/$json{'SomaticSmallVarsInTumor'};
+  $json{'SomaticSmallVarsInTumor_inBias_Per'} = $json{'SomaticSmallVarsInTumor_inBias'}/$json{'SomaticSmallVarsInTumor'};
+  $json{'SomaticSmallVarsInTumor_PASS_Per'} = $json{'SomaticSmallVarsInTumor_PASS'}/$json{'SomaticSmallVarsInTumor'};
 }
 else {
-  $json{'SomaticSNVsInTumor_CommonIn_gnomAD_Per'} = 0;
-  $json{'SomaticSNVsInTumor_inBias_Per'} = 0;
-  $json{'SomaticSNVsInTumor_PASS_Per'} = 0;
+  $json{'SomaticSmallVarsInTumor_CommonIn_gnomAD_Per'} = 0;
+  $json{'SomaticSmallVarsInTumor_inBias_Per'} = 0;
+  $json{'SomaticSmallVarsInTumor_PASS_Per'} = 0;
 }
 
-if($json{'SomaticSNVsInControl'} > 0) {
-  $json{'SomaticSNVsInControl_CommonIn_gnomAD_Per'} = $json{'SomaticSNVsInControl_CommonIn_gnomAD'}/$json{'SomaticSNVsInControl'};
-  $json{'SomaticSNVsInControl_inBias_Per'} = $json{'SomaticSNVsInControl_inBias'}/$json{'SomaticSNVsInControl'};
-  $json{'SomaticSNVsInControl_PASS_Per'} = $json{'SomaticSNVsInControl_PASS'}/$json{'SomaticSNVsInControl'};
+if($json{'SomaticSmallVarsInControl'} > 0) {
+  $json{'SomaticSmallVarsInControl_CommonIn_gnomAD_Per'} = $json{'SomaticSmallVarsInControl_CommonIn_gnomAD'}/$json{'SomaticSmallVarsInControl'};
+  $json{'SomaticSmallVarsInControl_inBias_Per'} = $json{'SomaticSmallVarsInControl_inBias'}/$json{'SomaticSmallVarsInControl'};
+  $json{'SomaticSmallVarsInControl_PASS_Per'} = $json{'SomaticSmallVarsInControl_PASS'}/$json{'SomaticSmallVarsInControl'};
 }
 else {
-  $json{'SomaticSNVsInControl_CommonIn_gnomAD_Per'} = 0;
-  $json{'SomaticSNVsInControl_inBias_Per'} = 0;
-  $json{'SomaticSNVsInControl_PASS_Per'} = 0;
+  $json{'SomaticSmallVarsInControl_CommonIn_gnomAD_Per'} = 0;
+  $json{'SomaticSmallVarsInControl_inBias_Per'} = 0;
+  $json{'SomaticSmallVarsInControl_PASS_Per'} = 0;
 
 }
 
