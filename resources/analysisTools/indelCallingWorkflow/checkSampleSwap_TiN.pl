@@ -76,9 +76,9 @@ my %json = (
   SomaticSmallVarsInTumorPassPer => 0,
   SomaticSmallVarsInControlPass => 0,
   SomaticSmallVarsInControlPassPer => 0,
-  TindaGermlineRareAfterResuce => 0,
-  TindaSomaticAfterResuce => 0,
-  TindaSomaticAfterResuceMedianAlleleFreqInControl => 0
+  TindaGermlineRareAfterRescue => 0,
+  TindaSomaticAfterRescue => 0,
+  TindaSomaticAfterRescueMedianAlleleFreqInControl => 0
 );
 
 ###########
@@ -281,17 +281,17 @@ if($runRscript != 0) {
   die "Error while running $TiN_R in swapChecker\n";
 }
  
-chomp($json{'TindaGermlineRareAfterResuce'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
-chomp($json{'TindaSomaticAfterResuce'}  = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | wc -l`);
+chomp($json{'TindaGermlineRareAfterRescue'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
+chomp($json{'TindaSomaticAfterRescue'}  = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | wc -l`);
 
-if($json{'TindaSomaticAfterResuce'} > 0) {
+if($json{'TindaSomaticAfterRescue'} > 0) {
 
-  $json{'TindaSomaticAfterResuceMedianAlleleFreqInControl'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
+  $json{'TindaSomaticAfterRescueMedianAlleleFreqInControl'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
 
 }
 else
 {
-  $json{'TindaSomaticAfterResuceMedianAlleleFreqInControl'} = 0;
+  $json{'TindaSomaticAfterRescueMedianAlleleFreqInControl'} = 0;
 }
 
 #######################################
