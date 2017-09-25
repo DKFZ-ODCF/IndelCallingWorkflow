@@ -125,7 +125,7 @@ if ($numDels ne ($numDelsSize1_3 + $numDelsSize4_10 + $numDelsSize11plus)) {die 
 # print json
 print "{\n";
 print "  \"all\": {\n";
-print "    \"file\": $indel_file,\n";
+print "    \"file\": \"$indel_file\",\n";
 print "    \"numIndels\": $numIndels,\n";
 print "    \"numIns\": $numIns,\n";
 print "    \"numDels\": $numDels,\n";
