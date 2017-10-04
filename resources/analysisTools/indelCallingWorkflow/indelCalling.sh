@@ -63,6 +63,14 @@ then
 
   grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF > 12){print $0}}' > ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt && rm ${FILENAME_VCF_RAW}.tmp.platypus
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 5
+
+  corruptLines=`wc -l ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt`
+  echo "$corruptLine corrupt lines in the platypus indel calling raw file."
+
+  if [[ $corruptLines > 10 ]]
+  then 
+    echo "Error: More than 10 corrupt lines in platypus indel calling." && exit 6
+  fi
 fi
 
 ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus
