@@ -48,23 +48,42 @@ dat<-read.delim(opt$file, header=T, sep="\t")
 chr.length <- read.table(opt$chrLength, header=T)
 
 # Initial cluster centroid
-if(opt$SeqType == "WGS") {
-  mu.init <- cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
-                c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
-  numberCluster <- 11
-} else if(opt$SeqType == "WES") {
-  mu.init <- cbind(c(0.5, 0.02, 0.02, 0.1, 0.02), 
-                  c(0.5, 0.30, 0.5,  0.1, 0.10))
-  numberCluster <- 5
-  dat %>% filter(Rareness == "Rare") -> dat
+clusterCentroid <- function (seqType){
+  if(seqType == "WGS") {
+    mu.init <- cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
+                     c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
+    numberCluster <- 11
+  } else if(seqType == "WES") {
+    mu.init <- cbind(c(0.5, 0.02, 0.02, 0.1, 0.02), 
+                     c(0.5, 0.30, 0.5,  0.1, 0.10))
+    numberCluster <- 5
+  }
+  return(list("mu.init"=mu.init, "numberCluster"=numberCluster))
 }
+
+centroid <- clusterCentroid(opt$SeqType)
 
 # Running Canopy
 R <-as.matrix(dat[,c(7,9)])
 X <-as.matrix(dat[,c(8,10)])
 
 # Canopy run and assigning centers
-canopy.clust<-canopy.cluster(R, X, num_cluster = numberCluster, num_run = 1, Mu.init = mu.init)
+canopy.clust <- tryCatch(
+  {
+  canopy.cluster(R, X, num_cluster = centroid$numberCluster, 
+                             num_run = 1, Mu.init = centroid$mu.init)
+  }, error = function(e){
+    if(opt$SeqType == "WGS") {
+    centroid <- clusterCentroid("WES")
+    print("Error catched!")
+    canopy.cluster(R, X, num_cluster = centroid$numberCluster, 
+                   num_run = 1, Mu.init = centroid$mu.init)
+    } else if(opt$SeqType == "WES") {
+      print("Error in centriod assignment in WES data")
+    }
+  }
+)
+
 dat$canopyCluster<-canopy.clust$sna_cluster
 
 ## Select the TiN cluster

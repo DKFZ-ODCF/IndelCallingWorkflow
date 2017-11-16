@@ -254,12 +254,13 @@ while(<ANN>) {
         if($annLine !~ /MATCH/) {
           $json{'germlineSmallVarsInBothRare'}++;
           $rareness = "Rare";
+        #}
+        #else {
+        #  $rareness = "Common";
+        #}
+          print GermlineRareFile "$annLine\n";
+          print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
         }
-        else {
-          $rareness = "Common";
-        }
-        print GermlineRareFile "$annLine\n";
-        print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
       }  
     }
   }
