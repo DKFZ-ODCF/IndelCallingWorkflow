@@ -27,7 +27,6 @@
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
         <cvalue name='REPEAT_MASKER' value="" type="string"/>
-        <cvalue name="PLATYPUS_BINARY" value="Platypus-0.8.1.py"/>
 
         <!--## Databases -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
@@ -49,8 +48,6 @@
         <!--#>PIPE_CONFIG-->        
 
         <!--Taken from SNV base config. Needs adaption and cleanup-->
-        <cvalue name='GHOSTSCRIPT_BINARY' value='/usr/bin/gs' type='path'/>
-
         <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
         <cvalue name="ExAC_COL" value="ExAC" type="string"/>
