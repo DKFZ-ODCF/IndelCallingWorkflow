@@ -4,7 +4,7 @@
 #PBS -l nodes=1:ppn=12
 #PBS -l mem=14g
 
-source ${CONFIG_FILE}
+#source ${CONFIG_FILE}
 set -o pipefail
 
 ### Create temporary filenames used in this script:
@@ -36,7 +36,7 @@ if [[ ${GERMLINE_AVAILABLE} == "1" ]]; then
     bamFiles="${FILENAME_CONTROL_BAM},${bamFiles}"
 fi
 
-${PYTHON_BINARY} `which ${PLATYPUS_BINARY}` callVariants \
+${PLATYPUS_BINARY} callVariants \
 	--refFile=${REFERENCE_GENOME} \
 	--output=${FILENAME_VCF_RAW}.tmp.platypus \
 	--bamFiles=${bamFiles} \

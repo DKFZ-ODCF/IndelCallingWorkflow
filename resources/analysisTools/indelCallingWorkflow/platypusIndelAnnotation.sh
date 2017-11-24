@@ -4,7 +4,7 @@
 #PBS -l nodes=1:ppn=2
 #PBS -l mem=2600m
 
-source ${CONFIG_FILE}
+#source ${CONFIG_FILE}
 
 #### first check for existence of BAM files and their indexes!
 #testing=FILES_TO_EVALUATE

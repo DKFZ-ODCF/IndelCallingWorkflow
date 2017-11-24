@@ -5,6 +5,8 @@
                listOfUsedTools="indelCalling,indelAnnotation,indelDeepAnnotation,indelVcfFilter,platypusIndelExtractor"
                usedToolFolders="indelCallingWorkflow,tools">
     <configurationvalues>
+	<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiLsf" type="string"/>
+
         <cvalue name='INDELFILE_PREFIX' value='indel_' type="string"/>
         <cvalue name='PLATYPUS_PARAMS' value="''" type="string"/>
         <cvalue name='INDEL_ANNOTATION_PADDING' value="10" type="string"/>
@@ -107,7 +109,7 @@
         <!--#### END EXTRA ANNOTATION AND FILTERING -->
 
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
-            <cvalue name='MAPABILITY' value='${hg19DatabaseUCSCDirectory}/"wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
+            <cvalue name='MAPABILITY' value='"${hg19DatabaseUCSCDirectory}/wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
             <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path"/>
             <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg19DatabaseUCSCDirectory}/repeats/SimpleTandemRepeats_chr.bed.gz:4' type="path"/>
             <cvalue name='REPEAT_MASKER' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_RepeatMasker.bed.gz' type="path"/>
@@ -141,6 +143,8 @@
         </configurationValueBundle>
     </configurationvalues>
     <processingTools>
+	<tool name="workflowEnvironment_tbiLsf" value="tbi-lsf-cluster.sh" basepath="indelCallingWorkflow/environments"/>
+
         <tool name="platypusConfidenceAnnotation" value="confidenceAnnotation_Indels.py" basepath="indelCallingWorkflow"/>
         <tool name="platypusConfidenceAnnotationNoControl" value="platypusConfidenceAnnotation_noControl.pl" basepath="indelCallingWorkflow"/>
         <tool name="platypusIndelExtractor" value="indel_extractor_v1.pl" basepath="indelCallingWorkflow"/>

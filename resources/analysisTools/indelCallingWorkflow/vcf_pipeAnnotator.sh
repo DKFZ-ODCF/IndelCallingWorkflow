@@ -4,7 +4,7 @@
 #PBS -l nodes=1:ppn=4
 #PBS -l mem=200m
 
-source ${CONFIG_FILE}
+#source ${CONFIG_FILE}
 #exit 0
 #### Check and create output file names
 #testing=FILE_NAMES
