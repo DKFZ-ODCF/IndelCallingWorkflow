@@ -292,7 +292,8 @@ def main(args):
                     filter["VAF"] = 1
 
             # Minimum base quality, read depth and genotype quality
-            if qual > 40 and tumorDP >= 10 and tumorGQ >= 20: # All quality filters are OK
+            if qual > 40 and (args.no_control or controlDP >=10) and tumorDP >= 10 and \
+                    (args.no_control or controlGQ >= 20) and tumorGQ >= 20: # All quality filters are OK
                 # Do nothing
                 pass
             elif qual > 20 and (args.no_control or controlDP >= 5) and tumorDP >= 5 and \
