@@ -58,7 +58,7 @@ canopy.cluster=function(R, X, num_cluster, num_run, Mu.init = NULL,
         if(pGrank[i]<=K){
           muk=Mu[pGrank[i],]
           for(j in 1:ncol(R)){
-            bic.temp=bic.temp+log(Tau[pGrank[i]])+r[i,j]*log(muk[j])+(x[i,j]-r[i,j])*log(1-muk[j])
+            bic.temp=bic.temp+log(Tau[pGrank[i]])+r[i,j]*log(muk[j])+(x[i,j]-r[i,j])*log(1-muk[j]+1.0e-10)
           }
         }
         if(pGrank[i]==(K+1)){
