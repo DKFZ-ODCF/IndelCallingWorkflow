@@ -40,7 +40,7 @@ canopy.cluster=function(R, X, num_cluster, num_run, Mu.init = NULL,
       }
       diff=1
       numiters=1
-      while(diff>0.001 && numiters <= 50){
+      while(diff>0.001 && numiters <= 100){
         numiters=numiters+1
         pG=canopy.cluster.Estep(Tau,Mu,r,x)
         curM=canopy.cluster.Mstep(pG,R,X,Tau_Kplus1)

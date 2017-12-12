@@ -53,12 +53,14 @@ clusterCentroid <- function (seqType){
     mu.init <- cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
                      c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
     numberCluster <- 11
+    maxControl <- 0.45
   } else if(seqType == "WES") {
     mu.init <- cbind(c(0.5, 0.02, 0.02, 0.1, 0.02), 
                      c(0.5, 0.30, 0.5,  0.1, 0.10))
     numberCluster <- 5
+    maxControl <- 0.35
   }
-  return(list("mu.init"=mu.init, "numberCluster"=numberCluster))
+  return(list("mu.init"=mu.init, "numberCluster"=numberCluster, "maxControl"=maxControl))
 }
 
 centroid <- clusterCentroid(opt$SeqType)
@@ -88,13 +90,26 @@ dat$canopyCluster<-canopy.clust$sna_cluster
 
 ## Select the TiN cluster
 somaticClass <- dat %>%  
-  mutate(squareRescue = Control_AF < 0.45 & Tumor_AF > 0.01) %>% 
+  mutate(squareRescue = Control_AF < centroid$maxControl & Tumor_AF > 0.01) %>% 
   mutate(diagonalRescue = Control_AF < Tumor_AF) %>% 
   group_by(canopyCluster) %>%
   dplyr::summarise(prop1 = mean(squareRescue == T), prop2 = mean(diagonalRescue==T)) %>% 
   filter(prop1 > 0.85 & prop2 > 0.85) %>% 
   select(canopyCluster) %>% collect() %>% .[[1]]
 
+### Removing unusual clusters
+for(cl in somaticClass){
+  cluster.size <- nrow(dat[dat$canopyCluster == cl,])
+  control.max.line <- dat[dat$canopyCluster == cl,][which.max(dat[dat$canopyCluster == cl,]$Control_AF),]
+  
+  count <- nrow(dat[dat$Control_AF <=  control.max.line$Control_AF & 
+                      dat$Tumor_AF > control.max.line$Tumor_AF & 
+                      !(dat$canopyCluster %in% somaticClass),])
+  
+  if(count > cluster.size/4){
+    somaticClass <- somaticClass[!somaticClass == cl]
+  }
+}
 
 ## Trying to rescue the homozygous cluster left alone
 if(length(somaticClass) != 0) {
