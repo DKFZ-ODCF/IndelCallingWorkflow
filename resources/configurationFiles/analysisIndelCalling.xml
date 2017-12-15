@@ -45,6 +45,9 @@
         <cvalue name="SEQUENCE_TYPE" value='WGS' type='string' />
         <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path" />
         <cvalue name="BEDTOOLS_2_24_BINARY" value='/ibios/tbi_cluster/13.1/x86_64/bin/bedtools-2.24.0' type='path' />
+        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='string' />
+        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='string' />
+        <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string' />
 
         <!--#>PIPE_CONFIG-->        
 

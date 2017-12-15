@@ -14,7 +14,9 @@ option_list = list(
   make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
   make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
   make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function"),
-  make_option(c("-t", "--SeqType"), type="character", default = NULL, help="WES or WGS")
+  make_option(c("-t", "--SeqType"), type="character", default = NULL, help="WES or WGS"),
+  make_option(c("-r", "--rightBorder"), type="character", default = NULL, help="Maximum control AF"),
+  make_option(c("-b", "--bottomBorder"), type="character", default = NULL, help="Minimum tumor AF")
 )
 
 opt_parser = OptionParser(option_list=option_list);
@@ -48,25 +50,23 @@ dat<-read.delim(opt$file, header=T, sep="\t")
 chr.length <- read.table(opt$chrLength, header=T)
 
 # Initial cluster centroid
-clusterCentroid <- function (seqType){
+clusterCentroid <- function (seqType, maxControl=0.45, minTumor=0.01){
   if(seqType == "WGS") {
     mu.init <- cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
                      c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
     numberCluster <- 11
-    maxControl <- 0.45
-    minTumor <- 0.01
   } else if(seqType == "WES") {
     mu.init <- cbind(c(0.5, 0.02, 0.02, 0.1, 0.02), 
                      c(0.5, 0.30, 0.5,  0.1, 0.10))
     numberCluster <- 5
-    maxControl <- 0.35
-    minTumor <- 0.01
+    maxControl <- 0.35 # since few points to form a stable cluster 
   }
   return(list("mu.init" = mu.init, "numberCluster"= numberCluster, 
               "maxControl" = maxControl, "minTumor" = minTumor))
 }
 
-centroid <- clusterCentroid(opt$SeqType)
+centroid <- clusterCentroid(opt$SeqType, maxControl = as.numeric(opt$rightBorder),
+                            minTumor = as.numeric(opt$bottomBorder))
 
 # Running Canopy
 R <-as.matrix(dat[,c(7,9)])
