@@ -14,7 +14,9 @@ option_list = list(
   make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
   make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
   make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function"),
-  make_option(c("-t", "--SeqType"), type="character", default = NULL, help="WES or WGS")
+  make_option(c("-t", "--SeqType"), type="character", default = NULL, help="WES or WGS"),
+  make_option(c("-r", "--rightBorder"), type="character", default = NULL, help="Maximum control AF"),
+  make_option(c("-b", "--bottomBorder"), type="character", default = NULL, help="Minimum tumor AF")
 )
 
 opt_parser = OptionParser(option_list=option_list);
@@ -48,7 +50,7 @@ dat<-read.delim(opt$file, header=T, sep="\t")
 chr.length <- read.table(opt$chrLength, header=T)
 
 # Initial cluster centroid
-clusterCentroid <- function (seqType){
+clusterCentroid <- function (seqType, maxControl=0.45, minTumor=0.01){
   if(seqType == "WGS") {
     mu.init <- cbind(c(0.5, 0.95, 0.5,  0.5,  0.5,  0.5,  0.02, 0.02, 0.02, 0.02, 0.10), 
                      c(0.5, 0.95, 0.25, 0.75, 0.95, 0.05, 0.30, 0.5,  0.95, 0.10, 0.10))
@@ -57,11 +59,14 @@ clusterCentroid <- function (seqType){
     mu.init <- cbind(c(0.5, 0.02, 0.02, 0.1, 0.02), 
                      c(0.5, 0.30, 0.5,  0.1, 0.10))
     numberCluster <- 5
+    maxControl <- 0.35 # since few points to form a stable cluster 
   }
-  return(list("mu.init"=mu.init, "numberCluster"=numberCluster))
+  return(list("mu.init" = mu.init, "numberCluster"= numberCluster, 
+              "maxControl" = maxControl, "minTumor" = minTumor))
 }
 
-centroid <- clusterCentroid(opt$SeqType)
+centroid <- clusterCentroid(opt$SeqType, maxControl = as.numeric(opt$rightBorder),
+                            minTumor = as.numeric(opt$bottomBorder))
 
 # Running Canopy
 R <-as.matrix(dat[,c(7,9)])
@@ -88,13 +93,27 @@ dat$canopyCluster<-canopy.clust$sna_cluster
 
 ## Select the TiN cluster
 somaticClass <- dat %>%  
-  mutate(squareRescue = Control_AF < 0.45 & Tumor_AF > 0.01) %>% 
+  mutate(squareRescue = Control_AF < centroid$maxControl & 
+           Tumor_AF > centroid$minTumor) %>% 
   mutate(diagonalRescue = Control_AF < Tumor_AF) %>% 
   group_by(canopyCluster) %>%
   dplyr::summarise(prop1 = mean(squareRescue == T), prop2 = mean(diagonalRescue==T)) %>% 
   filter(prop1 > 0.85 & prop2 > 0.85) %>% 
   select(canopyCluster) %>% collect() %>% .[[1]]
 
+### Removing unusual clusters
+for(cl in somaticClass){
+  cluster.size <- nrow(dat[dat$canopyCluster == cl,])
+  control.max.line <- dat[dat$canopyCluster == cl,][which.max(dat[dat$canopyCluster == cl,]$Control_AF),]
+  
+  count <- nrow(dat[dat$Control_AF <=  control.max.line$Control_AF & 
+                      dat$Tumor_AF > control.max.line$Tumor_AF & 
+                      !(dat$canopyCluster %in% somaticClass),])
+  
+  if(count > cluster.size/4){
+    somaticClass <- somaticClass[!somaticClass == cl]
+  }
+}
 
 ## Trying to rescue the homozygous cluster left alone
 if(length(somaticClass) != 0) {
@@ -134,21 +153,27 @@ dat %>% filter(grepl("Germline", TiN_Class)) %>%
 
 #dat %>% group_by(Rareness, TiN_Class) %>% summarise(count=n())
 
-# Plot 1 with canopy cluster 
+# Plot 1 with canopy cluster
+poly.df <- data.frame(x=c(0, 0, centroid$maxControl, centroid$maxControl), 
+                      y=c(centroid$minTumor, 1, 1, centroid$maxControl))
+
 p1 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=factor(canopyCluster)), alpha=0.5, data=dat) + 
   theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
   xlab("Control VAF") + ylab("Tumor VAF") + 
   xlim(0,1) + ylim(0,1) +
   guides(color=guide_legend("Canopy clusters")) + 
-  ggtitle(paste0("Clusters from Canopy"))
+  ggtitle(paste0("Clusters from Canopy")) + 
+  geom_polygon(data=poly.df, aes(x, y), alpha=0.2, fill="gold")
 
 # Plot 2 with TiN cluster
-p2 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=TiN_Class), alpha=0.3, data=dat) + 
+p2 <- ggplot() + geom_polygon(data=poly.df, aes(x, y), alpha=0.2, fill="#d8161688") + 
+  geom_point(aes(Control_AF, Tumor_AF, color=TiN_Class), alpha=0.3, data=dat) + 
   theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
   xlab("Control VAF") + ylab("Tumor VAF") + 
   xlim(0,1) + ylim(0,1) +
   guides(color=guide_legend("TiN clusters")) + 
-  ggtitle(paste0("TiN clusters"))
+  ggtitle(paste0("TiN clusters")) + 
+  geom_polygon(data=poly.df, aes(x, y), alpha=0.2, fill="gold")
   
 ## function to plot linear chromosome
 plotGenome_ggplot <- function(data, Y, chr.length, colorCol) {

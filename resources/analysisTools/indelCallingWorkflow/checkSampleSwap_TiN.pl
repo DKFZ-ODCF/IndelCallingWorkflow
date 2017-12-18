@@ -12,7 +12,7 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary);
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, $bottomBorder, $runTiNDAalone);
 
 GetOptions ("pid=s"                      => \$pid,
             "raw_file=s"                 => \$rawFile,
@@ -31,7 +31,11 @@ GetOptions ("pid=s"                      => \$pid,
             "tumor_header_col=s"         => \$tumor_header_pattern,
             "sequenceType=s"             => \$seqType,
             "exome_capture_kit_bed=s"    => \$captureKit,
-            "bedtools2_24_binary=s"      => \$bedtoolsBinary)
+            "bedtools2_24_binary=s"      => \$bedtoolsBinary,
+            "TiNDA_rightBorder:s"        => \$rightBorder,
+            "TiNDA_bottomBorder:s"       => \$bottomBorder,
+            "TiNDA_runRscript:i"         => \$runTiNDAalone)
+
 or die("Error in SwapChecker input parameters");
 
 die("ERROR: PID is not provided\n") unless defined $pid;
@@ -80,6 +84,14 @@ my %json = (
   tindaSomaticAfterRescue => 0,
   tindaSomaticAfterRescueMedianAlleleFreqInControl => 0
 );
+
+
+### 
+# if only TiNDA needs to be run
+if($runTiNDAalone==1) {
+
+  goto TiNDA;
+}
 
 ###########
 ### WES vs WGS 
@@ -270,12 +282,15 @@ close GermlineRareFile;
 close SomaticFile;
 close Ann;
 
+## if only TiNDA needs to run with annotation files already available
+TiNDA:
+
 #######################################
 ### Finding and plotting TiN
 
 #print "Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType\n" ;
 
-my $runRscript = system("Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType" ) ;
+my $runRscript = system("Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder");
 
 if($runRscript != 0) { 
   `rm $jsonFile`;

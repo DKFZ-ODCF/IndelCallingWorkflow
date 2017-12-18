@@ -39,7 +39,10 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --tumor_header_col=${VCF_TUMOR_HEADER_COL} \
     --sequenceType=${SEQUENCE_TYPE} \
     --exome_capture_kit_bed=${EXOME_CAPTURE_KIT_BEDFILE} \
-    --bedtools2_24_binary=${BEDTOOLS_2_24_BINARY}
+    --bedtools2_24_binary=${BEDTOOLS_2_24_BINARY} \
+    --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
+    --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
+    --TiNDA_runRscript=${TINDA_RUN_RSCRIPT}
 
 ### Check the perl run was success or not
 if [[ $? == 0 ]] 

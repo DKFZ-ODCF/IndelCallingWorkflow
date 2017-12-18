@@ -53,30 +53,30 @@ ${PLATYPUS_BINARY} callVariants \
 
 lineCount=`grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | cut -f 12 | sort | uniq | wc -l`
 
-if [[ $lineCount -gt 1 ]]
+if [[ $lineCount -gt 0 ]]
 then
-  (grep "#" ${FILENAME_VCF_RAW}.tmp.platypus ; grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF == 12){print $0}}') > ${FILENAME_VCF_RAW}.tmp.platypus.12
+  (grep "#" ${FILENAME_VCF_RAW}.tmp.platypus ; grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF == 11){print $0}}') > ${FILENAME_VCF_RAW}.tmp.platypus.11
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 3
 
-  ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus.12 > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus.12
+  ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus.11 > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus.11
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 4
 
-  grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF > 12){print $0}}' > ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt && rm ${FILENAME_VCF_RAW}.tmp.platypus
+  grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF > 11 ){print $0}}' > ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt && rm ${FILENAME_VCF_RAW}.tmp.platypus
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 5
 
-  corruptLines=`wc -l ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt`
+  corruptLines=`cat ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt | wc -l` 
   echo "$corruptLine corrupt lines in the platypus indel calling raw file."
 
   if [[ $corruptLines > 10 ]]
   then 
     echo "Error: More than 10 corrupt lines in platypus indel calling." && exit 6
   fi
+else 
+  ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus
+
+  [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 2
+
+  #lineCount=`zgrep -v "^#" ${FILENAME_VCF_RAW}.tmp | cut -f 12 | sort | uniq -c | wc -l`
 fi
-
-${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus
-
-[[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 2
-
-#lineCount=`zgrep -v "^#" ${FILENAME_VCF_RAW}.tmp | cut -f 12 | sort | uniq -c | wc -l`
 
 mv ${FILENAME_VCF_RAW}.tmp ${FILENAME_VCF_RAW} && ${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_RAW}
