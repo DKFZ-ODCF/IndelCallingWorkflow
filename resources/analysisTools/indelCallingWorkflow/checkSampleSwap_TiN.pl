@@ -288,9 +288,9 @@ TiNDA:
 #######################################
 ### Finding and plotting TiN
 
-#print "Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType\n" ;
+print "Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder\n";
 
-my $runRscript = system("Rscript-3.3.1 $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder");
+my $runRscript = system("Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder");
 
 if($runRscript != 0) { 
   `rm $jsonFile`;
