@@ -182,6 +182,7 @@
                 <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
                 <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
                 <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
+                <rset size="xl" memory="3" cores="3" nodes="1" walltime="24"/>
             </resourcesets>
 
             <input type="file" typeof="de.dkfz.b080.co.files.VCFFileForIndels" scriptparameter="FILENAME_VCF_RAW"/>
@@ -227,7 +228,7 @@
                 <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
                 <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
                 <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="1" cores="1" nodes="1" walltime="4"/>
+                <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
             </resourcesets>
             <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILE_TUMOR_BAM"/>
             <input type="file" typeof="de.dkfz.b080.co.files.BamFile" scriptparameter="FILE_CONTROL_BAM"/>
