@@ -31,7 +31,7 @@ GetOptions ("pid=s"                      => \$pid,
             "tumor_header_col=s"         => \$tumor_header_pattern,
             "sequenceType=s"             => \$seqType,
             "exome_capture_kit_bed=s"    => \$captureKit,
-            "bedtools2_24_binary=s"      => \$bedtoolsBinary,
+            "bedtools_binary=s"          => \$bedtoolsBinary,
             "TiNDA_rightBorder:s"        => \$rightBorder,
             "TiNDA_bottomBorder:s"       => \$bottomBorder,
             "TiNDA_runRscript:i"         => \$runTiNDAalone)

@@ -25,3 +25,5 @@ export GHOSTSCRIPT_BINARY=gs
 export PYTHON_BINARY=python
 export PERL_BINARY=perl
 export SAMTOOLS_BINARY=samtools
+export BGZIP_BINARY=bgzip
+export TABIX_BINARY=tabix
