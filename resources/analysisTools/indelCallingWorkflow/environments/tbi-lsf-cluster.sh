@@ -19,6 +19,7 @@ module load "python/2.7.9"
 module load "samtools/0.1.19"
 module load "pypy/5.8.0"
 module load "R/3.3.1"
+module load "bedtools/2.24.0"
 
 export PLATYPUS_BINARY=platypus
 export GHOSTSCRIPT_BINARY=gs
@@ -27,3 +28,4 @@ export PERL_BINARY=perl
 export SAMTOOLS_BINARY=samtools
 export BGZIP_BINARY=bgzip
 export TABIX_BINARY=tabix
+export BEDTOOLS_BINARY=bedtools
