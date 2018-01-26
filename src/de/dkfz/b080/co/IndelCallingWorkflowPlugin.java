@@ -6,8 +6,8 @@ import de.dkfz.roddy.plugins.BasePlugin;
  */
 public class IndelCallingWorkflowPlugin extends BasePlugin {
 
-    public static final String CURRENT_VERSION_STRING = "1.0.176";
-    public static final String CURRENT_VERSION_BUILD_DATE = "Thu Aug 17 10:04:28 CEST 2017";
+    public static final String CURRENT_VERSION_STRING = "1.2.177";
+    public static final String CURRENT_VERSION_BUILD_DATE = "Fri Jan 26 14:28:48 CET 2018";
 
     @Override
     public String getVersionInfo() {
