@@ -1,0 +1,36 @@
+name: IndelWorkflow-devel
+channels:
+- bioconda
+- conda-forge
+- defaults
+- r
+dependencies:
+- bedtools=2.16.2=0
+- ghostscript=9.18=1
+- htslib=1.4.1=0
+- platypus-variant=0.8.1=py27_1
+- samtools=0.1.19=2
+- bzip2=1.0.6=1
+- ca-certificates=2017.11.5=0
+- certifi=2017.11.5=py27_0
+- curl=7.55.1=0
+- krb5=1.14.2=0
+- libssh2=1.8.0=2
+- ncurses=5.9=10
+- openssl=1.0.2n=0
+- perl=5.20.3.1=2
+- pip=9.0.1=py27_1
+- python=2.7.14=4
+- readline=7.0=0
+- setuptools=38.4.0=py27_0
+- sqlite=3.20.1=2
+- tk=8.6.7=0
+- wheel=0.30.0=py27_2
+- xz=5.2.3=0
+- zlib=1.2.11=0
+- libgcc=7.2.0=h69d50b8_2
+- libgcc-ng=7.2.0=h7cc24e2_2
+- libstdcxx-ng=7.2.0=h7a57d05_2
+- system=5.8=2
+prefix: /data/kensche/work/share/miniconda3/envs/IndelWorkflow-devel
+
