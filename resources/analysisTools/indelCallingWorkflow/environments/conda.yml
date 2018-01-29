@@ -1,4 +1,4 @@
-name: IndelWorkflow-devel
+name: IndelCallingWorkflow
 channels:
 - bioconda
 - conda-forge
@@ -32,5 +32,5 @@ dependencies:
 - libgcc-ng=7.2.0=h7cc24e2_2
 - libstdcxx-ng=7.2.0=h7a57d05_2
 - system=5.8=2
-prefix: /data/kensche/work/share/miniconda3/envs/IndelWorkflow-devel
+
 
