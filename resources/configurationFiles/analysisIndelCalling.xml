@@ -23,6 +23,8 @@
         <cvalue name='runIndelAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelDeepAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelVCFFilter' value="true" type="boolean"/>
+        <cvalue name='runTinda' value="true" type="boolean" description="Check for sample swaps."/>
+
         <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string"
                 description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
