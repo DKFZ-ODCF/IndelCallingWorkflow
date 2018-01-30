@@ -4,8 +4,6 @@
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=20m
 
-source ${CONFIG_FILE}
-
 ### first check for existence of BAM files and their indexes!
 #testing=FILES_TO_EVALUATE
 #type=eval_job

@@ -27,7 +27,7 @@ source activate "${condaEnvironmentName:?No Conda environment name defined. Plea
     || (echo "Could not load Conda environment '$condaEnvironmentName'" && exit 100)
 
 export GHOSTSCRIPT_BINARY=gs
-export PLATYPUS_BINARY=
+export PLATYPUS_BINARY=platypus
 export PERL_BINARY=perl
 export PYTHON_BINARY=python
 export BGZIP_BINARY=bgzip

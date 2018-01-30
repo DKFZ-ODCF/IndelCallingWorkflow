@@ -4,7 +4,6 @@
 #PBS -l nodes=1:ppn=12
 #PBS -l mem=14g
 
-#source ${CONFIG_FILE}
 set -o pipefail
 
 ### Create temporary filenames used in this script:
@@ -12,7 +11,6 @@ useCustomScratchDir=false
 SCRATCH_DIR=${RODDY_SCRATCH}
 
 LOG_TMP=${SCRATCH_DIR}/platyLog.tmp
-mkfifo ${PLATYPIPE} ${PLATYPIPE_1} ${PLATYPIPE_2} ${PLATYPIPE_3}
 ####################################### Calling Script #################################################
 CALL_SNP=${CALL_SNP-0}
 source ${TOOL_ANALYZE_BAM_HEADER}
