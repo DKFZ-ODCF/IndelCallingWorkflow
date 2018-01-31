@@ -97,9 +97,10 @@ if [[ "$?" != 0 ]] || [[ -z "${indel_reliability_pipe}" ]]; then echo "problem w
 
 eval ${indel_reliability_pipe} > ${filenameVCFTemp}
 
-[[ "$?" != 0 ]] && \
+if [[ "$?" != 0 ]]; then
     echo "There was a non-zero exit code in the INDEL_RELIABILITY pipe; temp file ${filenameVCFTemp} not moved back" && \
     exit 5
+fi
 
 mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
 

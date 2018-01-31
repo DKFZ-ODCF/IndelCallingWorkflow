@@ -43,7 +43,8 @@
         <cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
         <cvalue name="LOCAL_CONTROL_COMMON_SNV" value="${hg19DatabasesDirectory}/LocalControls/pcawg_AF.All.CommonArtifacts.vcf.gz" type="path"/>
         <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/>
-        <!--cvalue name="CHR_LENGTH_FILE" value="${indelCallingWorkflow}/chrlengths.plain.sorted.txt" type="path"/-->
+        <cvalue name="CHROM_SIZES_FILE" value="${hg19DatabaseDirectory}/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab" type="path"
+                description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin."/>
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string" />
         <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string" />
         <cvalue name="SEQUENCE_TYPE" value='WGS' type='string' />
