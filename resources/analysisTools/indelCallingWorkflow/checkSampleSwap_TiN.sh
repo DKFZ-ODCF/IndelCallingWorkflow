@@ -1,7 +1,5 @@
 #!/bin/bash
 umask 0117
-## Config file
-#source ${CONFIG_FILE}
 
 ## Bam header analysis
 source ${TOOL_ANALYZE_BAM_HEADER}

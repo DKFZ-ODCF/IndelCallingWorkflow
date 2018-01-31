@@ -4,8 +4,6 @@
 #PBS -l nodes=1:ppn=2
 #PBS -l mem=2600m
 
-#source ${CONFIG_FILE}
-
 #### first check for existence of BAM files and their indexes!
 #testing=FILES_TO_EVALUATE
 #type=eval_job
@@ -93,7 +91,7 @@ perl ${TOOL_NEW_COLS_TO_VCF} --vcfFile="-" --newColFile=${av_cytoband} --newColH
 
 mv ${filenameVCFTemp} ${filenameVCFFinalUnzipped}
 
-indel_reliability_pipe=`${PERL_BINARY} ${TOOL_CREATEPIPES} ${filenameVCFFinalUnzipped} ${CONFIG_FILE} ${TOOL_ANNOTATE_VCF_FILE} INDEL_RELIABILITY  ${TABIX_BINARY}`
+indel_reliability_pipe=`${PERL_BINARY} ${TOOL_CREATEPIPES} ${filenameVCFFinalUnzipped} ${PARAMETER_FILE} ${TOOL_ANNOTATE_VCF_FILE} INDEL_RELIABILITY  ${TABIX_BINARY}`
 
 if [[ "$?" != 0 ]] || [[ -z "${indel_reliability_pipe}" ]]; then echo "problem when generating INDEL_RELIABILITY pipe. Exiting..."; exit 5; fi
 

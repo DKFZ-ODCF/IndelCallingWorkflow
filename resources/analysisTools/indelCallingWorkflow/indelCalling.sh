@@ -4,7 +4,6 @@
 #PBS -l nodes=1:ppn=12
 #PBS -l mem=14g
 
-#source ${CONFIG_FILE}
 set -o pipefail
 
 ### Create temporary filenames used in this script:

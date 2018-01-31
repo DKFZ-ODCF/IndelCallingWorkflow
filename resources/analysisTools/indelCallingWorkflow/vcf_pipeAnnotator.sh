@@ -4,7 +4,6 @@
 #PBS -l nodes=1:ppn=4
 #PBS -l mem=200m
 
-#source ${CONFIG_FILE}
 #exit 0
 #### Check and create output file names
 #testing=FILE_NAMES
@@ -30,7 +29,7 @@ then
 fi
 
 # create a bunch of pipes using Matthias' overlapper for multiple annotation files and do a system call with this
-pipe=`${PERL_BINARY} ${TOOL_CREATEPIPES} ${FILENAME_VCF} ${CONFIG_FILE} ${TOOL_ANNOTATE_VCF_FILE} ${PIPENAME}  ${TABIX_BINARY}`
+pipe=`${PERL_BINARY} ${TOOL_CREATEPIPES} ${FILENAME_VCF} ${PARAMETER_FILE} ${TOOL_ANNOTATE_VCF_FILE} ${PIPENAME}  ${TABIX_BINARY}`
 
 if [[ "$?" != 0 ]] || [[ -z "${pipe}" ]]; then echo "problem when generating pipe: $PIPENAME. Exiting..."; exit 2; fi
 
