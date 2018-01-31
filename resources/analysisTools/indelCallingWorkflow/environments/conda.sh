@@ -34,9 +34,4 @@ export BGZIP_BINARY=bgzip
 export TABIX_BINARY=tabix
 export BEDTOOLS_BINARY=bedtools
 export SAMTOOLS_BINARY=samtools
-
-pypy-c() {
-    pypy -c "$@"
-}
-export -f pypy-c
-export PYPY_BINARY=pypy-c
+export PYPY_BINARY=pypy
