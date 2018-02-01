@@ -1,10 +1,12 @@
-# InDel Workflow
+# Insertion-Deletion Calling Workflow for Roddy
 
-A Platypus-based insertion/deletion-detection workflow with extensive quality control additions.
+A Platypus-based insertion/deletion-detection workflow with extensive quality control additions for the workflow management system [Roddy](https://github.com/eilslabs/Roddy).
 
 ## Software Requirements
 
-Most software is available in Conda, however, you additionally need Pypy -- preferentially version >= 5. You can install it via your operating system's package manager. Alternatively, you can install a portable Pypy from [squeaky-pl](https://github.com/squeaky-pl/portable-pypy), in particular if the OS version is too old (currently we use pypy 5.8).
+Please refer to the Roddy [website](https://github.com/eilslabs/Roddy) for instructions on how to install Roddy.
+
+Most bioinformatic software required for this workflow is available in Conda, however, you additionally need Pypy -- preferentially version >= 5. You can install it via your operating system's package manager. Alternatively, you can install a portable Pypy from [squeaky-pl](https://github.com/squeaky-pl/portable-pypy), in particular if the OS version is too old (currently we use pypy 5.8).
 
 ### Conda
 
@@ -28,5 +30,45 @@ The name of the Conda environment is arbitrary but needs to be consistent with t
 
 ## Data Requirements
 
-There are quite extensive requirements in annotation etc. data required for the workflow. Please have a look at the file `resources/configurationFiles/analysisIndelCalling.xml`. Note that all VCF files need to be indexed with tabix.
+There are quite extensive requirements in annotation etc. data required for the workflow. Please have a look at the file `resources/configurationFiles/analysisIndelCalling.xml`. Note that input all VCF files need to be indexed with tabix.
 
+# Run flags / switches
+
+Switch                      Default Description
+runIndelAnnotation          true    Run the annotation step or stop the workflow before it.
+runIndelDeepAnnotation      true    Run the deep annotation step or stop the workflow before it.
+runIndelVCFFilter           true    Run the filter step or stop the workflow before it.
+runTinda                    true    Check for sample swaps with TiNDA.
+
+# Changelist
+
+* Version update to 1.2.177
+
+- Roddy 3.0 support
+- 1.2.177 is equivalent to 1.0.176-9
+- 1.2.177-1 is equivalent to 1.0.176-10.
+
+* Version update to 1.0.176-9
+
+- Fix of a bug affecting versions 1.0.176 to 1.0.176-8 that results in higher false positive rate.
+
+* Version update to 1.0.176
+
+- SNVs calling made default. 
+- Swapchecker - checks for tumor/control swap from the same PID. 
+- TiNDA - Tumor in normal detection analysis, using Canopy's EM-clustering algorithm
+
+* Version update to 1.0.168
+
+- Further checks for the platypus indel calling step are introduced. A zgrep will be performed, together with a linecount to
+  see if there are any faulty lines in the raw vcf file.
+
+* Version update to 1.0.161
+
+* Version update to 1.0.157
+
+- Move the indel calling workflow to its own plugin
+
+* Version update to 1.0.131
+
+- Change workflow class to override another execute method. This makes the workflow a bit cleaner.
