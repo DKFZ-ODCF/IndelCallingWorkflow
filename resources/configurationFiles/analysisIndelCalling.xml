@@ -5,7 +5,7 @@
                listOfUsedTools="indelCalling,indelAnnotation,indelDeepAnnotation,indelVcfFilter,platypusIndelExtractor"
                usedToolFolders="indelCallingWorkflow,tools">
     <configurationvalues>
-	<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiLsf" type="string"/>
+	<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
 
         <cvalue name='INDELFILE_PREFIX' value='indel_' type="string"/>
         <cvalue name='PLATYPUS_PARAMS' value="''" type="string"/>
@@ -147,7 +147,7 @@
         </configurationValueBundle>
     </configurationvalues>
     <processingTools>
-	<tool name="workflowEnvironment_tbiLsf" value="tbi-lsf-cluster.sh" basepath="indelCallingWorkflow/environments"/>
+	<tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="indelCallingWorkflow/environments"/>
 
         <tool name="platypusConfidenceAnnotation" value="confidenceAnnotation_Indels.py" basepath="indelCallingWorkflow"/>
         <tool name="platypusConfidenceAnnotationNoControl" value="platypusConfidenceAnnotation_noControl.pl" basepath="indelCallingWorkflow"/>
