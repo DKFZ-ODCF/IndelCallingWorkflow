@@ -94,7 +94,7 @@ while(<IN>)
 	next if($line[$col{"CONFIDENCE"}] < $minconf);
 	if($line[$col{"CLASSIFICATION"}] eq "somatic"){print SOM $_, "\n";}
 	if($line[$col{"CLASSIFICATION"}] eq "somatic" && $line[$col{"ANNOVAR_FUNCTION"}] !~ /ncRNA/ && ($line[$col{"ANNOVAR_FUNCTION"}] =~ /exonic/ || $line[$col{"ANNOVAR_FUNCTION"}] =~ /splicing/)){print COD $_, "\n";}
-	if($line[$col{"CLASSIFICATION"}] eq "somatic" && ($line[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_exonic/ && $line[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_splicing/)){print NCO $_, "\n";}
+	if($line[$col{"CLASSIFICATION"}] eq "somatic" && ($line[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_exonic/ || $line[$col{"ANNOVAR_FUNCTION"}] =~ /ncRNA_splicing/)){print NCO $_, "\n";}
 }
 
 close IN;
