@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Developed for the LSF cluster. Should also work with the PBS cluster.
 
 export HTSLIB_VERSION=1.4.1
 export HTSLIB_VERSION_PLATYPUS=1.3.1
