@@ -32,9 +32,17 @@
 
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
+
         <cvalue name='REPEAT_MASKER' value="" type="string"/>
 
-        <!--## Databases -->
+        <cvalue name="CHROM_SIZES_FILE" value="${hg19DatabaseDirectory}/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab" type="path"
+                description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin. Per chromosome counts of only A, T, C ond G IUPAC codes."/>
+
+        <!--## Databases
+
+         All .vcf.gz and .bed.gz files needs to be accompanied by a tabix index (same path + .tbi suffix).
+
+         -->
         <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
         <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.INDEL.vcf.gz" type="path"/>
         <cvalue name="DBSNP_SNV" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.SNV.vcf.gz" type="path"/>
@@ -44,33 +52,37 @@
         <cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
         <cvalue name="LOCAL_CONTROL_COMMON_SNV" value="${hg19DatabasesDirectory}/LocalControls/pcawg_AF.All.CommonArtifacts.vcf.gz" type="path"/>
         <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/>
-        <cvalue name="CHROM_SIZES_FILE" value="${hg19DatabaseDirectory}/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab" type="path"
-                description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin."/>
-        <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string" />
-        <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string" />
-        <cvalue name="SEQUENCE_TYPE" value='WGS' type='string' />
-        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path" />
-        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='string' />
-        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='string' />
-        <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string' />
+        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path"/>
 
-        <!--#>PIPE_CONFIG-->        
-
-        <!--Taken from SNV base config. Needs adaption and cleanup-->
+        <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
+        <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string"/>
         <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
         <cvalue name="ExAC_COL" value="ExAC" type="string"/>
         <cvalue name="EVS_COL" value="EVS" type="string"/>
         <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
-        <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/annotate_variation.pl' type='path'/>
+
+        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='string'/>
+        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='string'/>
+        <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string'/>
+        <cvalue name="SEQUENCE_TYPE" value='WGS' type='string'
+                description="Only required for TiNDA."/>
+
+        <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/annotate_variation.pl' type='path'
+                description="Full path to annotate_variation.pl script, which can be found in the bin/ directory in the AnnoVar distribution."/>
         <cvalue name='ANNOVAR_BUILDVER' value='hg19' type='string'/>
-        <cvalue name='ANNOVAR_DBPATH' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/humandb/' type='path'/>
-        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV19'" type='string'/>
+        <cvalue name='ANNOVAR_DBPATH' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/humandb/' type='path'
+                description="Path to humandb/ directory in the AnnoVar distribution"/>
+        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV19'" type='string'
+                description="-dbtype option used for the ANNOVAR_BINARY (see above)."/>
+
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
         <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
+
+        <!-- More configuration options -->
         <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
-                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+                description="Required in the indelAnnotation step. Max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
         <cvalue name="ALLELE_FREQ" value="0" type="integer" description="ignore SNVs with MAF below that value (rainfall plot)"/>
@@ -79,7 +91,7 @@
         <!--### Bias filter parameters-->
         <!--## Thresholds to determine if a field is biased. A field is biased if (and only if) its p value is smaller then biasPVal. If that is the case the bias ratio determines if it is a weak bias (ratio smaller biasRatioThreshold) or a strong bias (ratio larger biasRatioThreshold)-->
         <cvalue name="biasPValThreshold" value="0.01" type="float"
-                description=" probability threshold to accept bias. The p value gives the probability to observe the same or stronger bias by chance when assuming a binomial distribution with event probability of 0.5"/>
+                description="probability threshold to accept bias. The p value gives the probability to observe the same or stronger bias by chance when assuming a binomial distribution with event probability of 0.5"/>
         <cvalue name="biasRatioMinimum" value="0.53" type="float" description=" minimum fraction of reads in direction of bias / total variant reads we require to call a field biased"/>
         <cvalue name="biasRatioThreshold" value="0.63" type="float" description="threshold for fraction of reads in direction of bias / total variant reads above which it will be considered a strong bias"/>
         <cvalue name="nReads" value="20" type="integer" description=" number of reads in one field above which a bias is possible"/>
@@ -91,7 +103,8 @@
         <cvalue name="maxNumOppositeReadsSequenceWeakBias" value="0" type="integer"/>
         <cvalue name="maxNumOppositeReadsSequencingStrongBias" value="1" type="integer"/>
         <cvalue name="maxNumOppositeReadsSequenceStrongBias" value="1" type="integer"/>
-        <cvalue name="rVcf" value="0.1" type="float" description="max fraction of reads (reads/total reads) we tolerate in the direction opposite to the bias for it to be called an artefact"/>
+        <cvalue name="rVcf" value="0.1" type="float"
+                description="max fraction of reads (reads/total reads) we tolerate in the direction opposite to the bias for it to be called an artefact"/>
 
         <!--## If GERMLINE_AVAILABLE is set, then the extra annotation & filtering step will be omitted -->
         <cvalue name="GERMLINE_AVAILABLE" value="1" type="string"/>       
@@ -115,6 +128,26 @@
         <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float"/>
         <!--#### END EXTRA ANNOTATION AND FILTERING -->
 
+        <!-- PIPE_CONFIG configuration bundles are needed for the createpipes.pl script (from the COWorkflow plugin). The createpipes.pl script
+             is kind of a Bash meta-programming tool that composes a command to be run in an eval context.
+
+             Every variable value in this block has the following format:
+
+             $path:$additionalColumns:$reportLevel:$additionalCliOptions
+
+             path:                 Path to a sorted and headered, bgzipped and tabixid file.
+             additionalColumns:    Additional columns to include (default is the entry in the "name" column for bed)
+             reportLevel:          Report level for matches (default is 2)
+             additionalCliOptions: Additional command-line options to pass through to annotate_vcf.pl
+
+             Make sure to always have 4 parameters (so three ':' delimiters).
+
+             If whitespaces are required (e.g. in the additional CLI options), use quotation marks like in this example. E.g.:
+
+             #MAPABILITY="/ibios/co02/annotation/hg19/wgEncodeCrgMapabilityAlign100mer.bedGraph.gz:::-breakPointMode -aEndOffset=1"
+
+             -->
+
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
             <cvalue name='MAPABILITY' value='"${hg19DatabaseUCSCDirectory}/wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
             <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path"/>
@@ -125,16 +158,6 @@
             <cvalue name='SELFCHAIN' value='${hg19DatabaseUCSCDirectory}/selfChain_chr.bed.gz:4::--maxNrOfMatches=5' type="path"/>
         </configurationValueBundle>
 
-        <!--#<PIPE_CONFIG:INDEL_DEEPANNOTATION
-            # list of files to get deep annotation from (+ options)
-            # up to 4 variables can be used, separated by :
-            # before the = is the  name for the column in which the information will be reported
-            # afterwards, the complete path to the sorted, headered, bgzipped and tabixed file
-            # optional after the first ":" additional columns to include (default is the entry in the "name" column for bed)
-            # optional after the second ":" report level for matches (default is 2)
-            # optional after the third ":" additional options to pass through to annotate_vcf.pl
-            # see also the usage report of ngs2/trunk/tools/annotate_vcf.pl
-            # if any whitespaces are required, use quotation marks like in this example: #MAPABILITY="/ibios/co02/annotation/hg19/wgEncodeCrgMapabilityAlign100mer.bedGraph.gz:::-breakPointMode -aEndOffset=1"-->
         <configurationValueBundle name='PIPE_CONFIG:INDEL_DEEPANNOTATION'>
             <cvalue name='CpGislands' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_CpG_islands.bed.gz' type="path"/>
             <cvalue name='CgiMountains' value='${assembliesHG191000GenomesDirectory}/CustomDeepAnnotation/CgiMountains_chr.bed.gz:4' type="path"/>
@@ -148,6 +171,7 @@
             <cvalue name='ENCODE_DNASE' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_DNase_cluster_V2.bed.gz' type="path"/>
             <cvalue name='ENCODE_TFBS' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz' type="path"/>
         </configurationValueBundle>
+
     </configurationvalues>
     <processingTools>
         <tool name="workflowEnvironment_conda" value="conda.sh" basepath="indelCallingWorkflow/environments"/>

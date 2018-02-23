@@ -30,7 +30,7 @@ The name of the Conda environment is arbitrary but needs to be consistent with t
 
 ## Data Requirements
 
-There are quite extensive requirements in annotation etc. data required for the workflow. Please have a look at the file `resources/configurationFiles/analysisIndelCalling.xml`. Note that input all VCF files need to be indexed with tabix.
+There are quite extensive requirements in annotation etc. data required for the workflow. Please have a look at the file `resources/configurationFiles/analysisIndelCalling.xml`. Note that input all VCF and BED files need to be indexed with tabix.
 
 # Run flags / switches
 
