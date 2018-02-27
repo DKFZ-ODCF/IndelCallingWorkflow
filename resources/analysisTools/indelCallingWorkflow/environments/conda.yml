@@ -1,6 +1,5 @@
 name: IndelCallingWorkflow
 channels:
-- local
 - bioconda
 - conda-forge
 - defaults
@@ -9,6 +8,7 @@ dependencies:
 - bedtools=2.16.2=0
 - ghostscript=9.18=1
 - htslib=1.4.1=0
+- perl-json-create=0.24=pl5.22.0_0
 - perl-threaded=5.22.0=10
 - platypus-variant=0.8.1=py27_1
 - r-canopy=1.2.0=r3.4.1_0
@@ -125,4 +125,3 @@ dependencies:
 - libxml2=2.9.4=0
 - pango=1.40.3=1
 - system=5.8=2
-- perl-json-create=0.24=0
