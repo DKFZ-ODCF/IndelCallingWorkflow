@@ -3,7 +3,7 @@
 
 export HTSLIB_VERSION=1.4.1
 export HTSLIB_VERSION_PLATYPUS=1.3.1
-export PLATYPUS_VERSION=0.8.1
+export PLATYPUS_VERSION=0.8.1.1
 
 platypus() {
   module load "htslib/$HTSLIB_VERSION_PLATYPUS"
