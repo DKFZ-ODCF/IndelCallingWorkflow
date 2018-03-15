@@ -1,5 +1,4 @@
 #!/bin/bash
-umask 0117
 
 ## Bam header analysis
 source ${TOOL_ANALYZE_BAM_HEADER}
