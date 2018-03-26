@@ -49,7 +49,7 @@ ${PLATYPUS_BINARY} callVariants \
 
 [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 1
 
-lineCount=`grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | cut -f 12 | sort | uniq | wc -l`
+lineCount=`grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | cut -f 12 | sort | uniq | grep -v '^$' | wc -l`
 echo "Number of corrupt rows: $lineCount"
 
 if [[ $lineCount -gt 0 ]]
