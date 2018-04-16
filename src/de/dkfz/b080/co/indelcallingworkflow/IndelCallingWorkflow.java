@@ -8,6 +8,7 @@ import de.dkfz.roddy.knowledge.files.BaseFile;
 import de.dkfz.roddy.knowledge.files.Tuple2;
 import de.dkfz.roddy.knowledge.files.Tuple5;
 import de.dkfz.roddy.knowledge.methods.GenericMethod;
+import de.dkfz.roddy.tools.LoggerWrapper;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -15,6 +16,8 @@ import java.lang.reflect.InvocationTargetException;
  * Indel calling based on the platypus pipeline.
  */
 public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
+
+    private static LoggerWrapper logger = LoggerWrapper.getLogger(IndelCallingWorkflow.class.getName());
 
     @Override
     public boolean execute(ExecutionContext context, BasicBamFile _bamControlMerged, BasicBamFile _bamTumorMerged) {
@@ -26,6 +29,12 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
         boolean runDeepAnnotation = configurationValues.getBoolean("runIndelDeepAnnotation", true);
         boolean runAnnotation = configurationValues.getBoolean("runIndelAnnotation", true);
         boolean runTinda = configurationValues.getBoolean("runTinda", true);
+        boolean runGermline = configurationValues.getBoolean("GERMLINE_AVAILABLE", true);
+
+        if (!runGermline && runTinda) {
+            logger.always("Not running Tinda, since no germline.");
+            runTinda = false;
+        }
 
         VCFFileForIndels rawVCF = GenericMethod.callGenericTool(COConstants.TOOL_INDEL_CALLING, bamTumorMerged, bamControlMerged);
 
