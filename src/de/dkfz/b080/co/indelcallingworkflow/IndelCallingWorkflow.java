@@ -4,6 +4,7 @@ import de.dkfz.b080.co.common.WorkflowUsingMergedBams;
 import de.dkfz.b080.co.files.*;
 import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
 import de.dkfz.roddy.core.ExecutionContext;
+import de.dkfz.roddy.core.ExecutionContextError;
 import de.dkfz.roddy.knowledge.files.BaseFile;
 import de.dkfz.roddy.knowledge.files.Tuple2;
 import de.dkfz.roddy.knowledge.files.Tuple5;
@@ -29,9 +30,9 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
         boolean runDeepAnnotation = configurationValues.getBoolean("runIndelDeepAnnotation", true);
         boolean runAnnotation = configurationValues.getBoolean("runIndelAnnotation", true);
         boolean runTinda = configurationValues.getBoolean("runTinda", true);
-        boolean runGermline = configurationValues.getBoolean("GERMLINE_AVAILABLE", true);
+        String runGermline = configurationValues.getString("GERMLINE_AVAILABLE", "1");
 
-        if (!runGermline && runTinda) {
+        if (runGermline.equals("0") && runTinda) {
             logger.always("Not running Tinda, since no germline.");
             runTinda = false;
         }
@@ -52,4 +53,17 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
 
         return true;
     }
+
+    @Override
+    public boolean checkExecutability(ExecutionContext context) {
+        boolean result = super.checkExecutability(context);
+        String runGermline = context.getConfiguration().getConfigurationValues().getString("GERMLINE_AVAILABLE", "1");
+        if (!runGermline.equals("0") && !runGermline.equals("1")) {
+            context.addErrorEntry(ExecutionContextError.EXECUTION_SETUP_INVALID.
+                    expand("GERMLINE_AVAILABLE needs to be 0 or 1. Found invalid value '" + runGermline + "'"));
+            result = false;
+        }
+        return result;
+    }
+
 }
