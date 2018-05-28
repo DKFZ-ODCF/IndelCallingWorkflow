@@ -5,16 +5,16 @@ import de.dkfz.roddy.knowledge.files.BaseFile;
 /**
  * Created by heinold on 15.01.16.
  */
-public class BamFile extends BasicBamFile {
-    public BamFile(ConstructionHelperForBaseFiles helper) {
+public class TumorBamFile extends BasicBamFile {
+    public TumorBamFile(ConstructionHelperForBaseFiles helper) {
         super(helper);
     }
 
-    public BamFile(BaseFile parent) {
+    public TumorBamFile(BaseFile parent) {
         super(parent);
     }
 
-    public BamFile(BasicBamFile parent) {
+    public TumorBamFile(BasicBamFile parent) {
         super(parent);
     }
 }

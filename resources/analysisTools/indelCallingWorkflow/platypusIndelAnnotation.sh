@@ -113,7 +113,7 @@ tumor_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_TUMOR_BAM} | grep -m 1 SM: |
 target=/dev/null
 [[ ${runOnPancan-false} == true ]] && target=${filenameVCFPancanTemp}
 
-if [[ ${GERMLINE_AVAILABLE} == "1" ]]; then
+if [[ ${isControlWorkflow} == true ]]; then
     control_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_CONTROL_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
     ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --infile=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 else

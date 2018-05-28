@@ -29,7 +29,7 @@ PLATYPUS_MAX_READS=${PLATYPUS_MAX_READS-5000000}
 
 [[ ! -e ${FILENAME_TUMOR_BAM} ]] && echo "Tumor bam is missing or not right." && exit 201
 bamFiles=${FILENAME_TUMOR_BAM}
-if [[ ${GERMLINE_AVAILABLE} == "1" ]]; then
+if [[ ${isControlWorkflow} == true ]]; then
     [[ ! -e ${FILENAME_CONTROL_BAM} ]] && echo "Control bam is missing or not right." && exit 200
     bamFiles="${FILENAME_CONTROL_BAM},${bamFiles}"
 fi
