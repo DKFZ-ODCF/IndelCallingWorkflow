@@ -56,6 +56,8 @@ my $snvsGT_germlineRare        = $analysisBasePath."/snvs_${pid}.GTfiltered_gnom
 my $snvsGT_germlineRare_txt    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.txt";
 my $snvsGT_germlineRare_png    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.png";
 my $snvsGT_germlineRare_oFile  = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.txt";
+my $snvsGT_germlineRare_oVCF   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf";
+my $snvsGT_germlineRare_oVCF_annovar   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
 my $snvsGT_somaticRareBiasFile = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.SomaticIn.Rare.BiasFiltered.vcf";
 my $jsonFile                    = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
 
@@ -309,6 +311,17 @@ else
 {
   $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = 0;
 }
+
+#######################################
+### Annovar annotations
+#
+`cat $snvsGT_germlineRare_oVCF | perl \$TOOL_VCF_TO_ANNOVAR > $snvsGT_germlineRare_oVCF.forAnnovar.bed`;
+
+`\${ANNOVAR_BINARY} --buildver=\${ANNOVAR_BUILDVER} \${ANNOVAR_DBTYPE} $snvsGT_germlineRare_oVCF.forAnnovar.bed \${ANNOVAR_DBPATH}`;
+
+`perl \${TOOL_PROCESS_ANNOVAR} $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function > $snvsGT_germlineRare_oVCF.forAnnovar.temp`;
+
+`perl \${TOOL_NEW_COLS_TO_VCF} -vcfFile=$snvsGT_germlineRare_oVCF --newColFile=$snvsGT_germlineRare_oVCF.forAnnovar.temp --newColHeader=ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS --reportColumns=3,4,5,6 --bChrPosEnd=0,1,2 > $snvsGT_germlineRare_oVCF_annovar`;
 
 #######################################
 ## Running Bias Filters
