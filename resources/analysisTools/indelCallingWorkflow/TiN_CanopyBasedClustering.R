@@ -11,6 +11,8 @@ option_list = list(
   make_option(c("-f", "--file"), type="character", default=NULL, help="All base coverage file"),
   make_option(c("-oP", "--oPlot"), type="character", default=NULL, help="Output png file path"),
   make_option(c("-oF", "--oFile"), type="character", default=NULL, help="Output table file path"),
+  make_option(c("-v", "--vcf"), type="character", default=NULL, help="input vcf file"),
+  make_option(c("-oV", "--Ovcf"), type="character", default=NULL, help="out vcf file"),
   make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
   make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
   make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function"),
@@ -40,8 +42,13 @@ if(is.null(opt$file)) {
 } else if(is.null(opt$SeqType)) {
     print_help(opt_parser)
     stop("Sequence type not provided\n", call.=F)
+} else if(is.null(opt$vcf)){
+    print_help(opt_parser)
+    stop("Rare vcf file missing")
+} else if(is.null(opt$Ovcf)) {
+    print_help(opt_parser)
+    stop("Rare vcf out file missing")
 }
-
 ## 
 source(opt$cFunction)
 ##### Data Analysis
@@ -246,3 +253,14 @@ write.table(dat, file=opt$oFile, sep="\t", row.names = F, quote = F)
 
 ## 
 #reg.finalizer(environment(), cleanup, onexit = FALSE)
+
+###############################################################################
+## TiN classification to the vcf file
+library(vcfR)
+vcf <- read.vcfR(opt$vcf)
+vcf <- as.data.frame(cbind(vcf@fix, vcf@gt))
+vcf$POS <- as.integer(as.character(vcf$POS))
+vcf %>% left_join(dat %>% select(CHR:ALT, TiN_Class) %>% rename("CHROM"="CHR")) %>%
+  rename("#CHROM"="CHROM")  %>%
+  write_tsv(opt$Ovcf, na=".")
+
