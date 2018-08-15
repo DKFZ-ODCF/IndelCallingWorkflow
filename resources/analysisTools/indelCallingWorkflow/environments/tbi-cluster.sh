@@ -21,6 +21,7 @@ module load "samtools/0.1.19"
 module load "pypy/5.8.0"
 module load "R/3.3.1"
 module load "bedtools/2.24.0"
+module load "gdc/6.3.0"
 
 export PLATYPUS_BINARY=platypus
 export GHOSTSCRIPT_BINARY=gs
