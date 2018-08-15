@@ -220,7 +220,6 @@ if($runAnnotation != 0 ) {
   `rm $jsonFile`;
   die("ERROR: In the allele frequency annotation step\n") ;
 }
-
 ####### Germline file and rare variant filtering
 
 open(ANN, "<$snvsGT_gnomADFile") || die "cant open the $snvsGT_gnomADFile\n";
@@ -290,9 +289,9 @@ TiNDA:
 #######################################
 ### Finding and plotting TiN
 
-print "Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder\n";
+print "Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder --vcf $snvsGT_germlineRare --Ovcf $snvsGT_germlineRare_oVCF\n";
 
-my $runRscript = system("Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder");
+my $runRscript = system("Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder --vcf $snvsGT_germlineRare --Ovcf $snvsGT_germlineRare_oVCF\n");
 
 if($runRscript != 0) { 
   `rm $jsonFile`;
@@ -394,3 +393,5 @@ close JSON;
 ######################################
 #### Cleaning up files 
 `rm $snvsGT_RawFile $snvsGT_gnomADFile`;
+`rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
+`rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
