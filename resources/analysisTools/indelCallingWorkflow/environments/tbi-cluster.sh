@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+
 # Developed for the LSF cluster. Should also work with the PBS cluster.
 
 export HTSLIB_VERSION=1.4.1

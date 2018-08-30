@@ -1,5 +1,9 @@
 #!/bin/bash
-
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
 #PBS -l walltime=20:00:00
 #PBS -l nodes=1:ppn=2
 #PBS -l mem=2600m

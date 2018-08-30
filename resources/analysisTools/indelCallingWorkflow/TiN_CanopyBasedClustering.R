@@ -1,3 +1,10 @@
+#!/usr/bin/env Rscript
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the GPL-2/3 License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+
 library(tidyverse)
 library(optparse)
 library(grid)

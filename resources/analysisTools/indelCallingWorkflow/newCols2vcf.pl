@@ -1,5 +1,9 @@
 #!/usr/bin/env perl
-
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
 ### This script adds columns to a vcf file (or updates them if columns with these names are already present).
 ### Both files must be sorted in the same order (including chromosomal order).
 ### It is for exact matches, e.g. to merge annovar output to a vcf.

@@ -1,4 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+
 
 # This script generates a png file for each entry in a VCF file. The file
 # displays the reads in a bam file around the VCF entry (+-WINDOW_SIZE).

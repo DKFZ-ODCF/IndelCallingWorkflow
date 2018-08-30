@@ -8,7 +8,7 @@ setup(
   author="Matthias Bieg",
   author_email="m.bieg@dkfz.de",
   description="Tool annotating PCR and sequencing biases to somatic mutations.",
-  license="GPL verion 3",
+  license="GPL version 3",
   maintainer="Matthias Bieg",
   maintainer_email="m.bieg@dkfz.de",
   py_modules=["readbiasfunctions", "readbiasplots"],

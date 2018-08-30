@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+
 # Author: Jeongbin Park
 # Purpose: Filter out rows from VCF files based on column values
 # Usage: vcf_filter_by_crit.py input.vcf[.gz] output.vcf HEADER1 KEY1 CRIT1 HEADER2 KEY2 CRIT2 ...

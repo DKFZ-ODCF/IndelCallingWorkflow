@@ -1,5 +1,10 @@
-#!/usr/bin/perl 
-############ 
+#!/usr/bin/env perl
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+#############
 ## Author: Nagarajan Paramasivam
 ## Program to 
 ###  1. Check for Tumor-Control sample swap from same individual

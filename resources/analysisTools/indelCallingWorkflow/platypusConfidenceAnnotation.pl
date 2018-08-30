@@ -1,6 +1,11 @@
-#!usr/bin/perl
-# Confidene calculation for cancer sample
-
+#!/usr/bin/perl
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+# Confidence calculation for cancer sample
+#
 # perl /home/buchhalt/scripts/PlatypusPipeline/parsePlatypusResults.pl --fileName=indelMB99_CNAG.vcf --pid=MB99_CNAG --outFile=indelMB99_CNAG.filtered.vcf --controlColName=sample_control_MB99_CNAG --tumorColName=sample_tumor_MB99_CNAG --debug=1
 # awk '{FS="\t"}{if($1!~/^#/ && $39>7 && $1!~/37/)print $0}' indelMB99_CNAG.filtered.vcf > indelMB99_CNAG.conf_8_to_10.vcf
 

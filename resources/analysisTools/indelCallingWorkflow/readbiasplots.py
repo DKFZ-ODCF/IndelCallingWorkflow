@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+
 """
         This module provides access to plot functions used for visualizing
         read biases in DNA mutations detected from NGS data.

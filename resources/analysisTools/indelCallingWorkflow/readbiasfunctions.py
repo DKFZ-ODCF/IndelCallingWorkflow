@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the GPL-3 License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
 """
 	This module provides access to functions used for the calculation
 	of sequence read biases in DNA mutations detected from NGS data.

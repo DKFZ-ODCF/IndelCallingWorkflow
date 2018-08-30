@@ -1,5 +1,9 @@
-#!usr/bin/perl
-
+#!/usr/bin/env perl
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
 # By Ivo Buchhalter
 # Hard coded script to extract indels in the snv pipeline
 # Extracts: somatic indels -> indels_PID_somtatic_indels_conf_?_to_10.vcf

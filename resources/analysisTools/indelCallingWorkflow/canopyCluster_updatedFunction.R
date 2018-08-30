@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the GPL-3 License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
+
 # Forked from original code to update below condition, so no infinite looping in some samples
 #  while(diff>0.001 && numiters <= 50)
 canopy.cluster=function(R, X, num_cluster, num_run, Mu.init = NULL,

@@ -1,4 +1,9 @@
-#!python
+#!/usr/bin/env python
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the GPL-3 License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+#
 """Bootstrap distribute installation
 
 If you want to use setuptools in your package's setup.py, just include this
