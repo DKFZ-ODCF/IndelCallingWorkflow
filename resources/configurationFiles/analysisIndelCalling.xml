@@ -83,7 +83,7 @@
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
         
         <!-- gnomAD files for no-control workflow -->
-        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.1-22-X.INDELs.All.vcf.gz" />
+        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.INDELs.All.vcf.gz" />
         <cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.exomes.r2.0.1.sites.INDELs.vcf.gz" />
  
         <!-- More configuration options -->
