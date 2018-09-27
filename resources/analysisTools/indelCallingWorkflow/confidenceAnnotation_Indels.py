@@ -19,10 +19,13 @@ def extract_info(info, keys, sep=";"):
         rtn = []
         for key in keys:
             rtn.append(info_kv.get(key, None))
+        rtn = [0 if i == 'None' else i for i in rtn]
         return rtn
 
     if type(keys) is str:
-        return info_kv.get(keys, None)
+        rtn = info_kv.get(keys, None) 
+        rtn = 0 if rtn == "None" else rtn
+        return rtn
 
 def main(args):
     if not args.no_makehead:
