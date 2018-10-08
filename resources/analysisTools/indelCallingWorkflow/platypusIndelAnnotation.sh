@@ -52,7 +52,7 @@ cmdAnnotation="zcat ${FILENAME_VCF_RAW} | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName=${EVS_COL} --bFileType vcf | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WES_ALL_INDEL} --columnName=${GNOMAD_WES_COL} --bFileType vcf | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WGS_ALL_INDEL} --columnName=${GNOMAD_WGS_COL} --bFileType vcf | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName=${LOCALCONTROL_COL} --bReportColumn 5 --reportMatchType --minOverlapFraction 1 --bFileType vcf | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName=${LOCALCONTROL_COL} --reportMatchType --minOverlapFraction 1 --bFileType vcf --reportLevel 4| \
     ${PYPY_BINARY} -u ${TOOL_ONLY_EXTRACT_MATCH} | \
     tee ${filenameVCFTemp} | perl ${TOOL_VCF_TO_ANNOVAR} ${CHR_PREFIX} ${CHR_SUFFIX} > ${FOR_ANNOVAR}.tmp"
 
