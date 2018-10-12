@@ -60,6 +60,8 @@
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
         <cvalue name="ExAC_COL" value="ExAC" type="string"/>
         <cvalue name="EVS_COL" value="EVS" type="string"/>
+        <cvalue name="GNOMAD_WES_COL" value="GNOMAD_EXOMES" type="string"/>
+        <cvalue name="GNOMAD_WGS_COL" value="GNOMAD_GENOMES" type="string"/>
         <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
 
         <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='string'/>
@@ -79,7 +81,11 @@
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
         <cvalue name="ANNOVAR_SEGDUP_COL" value="SEGDUP" type="string"/>
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
-
+        
+        <!-- gnomAD files for no-control workflow -->
+        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.INDELs.All.vcf.gz" />
+        <cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.exomes.r2.0.1.sites.INDELs.vcf.gz" />
+ 
         <!-- More configuration options -->
         <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
                 description="Required in the indelAnnotation step. Max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
@@ -111,6 +117,8 @@
         <!--## Filter switch -->
         <cvalue name="FILTER_ExAC" value="false" type="boolean"/>
         <cvalue name="FILTER_EVS" value="false" type="boolean"/>
+        <cvalue name="FILTER_GNOMAD_EXOMES" value="false" type="boolean"/>
+        <cvalue name="FILTER_GNOMAD_GENOMES" value="false" type="boolean"/>
         <cvalue name="FILTER_1KGENOMES" value="false" type="boolean"/>
         <cvalue name="FILTER_RECURRENCE" value="false" type="boolean"/>
         <cvalue name="FILTER_LOCALCONTROL" value="false" type="boolean"/>
@@ -120,6 +128,8 @@
         <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
         <cvalue name="CRIT_ExAC_maxMAF" value="0.01" type="float"/>
         <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float"/>
+        <cvalue name="CRIT_GNOMAD_EXOMES_maxMAF" value="0.001" type="float"/>
+        <cvalue name="CRIT_GNOMAD_GENOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float"/>
         <cvalue name="CRIT_RECURRENCE" value="7" type="integer"/>
         <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float"/>
