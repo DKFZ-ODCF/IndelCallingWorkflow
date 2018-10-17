@@ -8,6 +8,7 @@ package de.dkfz.b080.co.indelcallingworkflow;
 
 import de.dkfz.b080.co.common.WorkflowUsingMergedBams;
 import de.dkfz.b080.co.files.*;
+import de.dkfz.roddy.config.ConfigurationValue;
 import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.knowledge.files.FileObject;
@@ -37,13 +38,17 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
 
         TumorBamFile bamTumorMerged = new TumorBamFile(_bamTumorMerged);
 
-        if (isControlWorkflow())
+        configurationValues.add(new ConfigurationValue("tumorSample", ((COFileStageSettings) bamTumorMerged.getFileStage()).getSample().getName()));
+        if (isControlWorkflow()) {
+            configurationValues.add(new ConfigurationValue("controlSample", ((COFileStageSettings) _bamControlMerged.getFileStage()).getSample().getName()));
             return executeWithControl(new ControlBamFile(_bamControlMerged), bamTumorMerged, runTinda, runAnnotation, runDeepAnnotation, runFilter);
-        else
+        } else {
             return executeWithoutControl(bamTumorMerged, runTinda, runAnnotation, runDeepAnnotation, runFilter);
+        }
     }
 
     private boolean executeWithControl(ControlBamFile bamControlMerged, TumorBamFile bamTumorMerged, boolean runTinda, boolean runAnnotation, boolean runDeepAnnotation, boolean runFilter) {
+
         VCFFileForIndels rawVCF = (VCFFileForIndels) run("indelCalling", bamTumorMerged, bamControlMerged);
 
         if (runTinda)

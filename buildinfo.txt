@@ -1,4 +1,2 @@
 dependson=COWorkflowsBasePlugin:1.1.0
 RoddyAPIVersion=3.0
-GroovyVersion=2.4
-JDKVersion=1.8
