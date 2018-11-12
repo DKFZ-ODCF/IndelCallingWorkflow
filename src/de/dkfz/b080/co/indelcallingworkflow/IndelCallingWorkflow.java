@@ -48,7 +48,6 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
     }
 
     private boolean executeWithControl(ControlBamFile bamControlMerged, TumorBamFile bamTumorMerged, boolean runTinda, boolean runAnnotation, boolean runDeepAnnotation, boolean runFilter) {
-
         VCFFileForIndels rawVCF = (VCFFileForIndels) run("indelCalling", bamTumorMerged, bamControlMerged);
 
         if (runTinda)
