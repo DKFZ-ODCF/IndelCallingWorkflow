@@ -38,9 +38,10 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
 
         TumorBamFile bamTumorMerged = new TumorBamFile(_bamTumorMerged);
 
-        configurationValues.add(new ConfigurationValue("tumorSample", ((COFileStageSettings) bamTumorMerged.getFileStage()).getSample().getName()));
+
+        cvalue("tumorSample", bamTumorMerged.getSample().getName(), "string");
         if (isControlWorkflow()) {
-            configurationValues.add(new ConfigurationValue("controlSample", ((COFileStageSettings) _bamControlMerged.getFileStage()).getSample().getName()));
+            cvalue("controlSample", _bamControlMerged.getSample().getName(), "string");
             return executeWithControl(new ControlBamFile(_bamControlMerged), bamTumorMerged, runTinda, runAnnotation, runDeepAnnotation, runFilter);
         } else {
             return executeWithoutControl(bamTumorMerged, runTinda, runAnnotation, runDeepAnnotation, runFilter);

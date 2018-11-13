@@ -55,9 +55,7 @@ There are quite extensive requirements in annotation etc. data required for the 
 
 # Example call
 
-```bash
-
-```
+TBD
 
 # Changelist
 
@@ -75,7 +73,7 @@ There are quite extensive requirements in annotation etc. data required for the 
 * Version update to 1.2.177
 
   - Roddy 3.0 support.
-  - 1.2.177 is equivalent to 1.0.176-9
+  - 1.2.177 is equivalent to 1.0.176-9.
   - 1.2.177-1 is equivalent to 1.0.176-10.
 
 * Version update to 1.0.176-9
