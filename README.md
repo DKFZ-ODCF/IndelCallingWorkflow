@@ -2,7 +2,7 @@
 
 A Platypus-based insertion/deletion-detection workflow with extensive quality control additions for the workflow management system [Roddy](https://github.com/eilslabs/Roddy).
 
-> <table><tr><td><a href="https://www.denbi.de/"><img src="docs/images/denbi.png" alt="de.NBI logo" width="300" align="left"></a></td><td><strong>Your opinion matters!</strong> The development of this workflow is supported by the <a href="https://www.denbi.de/">German Network for Bioinformatic Infrastructure (de.NBI)</a>. By completing <a href="yet unknown">this very short survey</a> you support our efforts to improve this tool.</td></tr></table>
+> <table><tr><td><a href="https://www.denbi.de/"><img src="docs/images/denbi.png" alt="de.NBI logo" width="300" align="left"></a></td><td><strong>Your opinion matters!</strong> The development of this workflow is supported by the <a href="https://www.denbi.de/">German Network for Bioinformatic Infrastructure (de.NBI)</a>. By completing <a href="https://www.surveymonkey.de/r/denbi-service?sc=hd-hub&tool=IndelCallingWorkflow">this very short survey</a> you support our efforts to improve this tool.</td></tr></table>
 
 ## Software Requirements
 
@@ -36,11 +36,26 @@ There are quite extensive requirements in annotation etc. data required for the 
 
 # Run flags / switches
 
-Switch                      Default Description
-runIndelAnnotation          true    Run the annotation step or stop the workflow before it.
-runIndelDeepAnnotation      true    Run the deep annotation step or stop the workflow before it.
-runIndelVCFFilter           true    Run the filter step or stop the workflow before it.
-runTinda                    true    Check for sample swaps with TiNDA.
+|Switch                    |  Default     | Description
+|--------------------------|--------------|-----------------------------------------------|
+| runIndelAnnotation       |  true        | Run the annotation step or stop the workflow before it. |
+| runIndelDeepAnnotation   |  true        | Run the deep annotation step or stop the workflow before it. |
+| runIndelVCFFilter        |  true        | Run the filter step or stop the workflow before it. |
+| runTinda                 |  true        | Check for sample swaps with TiNDA. |
+| bamfile_list             | empty        | Semicolon-separated list of BAM files, starting with the control's BAM. Each BAM file needs an index file with the same name as the BAM, but ".bai" suffixed. |
+| sample_list              | empty        | Semicolon-separated list of sample names in the same order as `bamfile_list` |
+| possibleTumorSampleNamePrefixes | "( tumor )" | Bash-array of tumor sample name prefixes. |
+| possibleControlSampleNamePrefixes | "( control )" | Bash-array of control sample name prefixes. |
+| REFERENCE_GENOME | empty | |
+| CHR_SUFFIX | "" | Suffix added to the chromosome names |
+| CHR_PREFIX | "" | Prefix added to the chromosome names |
+| extractSamplesFromOutputFiles | true | |
+| CHROMOSOME_INDICES | empty | Bash-array of chromosome names to which the analysis should be restricted |
+
+
+# Example call
+
+TBD
 
 # Changelist
 
