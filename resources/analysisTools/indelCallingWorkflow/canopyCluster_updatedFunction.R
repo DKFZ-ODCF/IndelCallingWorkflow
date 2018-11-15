@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2018 German Cancer Research Center (DKFZ).
 #
-# Distributed under the GPL-3 License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+# Distributed under the GPL-2+ License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 #
 
 # Forked from original code to update below condition, so no infinite looping in some samples
