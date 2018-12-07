@@ -259,6 +259,11 @@ while(<ANN>) {
       else {
         $annLine =~ s/_Somatic/_Somatic_Rare/;
         print SomaticFile "$annLine\n";
+        ## Adding control's rare somatic variants into the germline file
+        if($annLine=~/Control_Somatic/){
+          print GermlineRareFile "$annLine\n";
+          print GermlineRareFileText "$germlineTextInfo\tRare\n";
+        }
       }
     }
     elsif($annLine=~/Germline/) {
