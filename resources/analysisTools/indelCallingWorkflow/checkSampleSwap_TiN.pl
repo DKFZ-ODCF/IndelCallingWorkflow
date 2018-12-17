@@ -19,12 +19,15 @@ use JSON::Create 'create_json';
 ### Input Files and parameters and paths ############################################
 my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, $bottomBorder, $runTiNDAalone);
 
+# Filtering setting to assign common or rare variants
+my $AF_cutoff;
+
 GetOptions ("pid=s"                      => \$pid,
             "raw_file=s"                 => \$rawFile,
             "annotate_vcf=s"             => \$ANNOTATE_VCF, 
             "gnomAD_commonSNV=s"         => \$gnomAD,
             "localControl_commonSNV=s"   => \$localControl,
-            "localControl_commonSNV_2=s" => \$localControl_2,
+#            "localControl_commonSNV_2=s" => \$localControl_2,
             "bias_script=s"              => \$biasScript,
             "tumor_bam=s"                => \$tumorBAM,
             "control_bam=s"              => \$controlBAM,
@@ -37,9 +40,10 @@ GetOptions ("pid=s"                      => \$pid,
             "sequenceType=s"             => \$seqType,
             "exome_capture_kit_bed=s"    => \$captureKit,
             "bedtools_binary=s"          => \$bedtoolsBinary,
-            "TiNDA_rightBorder:s"        => \$rightBorder,
-            "TiNDA_bottomBorder:s"       => \$bottomBorder,
-            "TiNDA_runRscript:i"         => \$runTiNDAalone)
+            "TiNDA_rightBorder:f"        => \$rightBorder,
+            "TiNDA_bottomBorder:f"       => \$bottomBorder,
+            "TiNDA_runRscript:i"         => \$runTiNDAalone,
+            "maf_thershold:f"            => \$AF_cutoff)
 
 or die("Error in SwapChecker input parameters");
 
