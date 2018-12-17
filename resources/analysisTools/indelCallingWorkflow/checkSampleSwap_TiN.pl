@@ -419,3 +419,12 @@ close JSON;
 `rm $snvsGT_RawFile $snvsGT_gnomADFile`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
+
+`rm $snvsGT_somatic $snvsGT_germlineRare`;
+`rm $snvsGT_germlineRare_txt`;
+`rm $snvsGT_germlineRare_oVCF_annovar`;
+
+if($seqType eq 'WES') {
+  `rm $updated_rawFile`;
+  `rm $updated_rawFile.tbi`;
+}
