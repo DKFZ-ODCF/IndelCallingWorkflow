@@ -285,29 +285,15 @@ while(<ANN>) {
         ## Adding control's rare somatic variants into the germline file
         if($annLine=~/Control_Somatic/){
           print GermlineRareFile "$annLine\n";
-          print GermlineRareFileText "$germlineTextInfo\tRare\n";
+          print GermlineRareFileText "$germlineTextInfo\tSomaticControlRare\n";
         }
       }
     }
-    elsif($annLine=~/Germline/) {
-      if($annLine =~ /GermlineInBoth/ && $annLine !~ /MATCH/ && $seqType eq 'WGS') {
-        $json{'germlineSmallVarsInBothRare'}++;
-        print GermlineRareFile "$annLine\n";
-	print GermlineRareFileText "$germlineTextInfo\tRare\n";
-      }
-      elsif($annLine =~ /GermlineInBoth/ && $seqType eq 'WES') {
-        my $rareness;
-        if($annLine !~ /MATCH/) {
-          $json{'germlineSmallVarsInBothRare'}++;
-          $rareness = "Rare";
-        #}
-        #else {
-        #  $rareness = "Common";
-        #}
-          print GermlineRareFile "$annLine\n";
-          print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
-        }
-      }  
+    # Rare germline variant
+    elsif($annLine =~ /GermlineInBoth/ && $common_rare eq "RARE") {
+      $json{'germlineSmallVarsInBothRare'}++;
+      print GermlineRareFile "$annLine\n";
+      print GermlineRareFileText "$germlineTextInfo\tRare\n";
     }
   }
 }
