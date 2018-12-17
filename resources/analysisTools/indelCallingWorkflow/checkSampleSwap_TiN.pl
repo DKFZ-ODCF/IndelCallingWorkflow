@@ -253,11 +253,29 @@ while(<ANN>) {
     my $start_col = $columnCounter+1;
     my $end_col = $columnCounter+6;
     my $gnomAD_col = $columnCounter+8; 
+    my $localcontrol_col = $columnCounter+9;
 
     my $germlineTextInfo = join("\t", @annLineSplit[0..1], @annLineSplit[3..4], @annLineSplit[$start_col..$end_col]);
+    
+    ### rare or common in gnomAD or local control
+    my $AF_gnomAD = 0;
+    my $AF_localcontrol = 0;
+    
+    if($annLineSplit[$gnomAD_col]!~/^\.$/) {
+      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d.\d+)/;
+    }
+    if($annLineSplit[$localcontrol_col] !~ /^\.$/) {
+      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d.\d+)/; 
+    }
 
+    my $common_rare = "RARE";
+    if($AF_gnomAD > $AF_cutoff || $AF_localcontrol > $AF_cutoff) {
+      $common_rare  = "COMMON";    
+    }
+
+    # Somatic rare or common 
     if($annLine=~/_Somatic/) {
-      if($annLine=~/MATCH/) {
+      if($common_rare eq "COMMOM") {
         $annLine =~ s/_Somatic/_Somatic_Common/;
         print SomaticFile "$annLine\n"; 
       }
