@@ -66,9 +66,11 @@ my $snvsGT_germlineRare_txt    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnom
 my $snvsGT_germlineRare_png    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.png";
 my $snvsGT_germlineRare_oFile  = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.txt";
 my $snvsGT_germlineRare_oVCF   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf";
-my $snvsGT_germlineRare_oVCF_annovar   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
-my $snvsGT_somaticRareBiasFile = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.SomaticIn.Rare.BiasFiltered.vcf";
-my $jsonFile                    = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
+my $snvsGT_germlineRare_oVCF_annovar      = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
+my $snvsGT_germlineRare_oVCF_annovar_rG   = $analysisBasePath."/smallVariants_${pid}.rareGermline.vcf";
+my $snvsGT_germlineRare_oVCF_annovar_sR   = $analysisBasePath."/smallVariants_${pid}.somaticRescue.vcf";
+my $snvsGT_somaticRareBiasFile            = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.SomaticIn.Rare.BiasFiltered.vcf";
+my $jsonFile                              = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
 
 ###########################################################################################
 ### For JSON file
@@ -335,6 +337,11 @@ else
 `perl \${TOOL_PROCESS_ANNOVAR} $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function > $snvsGT_germlineRare_oVCF.forAnnovar.temp`;
 
 `perl \${TOOL_NEW_COLS_TO_VCF} -vcfFile=$snvsGT_germlineRare_oVCF --newColFile=$snvsGT_germlineRare_oVCF.forAnnovar.temp --newColHeader=ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS --reportColumns=3,4,5,6 --bChrPosEnd=0,1,2 > $snvsGT_germlineRare_oVCF_annovar`;
+
+## Separating rare germline and rescued somatic varaiants
+`(cat $snvsGT_germlineRare_oVCF_annovar | grep '#' ; cat $snvsGT_germlineRare_oVCF_annovar | grep -P "Germline|SomaticControlRare" ) > $snvsGT_germlineRare_oVCF_annovar_rG`;
+`(cat $snvsGT_germlineRare_oVCF_annovar | grep '#' ; cat $snvsGT_germlineRare_oVCF_annovar | grep SomaticRescue) > $snvsGT_germlineRare_oVCF_annovar_sR`
+;
 
 #######################################
 ## Running Bias Filters
