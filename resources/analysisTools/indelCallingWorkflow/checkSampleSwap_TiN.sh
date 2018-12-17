@@ -26,9 +26,8 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
     --raw_file=${FILENAME_VCF_RAW} \
     --annotate_vcf=${TOOL_ANNOTATE_VCF_FILE} \
-    --gnomAD_commonSNV=${GNOMAD_WGS_COMMON_SNV} \
-    --localControl_commonSNV=${LOCAL_CONTROL_COMMON_SNV} \
-    --localControl_commonSNV_2=${LOCAL_CONTROL_COMMON_SNV_2} \
+    --gnomAD_commonSNV=${GNOMAD_V2_1_GENOME_SNV_INDEL} \
+    --localControl_commonSNV=${LOCAL_CONTROL_2018_SNV_INDEL} \
     --bias_script=${TOOL_STRAND_BIAS_FILTER_PYTHON_FILE} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
     --control_bam=${FILENAME_CONTROL_BAM} \
@@ -43,7 +42,8 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --bedtools_binary=${BEDTOOLS_BINARY} \
     --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
     --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
-    --TiNDA_runRscript=${TINDA_RUN_RSCRIPT}
+    --TiNDA_runRscript=${TINDA_RUN_RSCRIPT} \
+    --maf_thershold=${TINDA_MAX_MAF_CUTOFF} 
 
 ### Check the perl run was success or not
 if [[ $? == 0 ]] 
