@@ -68,8 +68,8 @@
         <cvalue name="GNOMAD_WGS_COL" value="GNOMAD_GENOMES" type="string"/>
         <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
 
-        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='string'/>
-        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='string'/>
+        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='float'/>
+        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='float'/>
         <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string'/>
         <cvalue name="SEQUENCE_TYPE" value='WGS' type='string'
                 description="Only required for TiNDA."/>
