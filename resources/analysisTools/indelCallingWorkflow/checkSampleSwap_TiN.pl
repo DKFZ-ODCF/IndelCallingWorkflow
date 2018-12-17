@@ -222,17 +222,16 @@ while(<$IN>) {
 
 close GTraw;
 
-## Annotating with dbSNP
-
-my $runAnnotation = system("cat $snvsGT_RawFile | perl $ANNOTATE_VCF -a - -b '$gnomAD' --columnName='gnomAD_COMMON_SNV' --reportMatchType  --bAdditionalColumn=2 | perl $ANNOTATE_VCF -a - -b '$localControl' --columnName='LocalControl_COMMON_SNV' --reportMatchType --bAdditionalColumn=2 | perl $ANNOTATE_VCF -a - -b '$localControl_2' --columnName='LocalControl2_COMMON_SNV' --reportMatchType --bAdditionalColumn=2 > $snvsGT_gnomADFile");
+## Annotating with gnomAD and local control 
+my $runAnnotation = system("cat $snvsGT_RawFile | perl $ANNOTATE_VCF -a - -b '$gnomAD' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportOnlyMatches --reportMatchType --reportLevel 4 | perl $ANNOTATE_VCF -a - -b '$localControl' --columnName='LocalControl_2018' --bAdditionalColumn=2  --reportOnlyMatches --reportMatchType --reportLevel 4 > $snvsGT_gnomADFile");
 
 
 if($runAnnotation != 0 ) {
   `rm $jsonFile`;
   die("ERROR: In the allele frequency annotation step\n") ;
 }
-####### Germline file and rare variant filtering
 
+####### Germline file and rare variant filtering
 open(ANN, "<$snvsGT_gnomADFile") || die "cant open the $snvsGT_gnomADFile\n";
 
 open(GermlineRareFile, ">$snvsGT_germlineRare") || die "cant create the $snvsGT_germlineRare\n";
