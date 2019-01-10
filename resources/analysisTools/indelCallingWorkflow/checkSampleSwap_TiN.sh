@@ -43,12 +43,16 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
     --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
     --TiNDA_runRscript=${TINDA_RUN_RSCRIPT} \
-    --maf_thershold=${TINDA_MAX_MAF_CUTOFF} 
+    --maf_thershold=${TINDA_MAX_MAF_CUTOFF} \
+    --outfile_rareGermline=${FILENAME_RARE_GERMLINE} \
+    --outfile_somaticRescue=${FILENAME_SOMATIC_RESCUE} \
+    --outfile_allSomatic=${FILENAME_ALL_SOMATIC} \
+    --outfile_swapJson=${FILENAME_SWAP_JSON}
 
 ### Check the perl run was success or not
 if [[ $? == 0 ]] 
 then
-  touch ${FILENAME_CHECKPOINT}
+  touch ${FILENAME_CHECKPOINT_SWAP}
   exit 0
 else
   exit 1
