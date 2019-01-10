@@ -269,10 +269,10 @@ while(<ANN>) {
     my $AF_localcontrol = 0;
     
     if($annLineSplit[$gnomAD_col]!~/^\.$/) {
-      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d.\d+)/;
+      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d\.\d+)/;
     }
     if($annLineSplit[$localcontrol_col] !~ /^\.$/) {
-      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d.\d+)/; 
+      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d\.\d+)/; 
     }
 
     my $common_rare = "RARE";
