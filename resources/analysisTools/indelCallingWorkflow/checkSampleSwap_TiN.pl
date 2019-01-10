@@ -17,7 +17,10 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, $bottomBorder, $runTiNDAalone);
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, 
+  $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, 
+  $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
+  $bottomBorder, $runTiNDAalone, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
 
 # Filtering setting to assign common or rare variants
 my $AF_cutoff;
@@ -43,7 +46,11 @@ GetOptions ("pid=s"                      => \$pid,
             "TiNDA_rightBorder:f"        => \$rightBorder,
             "TiNDA_bottomBorder:f"       => \$bottomBorder,
             "TiNDA_runRscript:i"         => \$runTiNDAalone,
-            "maf_thershold:f"            => \$AF_cutoff)
+            "maf_thershold:f"            => \$AF_cutoff,
+            "outfile_rareGermline:s"     => \$outfile_RG,
+            "outfile_somaticRescue:s"    => \$outfile_SR,
+            "outfile_allSomatic:s"       => \$outfile_AS,
+            "outfile_swapJSON:s"         => \$outfile_SJ)
 
 or die("Error in SwapChecker input parameters");
 
@@ -67,9 +74,9 @@ my $snvsGT_germlineRare_png    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnom
 my $snvsGT_germlineRare_oFile  = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.txt";
 my $snvsGT_germlineRare_oVCF   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf";
 my $snvsGT_germlineRare_oVCF_annovar      = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
-my $snvsGT_germlineRare_oVCF_annovar_rG   = $analysisBasePath."/smallVariants_${pid}.rareGermline.vcf";
-my $snvsGT_germlineRare_oVCF_annovar_sR   = $analysisBasePath."/smallVariants_${pid}.somaticRescue.vcf";
-my $snvsGT_somaticRareBiasFile            = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.SomaticIn.Rare.BiasFiltered.vcf";
+my $snvsGT_germlineRare_oVCF_annovar_rG   = $outfile_RG;
+my $snvsGT_germlineRare_oVCF_annovar_sR   = $outfile_SR;
+my $snvsGT_somaticRareBiasFile            = $outfile_AS;
 my $jsonFile                              = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
 
 ###########################################################################################
