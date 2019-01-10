@@ -348,7 +348,9 @@ chomp($json{'tindaSomaticAfterRescue'}  = `cat $snvsGT_germlineRare_oFile | grep
 
 if($json{'tindaSomaticAfterRescue'} > 0) {
 
-  $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
+  $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = `cat $snvsGT_germlineRare_oFile | \\ 
+    grep 'Somatic_Rescue' | cut -f5 | sort -n | \\
+    awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
  chomp($json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'});
 }
 else
@@ -367,15 +369,38 @@ else
 
 `perl \${TOOL_NEW_COLS_TO_VCF} -vcfFile=$snvsGT_germlineRare_oVCF --newColFile=$snvsGT_germlineRare_oVCF.forAnnovar.temp --newColHeader=ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS --reportColumns=3,4,5,6 --bChrPosEnd=0,1,2 > $snvsGT_germlineRare_oVCF_annovar`;
 
-## Separating rare germline and rescued somatic varaiants
-`(cat $snvsGT_germlineRare_oVCF_annovar | grep '#' ; cat $snvsGT_germlineRare_oVCF_annovar | grep -P "Germline|SomaticControlRare" ) > $snvsGT_germlineRare_oVCF_annovar_rG`;
-`(cat $snvsGT_germlineRare_oVCF_annovar | grep '#' ; cat $snvsGT_germlineRare_oVCF_annovar | grep SomaticRescue) > $snvsGT_germlineRare_oVCF_annovar_sR`
-;
+## Separating rare germline and rescued somatic variants
+open(RG, ">$snvsGT_germlineRare_oVCF_annovar_rG") || die "$snvsGT_germlineRare_oVCF_annovar_rG can't be open for writing. $!";
+open(SR, ">$snvsGT_germlineRare_oVCF_annovar_sR") || die "$snvsGT_germlineRare_oVCF_annovar_sR can't be open for writing. $!";
+open(GRA, "<$snvsGT_germlineRare_oVCF_annovar") || die "can't open $snvsGT_germlineRare_oVCF_annovar $!";
 
+while(<GRA>){
+  chomp;
+  if($_=~/^#/) {
+    print RG "$_\n";
+    print SR "$_\n";
+  }
+  elsif($_=~/Germline|SomaticControlRare/){
+    print RG "$_\n";
+  }
+  elsif($_=~/SomaticRescue/){
+    print SR "$_\n";
+  }
+}
+close RG;
+close SR;
+close GRA;
 #######################################
 ## Running Bias Filters
 
-my $runBiasScript = system("python $biasScript $snvsGT_somatic $tumorBAM $ref $snvsGT_somaticRareBiasFile --tempFolder $analysisBasePath --maxOpRatioPcr=0.34 --maxOpRatioSeq=0.34 --maxOpReadsPcrWeak=2 --maxOpReadsPcrStrong=2");
+my $runBiasScript_code = "python $biasScript $snvsGT_somatic $tumorBAM $ref $snvsGT_somaticRareBiasFile";
+  $runBiasScript_code .= " --tempFolder $analysisBasePath";
+  $runBiasScript_code .= " --maxOpRatioPcr=0.34";
+  $runBiasScript_code .= " --maxOpRatioSeq=0.34";
+  $runBiasScript_code .= " --maxOpReadsPcrWeak=2";
+  $runBiasScript_code .= " --maxOpReadsPcrStrong=2";
+  
+my $runBiasScript = system($runBiasScript_code);
 
 if($runBiasScript !=0) {
   die "Error while running $biasScript in swapChecker\n";
