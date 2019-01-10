@@ -308,13 +308,32 @@ TiNDA:
 #######################################
 ### Finding and plotting TiN
 
-print "Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder --vcf $snvsGT_germlineRare --Ovcf $snvsGT_germlineRare_oVCF\n";
+my $runRscript_code  = "Rscript $TiN_R -f $snvsGT_germlineRare_txt";
+   $runRscript_code .= " --oPlot $snvsGT_germlineRare_png";
+   $runRscript_code .= " --oFile $snvsGT_germlineRare_oFile";
+   $runRscript_code .= " -p $pid";
+   $runRscript_code .= " --chrLength $chrLengthFile";
+   $runRscript_code .= " --cFunction $canopy_Function";
+   $runRscript_code .= " --SeqType $seqType";
+   $runRscript_code .= " --rightBorder $rightBorder";
+   $runRscript_code .= " --bottomBorder $bottomBorder";
+   $runRscript_code .= " --vcf $snvsGT_germlineRare";
+   $runRscript_code .= " --Ovcf $snvsGT_germlineRare_oVCF";
 
-my $runRscript = system("Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder --vcf $snvsGT_germlineRare --Ovcf $snvsGT_germlineRare_oVCF\n");
+print $runRscript_code, "\n";
+
+my $runRscript = system($runRscript_code);
 
 if($runRscript != 0) { 
   `rm $jsonFile`;
-  die "Error while running $TiN_R in swapChecker\n";
+  if($runRscript == 50) {
+    $! = 50;
+    die "Less than 50 rare germline variants, might be the control and tumor didn't match - Sample swapped. Exiting the analysis. $!";
+  }
+  else{
+    $! = $runRscript;
+    die "Error while running $TiN_R in swapChecker. $!";
+  }
 }
  
 chomp($json{'tindaGermlineRareAfterRescue'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
