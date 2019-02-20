@@ -49,13 +49,13 @@
         <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
         <cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path"/>
-        <cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
+        <!--cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
         <cvalue name="LOCAL_CONTROL_COMMON_SNV" value="${hg19DatabasesDirectory}/LocalControls/pcawg_AF.All.CommonArtifacts.vcf.gz" type="path"/>
-        <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/>
-        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path"/>
+        <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/-->
+        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path" />
         <!-- New gnomAD files and local control, needs to be moved to NGS share -->
-        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/gnomAD/v2.1/genomes/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
-        <cvalue name="LOCAL_CONTROL_2018_SNV_INDEL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/LocalControls/LocalControls_2018/chr_files_fromGregor/localControl_AF_2018.All.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_2018_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/localControl_AF_2018.Platypus-SNV-INDEL.vcf.gz" type="path" />
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.01" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
