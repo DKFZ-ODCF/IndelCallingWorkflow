@@ -30,7 +30,6 @@ GetOptions ("pid=s"                      => \$pid,
             "annotate_vcf=s"             => \$ANNOTATE_VCF, 
             "gnomAD_commonSNV=s"         => \$gnomAD,
             "localControl_commonSNV=s"   => \$localControl,
-#            "localControl_commonSNV_2=s" => \$localControl_2,
             "bias_script=s"              => \$biasScript,
             "tumor_bam=s"                => \$tumorBAM,
             "control_bam=s"              => \$controlBAM,
@@ -119,8 +118,9 @@ if($runTiNDAalone==1) {
 my $updated_rawFile;
 # update in WES
 if($seqType eq 'WES') {
-   $updated_rawFile = $rawFile.".intersect.gz";
-  `$bedtoolsBinary intersect -header -a $rawFile -b $captureKit | bgzip > $updated_rawFile ; tabix -p vcf $updated_rawFile`;
+   #$updated_rawFile = $rawFile.".intersect.gz";
+  #`$bedtoolsBinary intersect -header -a $rawFile -b $captureKit | bgzip > $updated_rawFile ; tabix -p vcf $updated_rawFile`;
+  $updated_rawFile = $rawFile;
 }
 elsif($seqType eq 'WGS') {
    $updated_rawFile = $rawFile;
@@ -269,10 +269,10 @@ while(<ANN>) {
     my $AF_localcontrol = 0;
     
     if($annLineSplit[$gnomAD_col]!~/^\.$/) {
-      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d\.\d+)/;
+      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d\.\d+(e-\d+)?)/;
     }
     if($annLineSplit[$localcontrol_col] !~ /^\.$/) {
-      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d\.\d+)/; 
+      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d\.\d+(e-\d+)?)/; 
     }
 
     my $common_rare = "RARE";
@@ -315,43 +315,63 @@ TiNDA:
 #######################################
 ### Finding and plotting TiN
 
-my $runRscript_code  = "Rscript $TiN_R -f $snvsGT_germlineRare_txt";
-   $runRscript_code .= " --oPlot $snvsGT_germlineRare_png";
-   $runRscript_code .= " --oFile $snvsGT_germlineRare_oFile";
-   $runRscript_code .= " -p $pid";
-   $runRscript_code .= " --chrLength $chrLengthFile";
-   $runRscript_code .= " --cFunction $canopy_Function";
-   $runRscript_code .= " --SeqType $seqType";
-   $runRscript_code .= " --rightBorder $rightBorder";
-   $runRscript_code .= " --bottomBorder $bottomBorder";
-   $runRscript_code .= " --vcf $snvsGT_germlineRare";
-   $runRscript_code .= " --Ovcf $snvsGT_germlineRare_oVCF";
+my $runRscript_code  = join("", "Rscript $TiN_R -f $snvsGT_germlineRare_txt", 
+  " --oPlot $snvsGT_germlineRare_png",
+  " --oFile $snvsGT_germlineRare_oFile",
+  " -p $pid",
+  " --chrLength $chrLengthFile",
+  " --cFunction $canopy_Function",
+  " --SeqType $seqType",
+  " --rightBorder $rightBorder",
+  " --bottomBorder $bottomBorder",
+  " --vcf $snvsGT_germlineRare",
+  " --Ovcf $snvsGT_germlineRare_oVCF");
 
 print $runRscript_code, "\n";
 
 my $runRscript = system($runRscript_code);
 
-if($runRscript != 0) { 
-  `rm $jsonFile`;
+if($runRscript != 0) {
+  `rm $jsonFile`;  
   if($runRscript == 50) {
-    $! = 50;
-    die "Less than 50 rare germline variants, might be the control and tumor didn't match - Sample swapped. Exiting the analysis. $!";
+    die "Less than 50 rare germline variants, might be the control and tumor didn't match. Exiting the analysis";
   }
   else{
-    $! = $runRscript;
-    die "Error while running $TiN_R in swapChecker. $!";
+    die "Error while running $TiN_R in swapChecker, $runRscript";
   }
 }
- 
-chomp($json{'tindaGermlineRareAfterRescue'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
-chomp($json{'tindaSomaticAfterRescue'}  = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | wc -l`);
+
+open(TINDA_rareOutput, $snvsGT_germlineRare_oFile) || die "Can't open the $snvsGT_germlineRare_oFile: $!";
+my @SomaticRescue_control_AF;
+
+while(<TINDA_rareOutput>) {
+  chomp;
+  if($_=~/Germline/){
+    $json{'tindaGermlineRareAfterRescue'}++;
+  }
+  elsif($_=~/Somatic_Rescue/){
+    $json{'tindaSomaticAfterRescue'}++;
+    my @gr_ss = split(/\t/, $_);
+    push(@SomaticRescue_control_AF, $gr_ss[4]);
+  }  
+}
+close TINDA_rareOutput;
+
+## Median function
+sub median {
+    my @vals = sort {$a <=> $b} @_;
+    my $len = @vals;
+    if($len%2) {
+        return $vals[int($len/2)];
+    }
+    else {
+        return ($vals[int($len/2)-1] + $vals[int($len/2)])/2;
+    }
+}
 
 if($json{'tindaSomaticAfterRescue'} > 0) {
 
-  $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = `cat $snvsGT_germlineRare_oFile | \\ 
-    grep 'Somatic_Rescue' | cut -f5 | sort -n | \\
-    awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
- chomp($json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'});
+  $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = median(@SomaticRescue_control_AF);
 }
 else
 {
@@ -393,12 +413,12 @@ close GRA;
 #######################################
 ## Running Bias Filters
 
-my $runBiasScript_code = "python $biasScript $snvsGT_somatic $tumorBAM $ref $snvsGT_somaticRareBiasFile";
-  $runBiasScript_code .= " --tempFolder $analysisBasePath";
-  $runBiasScript_code .= " --maxOpRatioPcr=0.34";
-  $runBiasScript_code .= " --maxOpRatioSeq=0.34";
-  $runBiasScript_code .= " --maxOpReadsPcrWeak=2";
-  $runBiasScript_code .= " --maxOpReadsPcrStrong=2";
+my $runBiasScript_code = join("", "python $biasScript $snvsGT_somatic $tumorBAM $ref $snvsGT_somaticRareBiasFile",
+  " --tempFolder $analysisBasePath",
+  " --maxOpRatioPcr=0.34",
+  " --maxOpRatioSeq=0.34",
+  " --maxOpReadsPcrWeak=2",
+  " --maxOpReadsPcrStrong=2");
   
 my $runBiasScript = system($runBiasScript_code);
 
@@ -474,8 +494,3 @@ close JSON;
 `rm $snvsGT_somatic $snvsGT_germlineRare`;
 `rm $snvsGT_germlineRare_txt`;
 `rm $snvsGT_germlineRare_oVCF_annovar`;
-
-if($seqType eq 'WES') {
-  `rm $updated_rawFile`;
-  `rm $updated_rawFile.tbi`;
-}
