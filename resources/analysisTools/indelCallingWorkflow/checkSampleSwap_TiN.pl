@@ -230,7 +230,7 @@ while(<$IN>) {
 close GTraw;
 
 ## Annotating with gnomAD and local control 
-my $runAnnotation = system("cat $snvsGT_RawFile | perl $ANNOTATE_VCF -a - -b '$gnomAD' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportOnlyMatches --reportMatchType --reportLevel 4 | perl $ANNOTATE_VCF -a - -b '$localControl' --columnName='LocalControl_2018' --bAdditionalColumn=2  --reportOnlyMatches --reportMatchType --reportLevel 4 > $snvsGT_gnomADFile");
+my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportOnlyMatches --reportMatchType --reportLevel 4 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl_2018' --bAdditionalColumn=2  --reportOnlyMatches --reportMatchType --reportLevel 4 > '$snvsGT_gnomADFile'");
 
 
 if($runAnnotation != 0 ) {
@@ -296,7 +296,7 @@ while(<ANN>) {
         }
       }
     }
-    # Rare germline variant
+    # Rare germline variant    
     elsif($annLine =~ /GermlineInBoth/ && $common_rare eq "RARE") {
       $json{'germlineSmallVarsInBothRare'}++;
       print GermlineRareFile "$annLine\n";
@@ -315,7 +315,7 @@ TiNDA:
 #######################################
 ### Finding and plotting TiN
 
-my $runRscript_code  = join("", "Rscript $TiN_R -f $snvsGT_germlineRare_txt", 
+my $runRscript_code  = join("", "Rscript '$TiN_R' -f '$snvsGT_germlineRare_txt'", 
   " --oPlot $snvsGT_germlineRare_png",
   " --oFile $snvsGT_germlineRare_oFile",
   " -p $pid",
@@ -395,16 +395,17 @@ open(SR, ">$snvsGT_germlineRare_oVCF_annovar_sR") || die "$snvsGT_germlineRare_o
 open(GRA, "<$snvsGT_germlineRare_oVCF_annovar") || die "can't open $snvsGT_germlineRare_oVCF_annovar $!";
 
 while(<GRA>){
-  chomp;
-  if($_=~/^#/) {
-    print RG "$_\n";
-    print SR "$_\n";
+  my $tmp_GRA = $_;
+  chomp $tmp_GRA;
+  if($tmp_GRA=~/^#/) {
+    print RG "$tmp_GRA\n";
+    print SR "$tmp_GRA\n";
   }
-  elsif($_=~/Germline|SomaticControlRare/){
-    print RG "$_\n";
+  elsif($tmp_GRA=~/Germline|SomaticControlRare/){
+    print RG "$tmp_GRA\n";
   }
-  elsif($_=~/SomaticRescue/){
-    print SR "$_\n";
+  elsif($tmp_GRA=~/SomaticRescue/){
+    print SR "$tmp_GRA\n";
   }
 }
 close RG;
@@ -413,7 +414,7 @@ close GRA;
 #######################################
 ## Running Bias Filters
 
-my $runBiasScript_code = join("", "python $biasScript $snvsGT_somatic $tumorBAM $ref $snvsGT_somaticRareBiasFile",
+my $runBiasScript_code = join("", "python '$biasScript' '$snvsGT_somatic' '$tumorBAM' '$ref' '$snvsGT_somaticRareBiasFile'",
   " --tempFolder $analysisBasePath",
   " --maxOpRatioPcr=0.34",
   " --maxOpRatioSeq=0.34",
