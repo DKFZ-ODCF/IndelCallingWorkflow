@@ -85,8 +85,7 @@ centroid <- clusterCentroid(opt$SeqType, maxControl = as.numeric(opt$rightBorder
 ## Testing for enough variants for clustering
 n_germline <- dat %>% filter(Rareness == "Rare") %>% nrow()
 
-cat("No of germline variants: ")
-cat(n_germline, "\n")
+cat("No of germline variants: ", n_germline, "\n")
 
 if(n_germline < 50) {
  quit(status=50)
