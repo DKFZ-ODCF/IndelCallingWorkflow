@@ -17,14 +17,19 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, $bottomBorder, $runTiNDAalone);
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, 
+  $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, 
+  $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
+  $bottomBorder, $runTiNDAalone, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
+
+# Filtering setting to assign common or rare variants
+my $AF_cutoff;
 
 GetOptions ("pid=s"                      => \$pid,
             "raw_file=s"                 => \$rawFile,
             "annotate_vcf=s"             => \$ANNOTATE_VCF, 
             "gnomAD_commonSNV=s"         => \$gnomAD,
             "localControl_commonSNV=s"   => \$localControl,
-            "localControl_commonSNV_2=s" => \$localControl_2,
             "bias_script=s"              => \$biasScript,
             "tumor_bam=s"                => \$tumorBAM,
             "control_bam=s"              => \$controlBAM,
@@ -37,9 +42,14 @@ GetOptions ("pid=s"                      => \$pid,
             "sequenceType=s"             => \$seqType,
             "exome_capture_kit_bed=s"    => \$captureKit,
             "bedtools_binary=s"          => \$bedtoolsBinary,
-            "TiNDA_rightBorder:s"        => \$rightBorder,
-            "TiNDA_bottomBorder:s"       => \$bottomBorder,
-            "TiNDA_runRscript:i"         => \$runTiNDAalone)
+            "TiNDA_rightBorder:f"        => \$rightBorder,
+            "TiNDA_bottomBorder:f"       => \$bottomBorder,
+            "TiNDA_runRscript:i"         => \$runTiNDAalone,
+            "maf_thershold:f"            => \$AF_cutoff,
+            "outfile_rareGermline:s"     => \$outfile_RG,
+            "outfile_somaticRescue:s"    => \$outfile_SR,
+            "outfile_allSomatic:s"       => \$outfile_AS,
+            "outfile_swapJSON:s"         => \$outfile_SJ)
 
 or die("Error in SwapChecker input parameters");
 
@@ -62,9 +72,11 @@ my $snvsGT_germlineRare_txt    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnom
 my $snvsGT_germlineRare_png    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.png";
 my $snvsGT_germlineRare_oFile  = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.txt";
 my $snvsGT_germlineRare_oVCF   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf";
-my $snvsGT_germlineRare_oVCF_annovar   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
-my $snvsGT_somaticRareBiasFile = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.SomaticIn.Rare.BiasFiltered.vcf";
-my $jsonFile                    = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
+my $snvsGT_germlineRare_oVCF_annovar      = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
+my $snvsGT_germlineRare_oVCF_annovar_rG   = $outfile_RG;
+my $snvsGT_germlineRare_oVCF_annovar_sR   = $outfile_SR;
+my $snvsGT_somaticRareBiasFile            = $outfile_AS;
+my $jsonFile                              = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
 
 ###########################################################################################
 ### For JSON file
@@ -106,8 +118,9 @@ if($runTiNDAalone==1) {
 my $updated_rawFile;
 # update in WES
 if($seqType eq 'WES') {
-   $updated_rawFile = $rawFile.".intersect.gz";
-  `$bedtoolsBinary intersect -header -a $rawFile -b $captureKit | bgzip > $updated_rawFile ; tabix -p vcf $updated_rawFile`;
+   #$updated_rawFile = $rawFile.".intersect.gz";
+  #`$bedtoolsBinary intersect -header -a $rawFile -b $captureKit | bgzip > $updated_rawFile ; tabix -p vcf $updated_rawFile`;
+  $updated_rawFile = $rawFile;
 }
 elsif($seqType eq 'WGS') {
    $updated_rawFile = $rawFile;
@@ -216,17 +229,16 @@ while(<$IN>) {
 
 close GTraw;
 
-## Annotating with dbSNP
-
-my $runAnnotation = system("cat $snvsGT_RawFile | perl $ANNOTATE_VCF -a - -b '$gnomAD' --columnName='gnomAD_COMMON_SNV' --reportMatchType  --bAdditionalColumn=2 | perl $ANNOTATE_VCF -a - -b '$localControl' --columnName='LocalControl_COMMON_SNV' --reportMatchType --bAdditionalColumn=2 | perl $ANNOTATE_VCF -a - -b '$localControl_2' --columnName='LocalControl2_COMMON_SNV' --reportMatchType --bAdditionalColumn=2 > $snvsGT_gnomADFile");
+## Annotating with gnomAD and local control 
+my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportOnlyMatches --reportMatchType --reportLevel 4 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl_2018' --bAdditionalColumn=2  --reportOnlyMatches --reportMatchType --reportLevel 4 > '$snvsGT_gnomADFile'");
 
 
 if($runAnnotation != 0 ) {
   `rm $jsonFile`;
   die("ERROR: In the allele frequency annotation step\n") ;
 }
-####### Germline file and rare variant filtering
 
+####### Germline file and rare variant filtering
 open(ANN, "<$snvsGT_gnomADFile") || die "cant open the $snvsGT_gnomADFile\n";
 
 open(GermlineRareFile, ">$snvsGT_germlineRare") || die "cant create the $snvsGT_germlineRare\n";
@@ -235,7 +247,6 @@ open(GermlineRareFileText, ">$snvsGT_germlineRare_txt") || die "cant create the 
 print GermlineRareFileText "CHR\tPOS\tREF\tALT\tControl_AF\tTumor_AF\tTumor_dpALT\tTumor_dp\tControl_dpALT\tControl_dp\tRareness\n";
 
 open(SomaticFile, ">$snvsGT_somatic") || die "cant create the $snvsGT_somatic\n";
-
 while(<ANN>) {
   chomp;
   my $annLine = $_;
@@ -248,38 +259,47 @@ while(<ANN>) {
     my $start_col = $columnCounter+1;
     my $end_col = $columnCounter+6;
     my $gnomAD_col = $columnCounter+8; 
+    my $localcontrol_col = $columnCounter+9;
 
     my $germlineTextInfo = join("\t", @annLineSplit[0..1], @annLineSplit[3..4], @annLineSplit[$start_col..$end_col]);
+    
+    ### rare or common in gnomAD or local control
+    my $AF_gnomAD = 0;
+    my $AF_localcontrol = 0;
+    
+    if($annLineSplit[$gnomAD_col]!~/^\.$/) {
+      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d\.\d+(e-\d+)?)/;
+    }
+    if($annLineSplit[$localcontrol_col] !~ /^\.$/) {
+      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d\.\d+(e-\d+)?)/; 
+    }
 
+    my $common_rare = "RARE";
+    if($AF_gnomAD > $AF_cutoff || $AF_localcontrol > $AF_cutoff) {
+      $common_rare  = "COMMON";    
+    }
+
+    # Somatic rare or common 
     if($annLine=~/_Somatic/) {
-      if($annLine=~/MATCH/) {
+      if($common_rare eq "COMMOM") {
         $annLine =~ s/_Somatic/_Somatic_Common/;
         print SomaticFile "$annLine\n"; 
       }
       else {
         $annLine =~ s/_Somatic/_Somatic_Rare/;
         print SomaticFile "$annLine\n";
+        ## Adding control's rare somatic variants into the germline file
+        if($annLine=~/Control_Somatic/){
+          print GermlineRareFile "$annLine\n";
+          print GermlineRareFileText "$germlineTextInfo\tSomaticControlRare\n";
+        }
       }
     }
-    elsif($annLine=~/Germline/) {
-      if($annLine =~ /GermlineInBoth/ && $annLine !~ /MATCH/ && $seqType eq 'WGS') {
-        $json{'germlineSmallVarsInBothRare'}++;
-        print GermlineRareFile "$annLine\n";
-	print GermlineRareFileText "$germlineTextInfo\tRare\n";
-      }
-      elsif($annLine =~ /GermlineInBoth/ && $seqType eq 'WES') {
-        my $rareness;
-        if($annLine !~ /MATCH/) {
-          $json{'germlineSmallVarsInBothRare'}++;
-          $rareness = "Rare";
-        #}
-        #else {
-        #  $rareness = "Common";
-        #}
-          print GermlineRareFile "$annLine\n";
-          print GermlineRareFileText "$germlineTextInfo\t$rareness\n";
-        }
-      }  
+    # Rare germline variant    
+    elsif($annLine =~ /GermlineInBoth/ && $common_rare eq "RARE") {
+      $json{'germlineSmallVarsInBothRare'}++;
+      print GermlineRareFile "$annLine\n";
+      print GermlineRareFileText "$germlineTextInfo\tRare\n";
     }
   }
 }
@@ -288,28 +308,69 @@ close GermlineRareFile;
 close SomaticFile;
 close Ann;
 
+### Crashing when there is less than 50 germline variants
+if($json{'germlineSmallVarsInBothRare'} < 50){
+  die "Less than 50 rare germline variants. Might be a sample swap or poor coverage on any one of the samples, please check the coverage information.\nExiting the analysis";
+}
+
 ## if only TiNDA needs to run with annotation files already available
 TiNDA:
 
 #######################################
 ### Finding and plotting TiN
 
-print "Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder --vcf $snvsGT_germlineRare --Ovcf $snvsGT_germlineRare_oVCF\n";
+my $runRscript_code  = join("", "Rscript '$TiN_R' -f '$snvsGT_germlineRare_txt'", 
+  " --oPlot $snvsGT_germlineRare_png",
+  " --oFile $snvsGT_germlineRare_oFile",
+  " -p $pid",
+  " --chrLength $chrLengthFile",
+  " --cFunction $canopy_Function",
+  " --SeqType $seqType",
+  " --rightBorder $rightBorder",
+  " --bottomBorder $bottomBorder",
+  " --vcf $snvsGT_germlineRare",
+  " --Ovcf $snvsGT_germlineRare_oVCF");
 
-my $runRscript = system("Rscript $TiN_R -f $snvsGT_germlineRare_txt --oPlot $snvsGT_germlineRare_png --oFile $snvsGT_germlineRare_oFile -p $pid --chrLength $chrLengthFile --cFunction $canopy_Function --SeqType $seqType --rightBorder $rightBorder --bottomBorder $bottomBorder --vcf $snvsGT_germlineRare --Ovcf $snvsGT_germlineRare_oVCF\n");
+print $runRscript_code, "\n";
 
-if($runRscript != 0) { 
-  `rm $jsonFile`;
-  die "Error while running $TiN_R in swapChecker\n";
+my $runRscript = system($runRscript_code);
+
+if($runRscript != 0) {
+  `rm $jsonFile`;  
+  die "Error while running $TiN_R in swapChecker, $runRscript";
 }
- 
-chomp($json{'tindaGermlineRareAfterRescue'} = `cat $snvsGT_germlineRare_oFile | grep 'Germline' | wc -l`);
-chomp($json{'tindaSomaticAfterRescue'}  = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | wc -l`);
+
+open(TINDA_rareOutput, $snvsGT_germlineRare_oFile) || die "Can't open the $snvsGT_germlineRare_oFile: $!";
+my @SomaticRescue_control_AF;
+
+while(<TINDA_rareOutput>) {
+  chomp;
+  if($_=~/Germline/){
+    $json{'tindaGermlineRareAfterRescue'}++;
+  }
+  elsif($_=~/Somatic_Rescue/){
+    $json{'tindaSomaticAfterRescue'}++;
+    my @gr_ss = split(/\t/, $_);
+    push(@SomaticRescue_control_AF, $gr_ss[4]);
+  }  
+}
+close TINDA_rareOutput;
+
+## Median function
+sub median {
+    my @vals = sort {$a <=> $b} @_;
+    my $len = @vals;
+    if($len%2) {
+        return $vals[int($len/2)];
+    }
+    else {
+        return ($vals[int($len/2)-1] + $vals[int($len/2)])/2;
+    }
+}
 
 if($json{'tindaSomaticAfterRescue'} > 0) {
 
-  $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = `cat $snvsGT_germlineRare_oFile | grep 'Somatic_Rescue' | cut -f5 | sort -n | awk ' { a[i++]=\$1;} END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }'`;
- chomp($json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'});
+  $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = median(@SomaticRescue_control_AF);
 }
 else
 {
@@ -327,10 +388,39 @@ else
 
 `perl \${TOOL_NEW_COLS_TO_VCF} -vcfFile=$snvsGT_germlineRare_oVCF --newColFile=$snvsGT_germlineRare_oVCF.forAnnovar.temp --newColHeader=ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS --reportColumns=3,4,5,6 --bChrPosEnd=0,1,2 > $snvsGT_germlineRare_oVCF_annovar`;
 
+## Separating rare germline and rescued somatic variants
+open(RG, ">$snvsGT_germlineRare_oVCF_annovar_rG") || die "$snvsGT_germlineRare_oVCF_annovar_rG can't be open for writing. $!";
+open(SR, ">$snvsGT_germlineRare_oVCF_annovar_sR") || die "$snvsGT_germlineRare_oVCF_annovar_sR can't be open for writing. $!";
+open(GRA, "<$snvsGT_germlineRare_oVCF_annovar") || die "can't open $snvsGT_germlineRare_oVCF_annovar $!";
+
+while(<GRA>){
+  my $tmp_GRA = $_;
+  chomp $tmp_GRA;
+  if($tmp_GRA=~/^#/) {
+    print RG "$tmp_GRA\n";
+    print SR "$tmp_GRA\n";
+  }
+  elsif($tmp_GRA=~/Germline|SomaticControlRare/){
+    print RG "$tmp_GRA\n";
+  }
+  elsif($tmp_GRA=~/SomaticRescue/){
+    print SR "$tmp_GRA\n";
+  }
+}
+close RG;
+close SR;
+close GRA;
 #######################################
 ## Running Bias Filters
 
-my $runBiasScript = system("python $biasScript $snvsGT_somatic $tumorBAM $ref $snvsGT_somaticRareBiasFile --tempFolder $analysisBasePath --maxOpRatioPcr=0.34 --maxOpRatioSeq=0.34 --maxOpReadsPcrWeak=2 --maxOpReadsPcrStrong=2");
+my $runBiasScript_code = join("", "python '$biasScript' '$snvsGT_somatic' '$tumorBAM' '$ref' '$snvsGT_somaticRareBiasFile'",
+  " --tempFolder $analysisBasePath",
+  " --maxOpRatioPcr=0.34",
+  " --maxOpRatioSeq=0.34",
+  " --maxOpReadsPcrWeak=2",
+  " --maxOpReadsPcrStrong=2");
+  
+my $runBiasScript = system($runBiasScript_code);
 
 if($runBiasScript !=0) {
   die "Error while running $biasScript in swapChecker\n";
@@ -400,3 +490,7 @@ close JSON;
 `rm $snvsGT_RawFile $snvsGT_gnomADFile`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
+
+`rm $snvsGT_somatic $snvsGT_germlineRare`;
+`rm $snvsGT_germlineRare_txt`;
+`rm $snvsGT_germlineRare_oVCF_annovar`;

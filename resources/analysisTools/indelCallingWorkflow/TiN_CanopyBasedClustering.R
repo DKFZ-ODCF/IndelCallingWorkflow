@@ -82,6 +82,15 @@ clusterCentroid <- function (seqType, maxControl=0.45, minTumor=0.01){
 centroid <- clusterCentroid(opt$SeqType, maxControl = as.numeric(opt$rightBorder),
                             minTumor = as.numeric(opt$bottomBorder))
 
+## Testing for enough variants for clustering
+n_germline <- dat %>% filter(Rareness == "Rare") %>% nrow()
+
+cat("No of germline variants: ", n_germline, "\n")
+
+if(n_germline < 50) {
+ quit(status=50)
+}
+
 # Running Canopy
 R <-as.matrix(dat[,c(7,9)])
 X <-as.matrix(dat[,c(8,10)])
@@ -231,7 +240,6 @@ if("Somatic_Rescue" %in% rescueInfo.toFile$TiN_Class) {
   rescueInfo.toFile<-rbind(rescueInfo.toFile, c("Somatic_Rescue", 0, 0, 0))
   rescueInfo.toFile$Pid<-opt$pid
 }
-write_json(rescueInfo.toFile, path=paste0(opt$oFile, "_summary.json"))
 
 TableTheme <- gridExtra::ttheme_default(
   core = list(fg_params=list(cex = 1, hjust=1, x=0.95)),

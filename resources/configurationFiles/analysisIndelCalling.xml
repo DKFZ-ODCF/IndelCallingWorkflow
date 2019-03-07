@@ -49,10 +49,14 @@
         <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
         <cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path"/>
-        <cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
+        <!--cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
         <cvalue name="LOCAL_CONTROL_COMMON_SNV" value="${hg19DatabasesDirectory}/LocalControls/pcawg_AF.All.CommonArtifacts.vcf.gz" type="path"/>
-        <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/>
-        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path"/>
+        <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/-->
+        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path" />
+        <!-- New gnomAD files and local control, needs to be moved to NGS share -->
+        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_2018_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/localControl_AF_2018.Platypus-SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.01" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
         <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string"/>
@@ -64,8 +68,8 @@
         <cvalue name="GNOMAD_WGS_COL" value="GNOMAD_GENOMES" type="string"/>
         <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
 
-        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='string'/>
-        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='string'/>
+        <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='float'/>
+        <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='float'/>
         <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string'/>
         <cvalue name="SEQUENCE_TYPE" value='WGS' type='string'
                 description="Only required for TiNDA."/>
@@ -220,11 +224,16 @@
                 <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
                 <rset size="xl" memory="3" cores="3" nodes="1" walltime="24"/>
             </resourcesets>
-
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF_RAW"/>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
-            <output type="file" typeof="TextFile" scriptparameter="FILENAME_CHECKPOINT"/>
+            <output type="tuple" >
+                <output type="file" typeof="TextFile" scriptparameter="FILENAME_CHECKPOINT_SWAP"/>
+                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_RARE_GERMLINE" />
+                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_SOMATIC_RESCUE" />
+                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_ALL_SOMATIC" />
+                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_SWAP_JSON" />
+            </output>
         </tool>
         <tool name="indelAnnotation" value="platypusIndelAnnotation.sh" basepath="indelCallingWorkflow">
             <resourcesets>
@@ -324,7 +333,13 @@
         <filename class='CPFileAnno'     onTool="indelAnnotationWithoutControl" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
         <filename class='CPFileFilter'   onTool="indelVcfFilterWithoutControl" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
 
-        <filename class='TextFile' onTool="checkSampleSwap" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
+        <filename class='TextFile' onScriptParameter='FILENAME_CHECKPOINT_SWAP' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
+        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_RARE_GERMLINE' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.rareGermline.vcf'/>
+        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_SOMATIC_RESCUE' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.somaticRescue.vcf'/>
+        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_ALL_SOMATIC' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.allSomatic.vcf'/>
+        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_SWAP_JSON' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/checkSampleSwap.json'/>
+
+        <!--filename class='CPFileSwap'   onTool="checkSampleSwap" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/-->
 
     </filenames>
 </configuration>
