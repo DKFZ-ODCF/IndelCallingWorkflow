@@ -247,7 +247,6 @@ open(GermlineRareFileText, ">$snvsGT_germlineRare_txt") || die "cant create the 
 print GermlineRareFileText "CHR\tPOS\tREF\tALT\tControl_AF\tTumor_AF\tTumor_dpALT\tTumor_dp\tControl_dpALT\tControl_dp\tRareness\n";
 
 open(SomaticFile, ">$snvsGT_somatic") || die "cant create the $snvsGT_somatic\n";
-
 while(<ANN>) {
   chomp;
   my $annLine = $_;
@@ -309,6 +308,11 @@ close GermlineRareFile;
 close SomaticFile;
 close Ann;
 
+### Crashing when there is less than 50 germline variants
+if($json{'germlineSmallVarsInBothRare'} < 50){
+  die "Less than 50 rare germline variants. Might be a sample swap or poor coverage on any one of the samples, please check the coverage information.\nExiting the analysis";
+}
+
 ## if only TiNDA needs to run with annotation files already available
 TiNDA:
 
@@ -333,12 +337,7 @@ my $runRscript = system($runRscript_code);
 
 if($runRscript != 0) {
   `rm $jsonFile`;  
-  if($runRscript == 50) {
-    die "Less than 50 rare germline variants, might be the control and tumor didn't match. Exiting the analysis";
-  }
-  else{
-    die "Error while running $TiN_R in swapChecker, $runRscript";
-  }
+  die "Error while running $TiN_R in swapChecker, $runRscript";
 }
 
 open(TINDA_rareOutput, $snvsGT_germlineRare_oFile) || die "Can't open the $snvsGT_germlineRare_oFile: $!";
