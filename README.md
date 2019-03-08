@@ -58,6 +58,15 @@ There are quite extensive requirements in annotation etc. data required for the 
 TBD
 
 # Changelist
+* Version update to 2.0.0
+
+  - TiNDA workflow was updated
+  -- Two local controls are removed and a new local control created from ~3000 WGS platypus variant calls were added.
+  -- gnomAD v2.1 exomes and genomes are added
+  -- Variants with MAF above 0.01 in any one of 3 of the background data sets (gnomAD exomes, gnomAD genomes or local control) were considered as common SNPs are were removed.
+  -- Rare germline variants and somatic variants are annotated with ANNOVAR using gencode v19 model
+  -- Temporary TiNDA files are cleaned up
+  -- TiNDA will stop if there are less than 50 rare germline variants
 
 * Version update to 1.3.0
 
