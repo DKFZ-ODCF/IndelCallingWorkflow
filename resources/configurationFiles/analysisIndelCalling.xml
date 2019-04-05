@@ -21,6 +21,7 @@
         <cvalue name='INDIVIDUAL_COUNT' value="2" type="integer"/>
         <cvalue name='CPU_COUNT' value="10" type="integer"/>
         <cvalue name='CALL_SNP' value="1" type="integer"/>
+        <cvalue name='MAX_VARIANT_SCREENSHOTS' value="100" type="integer"/>
 
         <cvalue name='runIndelAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelDeepAnnotation' value="true" type="boolean"/>
