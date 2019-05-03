@@ -26,8 +26,10 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
     --raw_file=${FILENAME_VCF_RAW} \
     --annotate_vcf=${TOOL_ANNOTATE_VCF_FILE} \
-    --gnomAD_commonSNV=${GNOMAD_V2_1_GENOME_SNV_INDEL} \
-    --localControl_commonSNV=${LOCAL_CONTROL_2018_SNV_INDEL} \
+    --gnomAD_genome=${GNOMAD_V2_1_GENOME_SNV_INDEL} \
+    --gnomAD_exome=${GNOMAD_V2_1_EXOME_SNV_INDEL} \
+    --localControl_commonSNV=${LOCAL_CONTROL_PLATYPUS_SNV_INDEL} \
+    --split_mnps_script=${TOOL_SPLIT_MNPS_SCRIPT} \
     --bias_script=${TOOL_STRAND_BIAS_FILTER_PYTHON_FILE} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
     --control_bam=${FILENAME_CONTROL_BAM} \
@@ -39,10 +41,9 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --tumor_header_col=${VCF_TUMOR_HEADER_COL} \
     --sequenceType=${SEQUENCE_TYPE} \
     --exome_capture_kit_bed=${EXOME_CAPTURE_KIT_BEDFILE} \
-    --bedtools_binary=${BEDTOOLS_BINARY} \
+    --gene_model_bed=${GENE_MODEL_BEDFILE} \
     --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
     --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
-    --TiNDA_runRscript=${TINDA_RUN_RSCRIPT} \
     --maf_thershold=${TINDA_MAX_MAF_CUTOFF} \
     --outfile_rareGermline=${FILENAME_RARE_GERMLINE} \
     --outfile_somaticRescue=${FILENAME_SOMATIC_RESCUE} \
