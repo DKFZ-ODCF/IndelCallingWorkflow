@@ -18,6 +18,10 @@
 ### Remove previous downstream files
 #rm ${VCF_SOMATIC} ${VCF_SOMATIC_FUNCTIONAL}
 
+## Bam header analysis
+source ${TOOL_ANALYZE_BAM_HEADER}
+getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
+
 ########################################## Filter ###############################################
 
 outputFilenamePrefix=${FILENAME_VCF%.vcf.gz}
