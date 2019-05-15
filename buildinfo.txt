@@ -1,2 +1,2 @@
-dependson=COWorkflowsBasePlugin:1.1.0
-RoddyAPIVersion=3.0
+dependson=COWorkflowsBasePlugin:1.5.0
+RoddyAPIVersion=3.5

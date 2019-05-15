@@ -52,12 +52,35 @@ There are quite extensive requirements in annotation etc. data required for the 
 | extractSamplesFromOutputFiles | true | |
 | CHROMOSOME_INDICES | empty | Bash-array of chromosome names to which the analysis should be restricted |
 
+Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.5.0+ with an alternative algorithm for extracting sample names from BAM files.
 
 # Example call
 
 TBD
 
 # Changelist
+
+* Version update to 2.2.0
+
+  * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.5.0
+  * Executability check for `REFERENCE_GENOME` variable (file accessible from submission host)
+
+* Version update to 2.1.0-1
+
+  * Added gnomAD exomes
+  * Check REF_genome for BAM files
+  * Check BAM file readability
+  * Added local controls
+  * Adding python script for parsing MNPs
+
+* Version update to 2.0.0-2
+
+  * Restricting screenshot generation to 100
+
+* Version update to 2.0.0-1
+
+  * README update
+
 * Version update to 2.0.0
 
   - TiNDA workflow was updated
