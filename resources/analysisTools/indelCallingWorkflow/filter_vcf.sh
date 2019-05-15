@@ -18,6 +18,10 @@
 ### Remove previous downstream files
 #rm ${VCF_SOMATIC} ${VCF_SOMATIC_FUNCTIONAL}
 
+## Bam header analysis
+source ${TOOL_ANALYZE_BAM_HEADER}
+getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
+
 ########################################## Filter ###############################################
 
 outputFilenamePrefix=${FILENAME_VCF%.vcf.gz}
@@ -67,14 +71,21 @@ ${PERL_BINARY} ${TOOL_PLATYPUS_INDEL_EXTRACTOR} --bgzip=${BGZIP_BINARY} --tabix=
 
 [[ ! -d ${screenshot_dir} ]] && mkdir ${screenshot_dir} && cd ${screenshot_dir}
 
-[[ "${isControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILE_CONTROL_BAM} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
-[[ "${isNoControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+functional_var_count=`cat ${somatic_functional_indel_vcf} | wc -l | cut -f1 -d " "`
 
+if [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]
+then
 
-pngs=(`ls *.pdf`)
-sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
+  [[ "${isControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILE_CONTROL_BAM} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+  [[ "${isNoControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
 
-${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
+  pngs=(`ls *.pdf`)
+  sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
+
+  ${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
+else
+  printf "WARNINGS: No screenshots done, more than $MAX_VARIANT_SCREENSHOTS (cvalue - MAX_VARIANT_SCREENSHOTS) functional variants present in ${somatic_functional_indel_vcf} \n"
+fi
 
 #### Indel QC json file
 resultBasePath=`dirname ${FILENAME_VCF}`

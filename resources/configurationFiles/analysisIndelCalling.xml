@@ -21,6 +21,7 @@
         <cvalue name='INDIVIDUAL_COUNT' value="2" type="integer"/>
         <cvalue name='CPU_COUNT' value="10" type="integer"/>
         <cvalue name='CALL_SNP' value="1" type="integer"/>
+        <cvalue name='MAX_VARIANT_SCREENSHOTS' value="100" type="integer"/>
 
         <cvalue name='runIndelAnnotation' value="true" type="boolean"/>
         <cvalue name='runIndelDeepAnnotation' value="true" type="boolean"/>
@@ -48,15 +49,14 @@
         <cvalue name="DBSNP_SNV" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.SNV.vcf.gz" type="path"/>
         <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
-        <cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_Indel.vcf.gz" type="path"/>
-        <!--cvalue name="GNOMAD_WGS_COMMON_SNV" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.SNVs-INDELs.Common.vcf.gz" type="path"/>
-        <cvalue name="LOCAL_CONTROL_COMMON_SNV" value="${hg19DatabasesDirectory}/LocalControls/pcawg_AF.All.CommonArtifacts.vcf.gz" type="path"/>
-        <cvalue name="LOCAL_CONTROL_COMMON_SNV_2" value="${hg19DatabasesDirectory}/LocalControls/LocalControlConsolidated_AF.INFO.ACgt10.vcf.gz" type="path"/-->
-        <cvalue name="EXOME_CAPTURE_KIT_BEDFILE" value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' type="path" />
-        <!-- New gnomAD files and local control, needs to be moved to NGS share -->
+        <cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path"/>
+        <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
+        <cvalue name="GENE_MODEL_BEDFILE" value='${hg19DatabasesDirectory}/gencode/gencode19/GencodeV19_Exons_plain.bed.gz' type="path" />
+        
         <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
-        <cvalue name="LOCAL_CONTROL_2018_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/localControl_AF_2018.Platypus-SNV-INDEL.vcf.gz" type="path" />
-        <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.01" type='float' />
+        <cvalue name="GNOMAD_V2_1_EXOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_PLATYPUS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
         <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string"/>
@@ -87,8 +87,8 @@
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
         
         <!-- gnomAD files for no-control workflow -->
-        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.genomes.r2.0.1.sites.chr1-22-X.INDELs.All.vcf.gz" />
-        <cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad.exomes.r2.0.1.sites.INDELs.vcf.gz" />
+        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.INDEL.vcf.gz" />
+        <cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.INDEL.vcf.gz" />
  
         <!-- More configuration options -->
         <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
@@ -198,6 +198,7 @@
 
         <!--## SwapChecker -->
         <tool name="checkSampleSwapScript" value="checkSampleSwap_TiN.pl" basepath="indelCallingWorkflow"/>
+        <tool name="splitMnpsScript" value="splitMNPsAndComplex.py" basepath="indelCallingWorkflow"/>
         <tool name="strandBiasFilterPythonFile" value="biasFilter.py" basepath='indelCallingWorkflow'/>
         <tool name="tumorInNormalPlotRscript" value="TiN_CanopyBasedClustering.R" basepath='indelCallingWorkflow'/>
         <tool name="canopyClusterFunctionRscript" value="canopyCluster_updatedFunction.R" basepath='indelCallingWorkflow'/>

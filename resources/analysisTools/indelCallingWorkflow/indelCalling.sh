@@ -17,9 +17,6 @@ SCRATCH_DIR=${RODDY_SCRATCH}
 LOG_TMP=${SCRATCH_DIR}/platyLog.tmp
 ####################################### Calling Script #################################################
 CALL_SNP=${CALL_SNP-0}
-source ${TOOL_ANALYZE_BAM_HEADER}
-
-getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
 
 mkdir -p ${DIR_TEMP}/indelCalling
 fileECPlatypus=${DIR_TEMP}/indelCalling/ecplatypus.txt
@@ -31,12 +28,15 @@ fileECConfAnno=${DIR_TEMP}/indelCalling/ecconfanno.txt
 PLATYPUS_BUFFER_SIZE=${PLATYPUS_BUFFER_SIZE-100000}
 PLATYPUS_MAX_READS=${PLATYPUS_MAX_READS-5000000}
 
-[[ ! -e ${FILENAME_TUMOR_BAM} ]] && echo "Tumor bam is missing or not right." && exit 201
+[[ ! -r ${FILENAME_TUMOR_BAM} ]] && echo "Tumor bam is missing or not right." && exit 201
 bamFiles=${FILENAME_TUMOR_BAM}
 if [[ ${isControlWorkflow} == true ]]; then
-    [[ ! -e ${FILENAME_CONTROL_BAM} ]] && echo "Control bam is missing or not right." && exit 200
+    [[ ! -r ${FILENAME_CONTROL_BAM} ]] && echo "Control bam is missing or not right." && exit 200
     bamFiles="${FILENAME_CONTROL_BAM},${bamFiles}"
 fi
+
+source ${TOOL_ANALYZE_BAM_HEADER}
+getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
 
 ${PLATYPUS_BINARY} callVariants \
 	--refFile=${REFERENCE_GENOME} \

@@ -17,10 +17,11 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, $gnomAD, 
-  $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, 
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, 
+  $gnomAD_genome, $gnomAD_exome, $split_mnps_script,
+  $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
   $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
-  $bottomBorder, $runTiNDAalone, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
+  $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
 
 # Filtering setting to assign common or rare variants
 my $AF_cutoff;
@@ -28,8 +29,10 @@ my $AF_cutoff;
 GetOptions ("pid=s"                      => \$pid,
             "raw_file=s"                 => \$rawFile,
             "annotate_vcf=s"             => \$ANNOTATE_VCF, 
-            "gnomAD_commonSNV=s"         => \$gnomAD,
+            "gnomAD_genome=s"            => \$gnomAD_genome,
+            "gnomAD_exome=s"             => \$gnomAD_exome,
             "localControl_commonSNV=s"   => \$localControl,
+            "split_mnps_script=s"        => \$split_mnps_script,
             "bias_script=s"              => \$biasScript,
             "tumor_bam=s"                => \$tumorBAM,
             "control_bam=s"              => \$controlBAM,
@@ -41,10 +44,9 @@ GetOptions ("pid=s"                      => \$pid,
             "tumor_header_col=s"         => \$tumor_header_pattern,
             "sequenceType=s"             => \$seqType,
             "exome_capture_kit_bed=s"    => \$captureKit,
-            "bedtools_binary=s"          => \$bedtoolsBinary,
+            "gene_model_bed=s"           => \$geneModel,
             "TiNDA_rightBorder:f"        => \$rightBorder,
             "TiNDA_bottomBorder:f"       => \$bottomBorder,
-            "TiNDA_runRscript:i"         => \$runTiNDAalone,
             "maf_thershold:f"            => \$AF_cutoff,
             "outfile_rareGermline:s"     => \$outfile_RG,
             "outfile_somaticRescue:s"    => \$outfile_SR,
@@ -56,7 +58,8 @@ or die("Error in SwapChecker input parameters");
 die("ERROR: PID is not provided\n") unless defined $pid;
 die("ERROR: Raw vcf file is not provided\n") unless defined $rawFile;
 die("ERROR: annotate_vcf.pl script path is missing\n") unless defined $ANNOTATE_VCF;
-die("ERROR: gnomAD common SNVs is not provided\n") unless defined $gnomAD;
+die("ERROR: gnomAD genome is not provided\n") unless defined $gnomAD_genome;
+die("ERROR: gnomAD exome is not provided\n") unless defined $gnomAD_exome;
 die("ERROR: strand bias script path is missing\n") unless defined $ANNOTATE_VCF;
 die("ERROR: Tumor bam is missing\n") unless defined $tumorBAM;
 die("ERROR: Control bam is missing\n") unless defined $controlBAM;
@@ -105,25 +108,19 @@ my %json = (
 );
 
 
-### 
-# if only TiNDA needs to be run
-if($runTiNDAalone==1) {
-
-  goto TiNDA;
-}
-
 ###########
 ### WES vs WGS 
 # If WES filter for the seq kit
 my $updated_rawFile;
 # update in WES
 if($seqType eq 'WES') {
-   #$updated_rawFile = $rawFile.".intersect.gz";
-  #`$bedtoolsBinary intersect -header -a $rawFile -b $captureKit | bgzip > $updated_rawFile ; tabix -p vcf $updated_rawFile`;
-  $updated_rawFile = $rawFile;
+   $updated_rawFile = $rawFile.".intersect.gz";
+  `bedtools slop -i $geneModel -b 5 -g $chrLengthFile | bedtools merge -i - | bedtools intersect -header -a $rawFile -b - | bgzip -f > $updated_rawFile ; tabix -f -p vcf $updated_rawFile`;
+  #$updated_rawFile = $rawFile;
 }
 elsif($seqType eq 'WGS') {
    $updated_rawFile = $rawFile;
+   #`zcat $rawFile | python $split_mnps_script | bgzip -f > $updated_rawFile; tabix -f -p vcf $updated_rawFile`;
 }
 
 open(my $IN, 'zcat '. $updated_rawFile.'| ') || die "Cant read in the $updated_rawFile\n";
@@ -192,7 +189,7 @@ while(<$IN>) {
 
     # Removing extra chr contigs, Indels and bad quality snvs
     # Including both indels and snvs - removed as we will have issue with bias Filter
-    if($chr=~/^(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/ && $variantInfos[4] != /,/) {
+    if($chr=~/^(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
 
 
       my @tumor_dp = split(/,/, $tumor[$iDP]);
@@ -218,7 +215,7 @@ while(<$IN>) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tControl_Somatic\n";
             $json{'somaticSmallVarsInControl'}++;
           }
-          elsif($tumor_AF > 0 && $control_AF > 0) {
+          elsif($tumor_nv[$i] > 1 && $control_nv[$i] >= 1) {
             print GTraw "$newLine\t$control_AF\t$tumor_AF\t$tumor_nv[$i]\t$tumor_dp[$i]\t$control_nv[$i]\t$control_dp[$i]\tGermlineInBoth\n";
           }
         }
@@ -229,8 +226,12 @@ while(<$IN>) {
 
 close GTraw;
 
+### Cleaning up MNPs, due to the MNPs escaping in multi-SNVs lines
+`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
+
+
 ## Annotating with gnomAD and local control 
-my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportOnlyMatches --reportMatchType --reportLevel 4 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl_2018' --bAdditionalColumn=2  --reportOnlyMatches --reportMatchType --reportLevel 4 > '$snvsGT_gnomADFile'");
+my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
 
 
 if($runAnnotation != 0 ) {
@@ -249,6 +250,13 @@ print GermlineRareFileText "CHR\tPOS\tREF\tALT\tControl_AF\tTumor_AF\tTumor_dpAL
 open(SomaticFile, ">$snvsGT_somatic") || die "cant create the $snvsGT_somatic\n";
 while(<ANN>) {
   chomp;
+  # column counters
+  my $start_col = $columnCounter+1;
+  my $end_col = $columnCounter+6;
+  my $gnomAD_genome_col = $columnCounter+8;
+  my $gnomAD_exome_col = $columnCounter+9;
+  my $localcontrol_col = $columnCounter+10;
+
   my $annLine = $_;
   if($annLine =~ /^#/) {
     print GermlineRareFile "$annLine\n";
@@ -256,32 +264,33 @@ while(<ANN>) {
   }
   else {
     my @annLineSplit = split(/\t/, $annLine);
-    my $start_col = $columnCounter+1;
-    my $end_col = $columnCounter+6;
-    my $gnomAD_col = $columnCounter+8; 
-    my $localcontrol_col = $columnCounter+9;
 
     my $germlineTextInfo = join("\t", @annLineSplit[0..1], @annLineSplit[3..4], @annLineSplit[$start_col..$end_col]);
     
     ### rare or common in gnomAD or local control
-    my $AF_gnomAD = 0;
+    my $AF_gnomAD_genome = 0;
+    my $AF_gnomAD_exome = 0;
     my $AF_localcontrol = 0;
     
-    if($annLineSplit[$gnomAD_col]!~/^\.$/) {
-      ($AF_gnomAD) = $annLineSplit[$gnomAD_col] =~ /AF=(\d\.\d+(e-\d+)?)/;
+    if($annLineSplit[$gnomAD_genome_col] =~/MATCH=(exact|position)/) {
+      $AF_gnomAD_genome = parse_AF($annLineSplit[$gnomAD_genome_col] );      
     }
-    if($annLineSplit[$localcontrol_col] !~ /^\.$/) {
-      ($AF_localcontrol) = $annLineSplit[$localcontrol_col] =~ /AF=(\d\.\d+(e-\d+)?)/; 
+    if($annLineSplit[$gnomAD_exome_col] =~/MATCH=(exact|position)/) {
+      $AF_gnomAD_exome = parse_AF($annLineSplit[$gnomAD_exome_col]);      
+    }
+    if($annLineSplit[$localcontrol_col] =~ /MATCH=(exact|position)/) {
+      $AF_localcontrol = parse_AF($annLineSplit[$localcontrol_col]);      
     }
 
     my $common_rare = "RARE";
-    if($AF_gnomAD > $AF_cutoff || $AF_localcontrol > $AF_cutoff) {
+    if($AF_gnomAD_genome > $AF_cutoff || $AF_gnomAD_exome > $AF_cutoff || $AF_localcontrol > $AF_cutoff) {
       $common_rare  = "COMMON";    
     }
+    
 
     # Somatic rare or common 
     if($annLine=~/_Somatic/) {
-      if($common_rare eq "COMMOM") {
+      if($common_rare eq "COMMON") {
         $annLine =~ s/_Somatic/_Somatic_Common/;
         print SomaticFile "$annLine\n"; 
       }
@@ -312,9 +321,6 @@ close Ann;
 if($json{'germlineSmallVarsInBothRare'} < 50){
   die "Less than 50 rare germline variants. Might be a sample swap or poor coverage on any one of the samples, please check the coverage information.\nExiting the analysis";
 }
-
-## if only TiNDA needs to run with annotation files already available
-TiNDA:
 
 #######################################
 ### Finding and plotting TiN
@@ -403,7 +409,7 @@ while(<GRA>){
   elsif($tmp_GRA=~/Germline|SomaticControlRare/){
     print RG "$tmp_GRA\n";
   }
-  elsif($tmp_GRA=~/SomaticRescue/){
+  elsif($tmp_GRA=~/Somatic_Rescue/){
     print SR "$tmp_GRA\n";
   }
 }
@@ -487,10 +493,33 @@ close JSON;
 
 ######################################
 #### Cleaning up files 
-`rm $snvsGT_RawFile $snvsGT_gnomADFile`;
+#`rm $snvsGT_RawFile $snvsGT_gnomADFile`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
 
-`rm $snvsGT_somatic $snvsGT_germlineRare`;
-`rm $snvsGT_germlineRare_txt`;
+#`rm $snvsGT_somatic $snvsGT_germlineRare`;
+#`rm $snvsGT_germlineRare_txt`;
 `rm $snvsGT_germlineRare_oVCF_annovar`;
+
+
+#####################################
+# Subroutine to parse AF from multiple or single match
+# ## 
+sub parse_AF{
+
+  my $line = $_[0];
+  my $AF = 0;
+  if($line=~/\&/){
+    my @lines = split(/&/, $line);
+    foreach my $match(@lines) {
+      my ($temp_AF) = $match =~ /;AF=(\d(\.\d+(e-\d+)?)?);/;
+      if($temp_AF > $AF) {
+        $AF = $temp_AF;
+      }
+    }
+  }
+  else{
+    ($AF) = $line =~ /;AF=(\d(\.\d+(e-\d+)?)?);/;
+  }
+  return($AF);
+}
