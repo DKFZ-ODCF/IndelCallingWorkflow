@@ -52,7 +52,7 @@ There are quite extensive requirements in annotation etc. data required for the 
 | extractSamplesFromOutputFiles | true | |
 | CHROMOSOME_INDICES | empty | Bash-array of chromosome names to which the analysis should be restricted |
 
-Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.5.0+ with an alternative algorithm for extracting sample names from BAM files.
+Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.4.1+ with an alternative algorithm for extracting sample names from BAM files.
 
 # Example call
 
@@ -62,7 +62,7 @@ TBD
 
 * Version update to 2.2.0
 
-  * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.5.0
+  * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.4.1
   * Executability check for `REFERENCE_GENOME` variable (file accessible from submission host)
 
 * Version update to 2.1.0-1
