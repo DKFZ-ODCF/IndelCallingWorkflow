@@ -76,8 +76,8 @@ functional_var_count=`cat ${somatic_functional_indel_vcf} | wc -l | cut -f1 -d "
 if [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]
 then
 
-  [[ "${isControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILE_CONTROL_BAM} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
-  [[ "${isNoControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILE_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+  [[ "${isControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILENAME_CONTROL_BAM} --tumor=${FILENAME_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+  [[ "${isNoControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILENAME_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
 
   pngs=(`ls *.pdf`)
   sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)

@@ -272,8 +272,8 @@
                 <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
                 <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
             </resourcesets>
-            <input type="file" typeof="TumorBamFile" scriptparameter="FILE_TUMOR_BAM"/>
-            <input type="file" typeof="ControlBamFile" scriptparameter="FILE_CONTROL_BAM"/>
+            <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
+            <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF"/>
             <output type="file" typeof="CPFileFilter" scriptparameter="FILENAME_CHECKPOINT"/>
         </tool>
@@ -312,7 +312,7 @@
                 <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
                 <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
             </resourcesets>
-            <input type="file" typeof="TumorBamFile" scriptparameter="FILE_TUMOR_BAM"/>
+            <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF"/>
             <output type="file" typeof="CPFileFilter" scriptparameter="FILENAME_CHECKPOINT"/>
         </tool>
