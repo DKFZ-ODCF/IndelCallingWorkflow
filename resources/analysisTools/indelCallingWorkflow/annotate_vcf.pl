@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #
-# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+# Copyright (c) 2018 German Cancer Research Center (Deutsches Krebsforschungszentrum, DKFZ).
 #
-# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow/LICENSE).
 #
 
 use strict;
@@ -13,194 +13,188 @@ my %opts;
 my @standardColnames;
 
 BEGIN {
-  use Getopt::Long;
-  use Pod::Usage;
-  
-  if (! @ARGV) {
-    pod2usage({-verbose => 1, -exitval => 2, -output => \*STDERR});
-  }
-  
-  %opts = ('tabix_bin' => 'tabix',
-	   #'bgzip_bin' => 'bgzip',
-	   'aFileType' => 'vcf',
-	   'bFileType' => 'vcf',
-	   'padding' => 0,
-	   'maxBorderDistanceSum' => -1, # negative values in one of these disable this filter
-	   'minOverlapFraction' => -1,   # CAVE: it is one filter --- both conditions are connected by OR
-	   'reportLevel' => 2, # 1: exact or position or all; 2: exact or all; 3: all,
-	   'aPosOffset' => 0,
-	   'aEndOffset' => 0,
-	   'maxNrOfMatches' => 0,
-	   'aColNameLineStart' => '#CHR',
-	   'noMatchString' => '.',
-	   'emptyBFields' => 0,
-	  );
+    use Getopt::Long;
+    use Pod::Usage;
 
+    if (!@ARGV) {
+        pod2usage({ -verbose => 1, -exitval => 2, -output => \*STDERR });
+    }
 
+    %opts = ('tabix_bin'       => 'tabix',
+        #'bgzip_bin' => 'bgzip',
+        'aFileType'            => 'vcf',
+        'bFileType'            => 'vcf',
+        'padding'              => 0,
+        'maxBorderDistanceSum' => -1, # negative values in one of these disable this filter
+        'minOverlapFraction'   => -1, # CAVE: it is one filter --- both conditions are connected by OR
+        'reportLevel'          => 2,  # 1: exact or position or all; 2: exact or all; 3: all,
+        'aPosOffset'           => 0,
+        'aEndOffset'           => 0,
+        'maxNrOfMatches'       => 0,
+        'aColNameLineStart'    => '#CHR',
+        'noMatchString'        => '.',
+        'emptyBFields'         => 0,
+    );
 
-  GetOptions( 'a=s' => \$opts{afile},
-	      'b=s' => \$opts{bfile},
-	      'columnName=s' => \$opts{columnname},
-	      'padding:i' => \$opts{padding},
-	      'tabix_bin:s' => \$opts{tabix_bin},
-	      #'bgzip_bin:s' => \$opts{bgzip_bin},
-	      'bReportColumn:i' => \$opts{bReportColumn},
-	      'bAdditionalColumns:s' => \$opts{bcolumns},
-	      'minOverlapFraction:f' => \$opts{minOverlapFraction},
-	      'maxBorderDistanceSum:i' => \$opts{maxBorderDistanceSum},
-	      'bFileType:s' => \$opts{bFileType},
-	      'aFileType:s' => \$opts{aFileType},
-	      'aChromColumn:s' => \$opts{aChromColumn},
-	      'aPosColumn:s' => \$opts{aPosColumn},
-	      'aEndColumn:s' => \$opts{aEndColumn},
-	      'aPosOffset:i' => \$opts{aPosOffset},
-	      'aEndOffset:i' => \$opts{aEndOffset},
-	      'aColNameLineStart:s' => \$opts{aColNameLineStart},
-	      'reportLevel:i' => \$opts{reportLevel},
-	      'reportMatchType!' => \$opts{reportMatchType},
-	      'reportBFeatCoord!' => \$opts{reportBFeatCoord},
-	      'reportOnlyMatches!' => \$opts{reportOnlyMatches},
-	      'maxNrOfMatches:i' => \$opts{maxNrOfMatches},
-	      'noMatchString:s' => \$opts{noMatchString},
-	      'breakPointMode!' => \$opts{breakPointMode},
-	      'chromXtr:s' => \$opts{chromXtr},
-	      'chromYtr:s' => \$opts{chromYtr},
-	      'emptyBFields' => \$opts{emptyBFields},
-	      'debug!' => \$opts{debug},
-	      'help' => \$opts{help},
-	    ) || pod2usage({-verbose => 1, -message => "$!", -exitval => 2, -output => \*STDERR});
+    GetOptions('a=s'             => \$opts{afile},
+        'b=s'                    => \$opts{bfile},
+        'columnName=s'           => \$opts{columnname},
+        'padding:i'              => \$opts{padding},
+        'tabix_bin:s'            => \$opts{tabix_bin},
+        #'bgzip_bin:s' => \$opts{bgzip_bin},
+        'bReportColumn:i'        => \$opts{bReportColumn},
+        'bAdditionalColumns:s'   => \$opts{bcolumns},
+        'minOverlapFraction:f'   => \$opts{minOverlapFraction},
+        'maxBorderDistanceSum:i' => \$opts{maxBorderDistanceSum},
+        'bFileType:s'            => \$opts{bFileType},
+        'aFileType:s'            => \$opts{aFileType},
+        'aChromColumn:s'         => \$opts{aChromColumn},
+        'aPosColumn:s'           => \$opts{aPosColumn},
+        'aEndColumn:s'           => \$opts{aEndColumn},
+        'aPosOffset:i'           => \$opts{aPosOffset},
+        'aEndOffset:i'           => \$opts{aEndOffset},
+        'aColNameLineStart:s'    => \$opts{aColNameLineStart},
+        'reportLevel:i'          => \$opts{reportLevel},
+        'reportMatchType!'       => \$opts{reportMatchType},
+        'reportBFeatCoord!'      => \$opts{reportBFeatCoord},
+        'reportOnlyMatches!'     => \$opts{reportOnlyMatches},
+        'maxNrOfMatches:i'       => \$opts{maxNrOfMatches},
+        'noMatchString:s'        => \$opts{noMatchString},
+        'breakPointMode!'        => \$opts{breakPointMode},
+        'chromXtr:s'             => \$opts{chromXtr},
+        'chromYtr:s'             => \$opts{chromYtr},
+        'emptyBFields'           => \$opts{emptyBFields},
+        'debug!'                 => \$opts{debug},
+        'help'                   => \$opts{help},
+    ) || pod2usage({ -verbose => 1, -message => "$!", -exitval => 2, -output => \*STDERR });
 
-  if ($opts{help}) {
-    pod2usage({-verbose => 2, -exitval => 1});
-  }
+    if ($opts{help}) {
+        pod2usage({ -verbose => 2, -exitval => 1 });
+    }
 
-  ### Process user input and check validity
-  if (! $opts{afile} || ! $opts{bfile} || ! $opts{columnname}) {
-    pod2usage({-verbose => 1, -message => "Required parameter missing (a, b and columnname are required)", -exitval => 2, -output => \*STDERR});
-  }
+    ### Process user input and check validity
+    if (!$opts{afile} || !$opts{bfile} || !$opts{columnname}) {
+        pod2usage({ -verbose => 1, -message => "Required parameter missing (a, b and columnname are required)", -exitval => 2, -output => \*STDERR });
+    }
 
-  $opts{bFileType} = lc($opts{bFileType});
+    $opts{bFileType} = lc($opts{bFileType});
 
-  my %valid_bFileTypes = ( 'vcf' => 1,
-			   'bed' => 1,
-			   'gff3' => 1,
-			   'bed_refvar' => 1,
-			 );
-  $valid_bFileTypes{$opts{bFileType}} || die "Unknown b-file type $opts{bFileType}. Only b-files of type ". join(" ", sort keys %valid_bFileTypes). " are supported";
+    my %valid_bFileTypes = ('vcf' => 1,
+        'bed'                     => 1,
+        'gff3'                    => 1,
+        'bed_refvar'              => 1,
+    );
+    $valid_bFileTypes{$opts{bFileType}} || die "Unknown b-file type $opts{bFileType}. Only b-files of type " . join(" ", sort keys %valid_bFileTypes) . " are supported";
 
-  $opts{aFileType} = lc($opts{aFileType});
-  my %valid_aFileTypes = ( 'vcf' => 1,
-			   'custom' => 1,
-			 );
-  $valid_aFileTypes{$opts{aFileType}} || die "Only a-files of type ". join(" ", sort keys %valid_aFileTypes). " are supported";
+    $opts{aFileType} = lc($opts{aFileType});
+    my %valid_aFileTypes = ('vcf' => 1,
+        'custom'                  => 1,
+    );
+    $valid_aFileTypes{$opts{aFileType}} || die "Only a-files of type " . join(" ", sort keys %valid_aFileTypes) . " are supported";
 
-  if (! defined($opts{bReportColumn})) {
-    $opts{bReportColumn} = ($opts{bFileType} eq 'vcf') ? 7 : ($opts{bFileType} eq 'gff3') ? 8 : 3;
-  }
+    if (!defined($opts{bReportColumn})) {
+        $opts{bReportColumn} = ($opts{bFileType} eq 'vcf') ? 7 : ($opts{bFileType} eq 'gff3') ? 8 : 3;
+    }
 
-  ### Now make constants
-  require constant;
-  for (keys %opts) {
-    constant->import(uc($_), $opts{$_});
-  }
-  if ($opts{aFileType} eq 'vcf') {
-    constant->import(CHROMCOL => 'CHROM');
-    constant->import(POSCOL => 'POS');
-  } elsif ($opts{aFileType} eq 'custom') {
-    constant->import(CHROMCOL => $opts{aChromColumn});
-    constant->import(POSCOL => $opts{aPosColumn});
-    constant->import(ENDCOL => $opts{aEndColumn});
-  }
+    ### Now make constants
+    require constant;
+    for (keys %opts) {
+        constant->import(uc($_), $opts{$_});
+    }
+    if ($opts{aFileType} eq 'vcf') {
+        constant->import(CHROMCOL => 'CHROM');
+        constant->import(POSCOL => 'POS');
+    } elsif ($opts{aFileType} eq 'custom') {
+        constant->import(CHROMCOL => $opts{aChromColumn});
+        constant->import(POSCOL => $opts{aPosColumn});
+        constant->import(ENDCOL => $opts{aEndColumn});
+    }
 
 }
 if (BFILETYPE eq 'vcf') {
-  @standardColnames = qw(CHROM POS ID REF ALT QUAL FILTER INFO);
+    @standardColnames = qw(CHROM POS ID REF ALT QUAL FILTER INFO);
 } elsif (BFILETYPE eq 'gff3') {
-  @standardColnames = qw(seqid source type start end score strand phase attributes);
+    @standardColnames = qw(seqid source type start end score strand phase attributes);
 } elsif (BFILETYPE eq 'bed_refvar') {
-  @standardColnames = (qw(chrom chromStart chromEnd ), 'ref>var');
+    @standardColnames = (qw(chrom chromStart chromEnd), 'ref>var');
 } else {
-  @standardColnames = qw(chrom chromStart chromEnd name);
+    @standardColnames = qw(chrom chromStart chromEnd name);
 }
-
 
 DEBUG && say "MINOVERLAPFRACTION: ", MINOVERLAPFRACTION(), "MAXBORDERDISTANCESUM: ", MAXBORDERDISTANCESUM();
 
 
 #my $newcol = $opts{columnname};
 #my $pad = $opts{padding};
- 
+
 open(A, "$opts{afile}") || die "Could not open a-file $opts{afile}\n";
 
-if (! -e $opts{bfile})
-{
-	die "The b-file $opts{bfile} does not exist, exiting!\n";
+if (!-e $opts{bfile}) {
+    die "The b-file $opts{bfile} does not exist, exiting!\n";
 }
-if (! -e "$opts{bfile}.tbi")
-{
-	die "There is no .tbi index for b-file $opts{bfile}, exiting!\n";
+if (!-e "$opts{bfile}.tbi") {
+    die "There is no .tbi index for b-file $opts{bfile}, exiting!\n";
 }
 
 # guess b file chr format ## TODO: this does not work in every case
 my ($b_chr_prefix, $b_chr_suffix);
 open(GUESS, TABIX_BIN . " -l $opts{bfile} | ");
 while (<GUESS>) {
-  chomp;
-  if (/([^\d]*)\d+(.*)/) {
-    $b_chr_prefix = $1;
-    $b_chr_suffix = $2;
-    last;
-  }
+    chomp;
+    if (/([^\d]*)\d+(.*)/) {
+        $b_chr_prefix = $1;
+        $b_chr_suffix = $2;
+        last;
+    }
 }
 close GUESS;
-$b_chr_prefix = '' if (! defined($b_chr_prefix));
-$b_chr_suffix = '' if (! defined($b_chr_suffix));
+$b_chr_prefix = '' if (!defined($b_chr_prefix));
+$b_chr_suffix = '' if (!defined($b_chr_suffix));
 
 
 # get b-file column names
 my @b_colnames;
-if (BFILETYPE ne 'gff3') { # gff3 files have no column names in header
-  my $b_header_cmd = TABIX_BIN() . " -h $opts{bfile} $b_chr_prefix" . '1' . $b_chr_suffix . ":0-0 |";
-  open(HEAD, $b_header_cmd);
-  my @b_header = <HEAD>;
-  
-  #### if I have a multi-line header print out all lines but the last
-  #for (my $i=0; $i < @b_header-1; $i++) {
-  #  print $b_header[$i];
-  #}
-  
-  ### the last line should contain the column names
-  if (@b_header) {
-    my $b_header = $b_header[-1];
-    chomp($b_header);
-    $b_header =~ s/^\#//;
-    @b_colnames = split(/\t/, $b_header);
-  }
-}
-if (! @b_colnames) {
-  @b_colnames =  @standardColnames;
-}
+if (BFILETYPE ne 'gff3') {
+    # gff3 files have no column names in header
+    my $b_header_cmd = TABIX_BIN() . " -h $opts{bfile} $b_chr_prefix" . '1' . $b_chr_suffix . ":0-0 |";
+    open(HEAD, $b_header_cmd);
+    my @b_header = <HEAD>;
 
+    #### if I have a multi-line header print out all lines but the last
+    #for (my $i=0; $i < @b_header-1; $i++) {
+    #  print $b_header[$i];
+    #}
+
+    ### the last line should contain the column names
+    if (@b_header) {
+        my $b_header = $b_header[-1];
+        chomp($b_header);
+        $b_header =~ s/^\#//;
+        @b_colnames = split(/\t/, $b_header);
+    }
+}
+if (!@b_colnames) {
+    @b_colnames = @standardColnames;
+}
 
 DEBUG && say "b_colnames: @b_colnames";
-
 
 my $newcolidx;
 my %a_fields;
 my @b_fields;
 my @a_columns;
 my %a_columns;
-my @b_columns = split(',',$opts{bcolumns}) if (defined($opts{bcolumns}));
-my $chr='';
+my @b_columns = split(',', $opts{bcolumns}) if (defined($opts{bcolumns}));
+my $chr = '';
 my $chr_raw = '';
 my $mh;
 my $rs;
 
 my $header;
 while ($header = <A>) {
-  last if ($header =~ /^$opts{aColNameLineStart}/i); # that is the line with the column names
-  print $header; # print out every preceeding line
-  die "Invalid a-file header" if ($header =~ /^[^\#]/);
+    last if ($header =~ /^$opts{aColNameLineStart}/i); # that is the line with the column names
+    print $header;                                     # print out every preceeding line
+    die "Invalid a-file header" if ($header =~ /^[^\#]/);
 }
 
 chomp $header;
@@ -209,32 +203,31 @@ $header =~ s/(?:(?<=\t)\s+)||(?:\s+(?=\t|$))//g; ### remove leading and trailing
 @a_columns = split(/\t/, $header);
 $newcolidx = 0;
 foreach (@a_columns) {
-  if ($_ eq COLUMNNAME()) {
-    last;
-  }
-  $newcolidx++;
+    if ($_ eq COLUMNNAME()) {
+        last;
+    }
+    $newcolidx++;
 }
 if ($newcolidx == @a_columns) {
-  say $poundkey_rm ? '#' : '', $header, "\t", COLUMNNAME();
-  push @a_columns, COLUMNNAME();
+    say $poundkey_rm ? '#' : '', $header, "\t", COLUMNNAME();
+    push @a_columns, COLUMNNAME();
 } else {
-  say $poundkey_rm ? '#' : '', $header;
+    say $poundkey_rm ? '#' : '', $header;
 }
 
-%a_columns = map { $_ => 1 } @a_columns;
+%a_columns = map {$_ => 1} @a_columns;
 
-if (! exists $a_columns{CHROMCOL()}) {
-  die "CHROMCOL not found in a-file ";
+if (!exists $a_columns{CHROMCOL()}) {
+    die "CHROMCOL not found in a-file ";
 }
 
-if (! exists $a_columns{POSCOL()}) {
-  die "POSCOL not found in a-file ";
+if (!exists $a_columns{POSCOL()}) {
+    die "POSCOL not found in a-file ";
 }
 
-if ($opts{aFileType} eq  'custom' && ! exists $a_columns{ENDCOL()}) {
-  die "ENDCOL not found in a-file ";
+if ($opts{aFileType} eq 'custom' && !exists $a_columns{ENDCOL()}) {
+    die "ENDCOL not found in a-file ";
 }
-
 
 my @matches;
 my $a_line;
@@ -255,194 +248,202 @@ my ($chrXa, $chrXb, $chrYa, $chrYb);
 my $alt;
 my %a_alts;
 
-AFILE_LOOP: while ($a_line=<A>) {
-  @matches = ();
-  chomp($a_line);
-  @a_fields{@a_columns} = split(/\t/, $a_line);
-  # DEBUG && say join '; ', map {"$_ => $a_fields{$_}"} @a_columns;
-  if ($a_fields{CHROMCOL()} ne $chr_raw) {
-    $chr_changed = 1;
-    $chr_raw = $a_fields{CHROMCOL()};
-    $chr = $chr_raw =~ s/[^\dXY]*([\dXY]+).*/$1/r;
-    $chr = $chrXb if (CHROMXTR() && $chr eq $chrXa);
-    $chr = $chrYb if (CHROMYTR() && $chr eq $chrYa);
-  } else {
-    $chr_changed = 0;
-  }
-  #DEBUG && say "CHR: $chr CHR_RAW: $chr_raw ($a_fields{CHR})";
+AFILE_LOOP:
+while ($a_line = <A>) {
+    @matches = ();
+    chomp($a_line);
+    @a_fields{@a_columns} = split(/\t/, $a_line);
+    # DEBUG && say join '; ', map {"$_ => $a_fields{$_}"} @a_columns;
+    if ($a_fields{CHROMCOL()} ne $chr_raw) {
+        $chr_changed = 1;
+        $chr_raw = $a_fields{CHROMCOL()};
+        $chr = $chr_raw =~ s/[^\dXY]*([\dXY]+).*/$1/r;
+        $chr = $chrXb if (CHROMXTR() && $chr eq $chrXa);
+        $chr = $chrYb if (CHROMYTR() && $chr eq $chrYa);
+    } else {
+        $chr_changed = 0;
+    }
+    #DEBUG && say "CHR: $chr CHR_RAW: $chr_raw ($a_fields{CHR})";
 
-  $a_left = $a_fields{POSCOL()};
-  if (AFILETYPE eq 'vcf' ) {
-  #  if (defined($a_fields{INFO}) && $a_fields{INFO} =~ /END=(\d+)/) {
-  #    $a_right = $1 - 1;
-  #  } else {
-      $a_right = $a_left + length($a_fields{REF}) - 1;
-  #  }
-  } else {
-    $a_right = $a_fields{ENDCOL()};
-  }
+    $a_left = $a_fields{POSCOL()};
+    if (AFILETYPE eq 'vcf') {
+        #  if (defined($a_fields{INFO}) && $a_fields{INFO} =~ /END=(\d+)/) {
+        #    $a_right = $1 - 1;
+        #  } else {
+        $a_right = $a_left + length($a_fields{REF}) - 1;
+        #  }
+    } else {
+        $a_right = $a_fields{ENDCOL()};
+    }
 
-  if (APOSOFFSET()) {
-    $a_left += APOSOFFSET();
-  }
-  if (AENDOFFSET()) {
-    $a_right += AENDOFFSET();
-  }
-  
+    if (APOSOFFSET()) {
+        $a_left += APOSOFFSET();
+    }
+    if (AENDOFFSET()) {
+        $a_right += AENDOFFSET();
+    }
 
-  if ($chr_changed) {
-    @b_lines = ();
-    $next_b_line = {};
-    close $b_fh if (ref($b_fh));
-    open $b_fh, TABIX_BIN . " $opts{bfile} ${b_chr_prefix}${chr}${b_chr_suffix} |" or die "opening b file $opts{bfile} with tabix failed";
-    warn "Tabix returned no b-features for chromosome ${b_chr_prefix}${chr}${b_chr_suffix}" if (! ref($b_fh));
-    # $b_linectr = 0;
-  }
-  if ((! defined($next_b_line->{left}) || $next_b_line->{left}-PADDING() <= $a_right && ref($b_fh))) {
-    # read new b_lines until we have one where the left coordinate is higher than a_right + pad
-    while ($b_line=<$b_fh>) {
-      if (defined($next_b_line->{left})) {
-	push(@b_lines,$next_b_line);
-	$next_b_line = {};
-      }
-      chomp($b_line);
-      DEBUG && say $b_line;
-      # $b_linectr++;
-      @b_fields = split(/\t/, $b_line);
-      # ($b_fields[0] eq $b_chr_prefix.$chr.$b_chr_suffix) || die "Chromosomes between tumor and germline file do not match: $b_fields[0] ne ${b_chr_prefix}${chr}${b_chr_suffix}";
-      if (BFILETYPE eq 'vcf') { ### b-file is vcf file
-	$next_b_line->{left} =  $b_fields[1];
-        $next_b_line->{ref} = $b_fields[3];
-        $next_b_line->{alt} = $b_fields[4];
-        $next_b_line->{report} = 'POS='.$next_b_line->{left}.';' if (REPORTBFEATCOORD);
-	$next_b_line->{right} = $next_b_line->{left} + length($next_b_line->{ref}) - 1;
-        if ($b_fields[7] !~ /END=(\d+)/) {
-          $next_b_line->{report} .= 'END='.$next_b_line->{right}.';' if (REPORTBFEATCOORD);
+    if ($chr_changed) {
+        @b_lines = ();
+        $next_b_line = {};
+        close $b_fh if (ref($b_fh));
+        open $b_fh, TABIX_BIN . " $opts{bfile} ${b_chr_prefix}${chr}${b_chr_suffix} |" or die "opening b file $opts{bfile} with tabix failed";
+        warn "Tabix returned no b-features for chromosome ${b_chr_prefix}${chr}${b_chr_suffix}" if (!ref($b_fh));
+        # $b_linectr = 0;
+    }
+    if ((!defined($next_b_line->{left}) || $next_b_line->{left} - PADDING() <= $a_right && ref($b_fh))) {
+        # read new b_lines until we have one where the left coordinate is higher than a_right + pad
+        while ($b_line = <$b_fh>) {
+            if (defined($next_b_line->{left})) {
+                push(@b_lines, $next_b_line);
+                $next_b_line = {};
+            }
+            chomp($b_line);
+            DEBUG && say $b_line;
+            # $b_linectr++;
+            @b_fields = split(/\t/, $b_line);
+            # ($b_fields[0] eq $b_chr_prefix.$chr.$b_chr_suffix) || die "Chromosomes between tumor and germline file do not match: $b_fields[0] ne ${b_chr_prefix}${chr}${b_chr_suffix}";
+            if (BFILETYPE eq 'vcf') {
+                ### b-file is vcf file
+                $next_b_line->{left} = $b_fields[1];
+                $next_b_line->{ref} = $b_fields[3];
+                $next_b_line->{alt} = $b_fields[4];
+                $next_b_line->{report} = 'POS=' . $next_b_line->{left} . ';' if (REPORTBFEATCOORD);
+                $next_b_line->{right} = $next_b_line->{left} + length($next_b_line->{ref}) - 1;
+                if ($b_fields[7] !~ /END=(\d+)/) {
+                    $next_b_line->{report} .= 'END=' . $next_b_line->{right} . ';' if (REPORTBFEATCOORD);
+                }
+            } elsif (BFILETYPE eq 'gff3') {
+                ### b-file is gff3 file
+                $next_b_line->{left} = $b_fields[3];
+                $next_b_line->{right} = $b_fields[4]; # here we read END as the last included base
+            } elsif (BFILETYPE eq 'bed_refvar') {
+                $next_b_line->{left} = $b_fields[1] + 1;
+                $next_b_line->{right} = $b_fields[2]; # here we read END as the last included base
+                ($next_b_line->{ref}, $next_b_line->{alt}) = split(/>/, $b_fields[3]);
+            } else {
+                ### b-file is bed file
+                $next_b_line->{left} = $b_fields[1] + 1;
+                $next_b_line->{right} = $b_fields[2]; # here we read END as the last included base
+            }
+
+            if ($next_b_line->{right} + PADDING() < $a_left) {
+                # b-feature is left of a-feature; skip...
+                $next_b_line = {};
+                next;
+            }
+            if (REPORTBFEATCOORD && (BFILETYPE eq 'gff3' || BFILETYPE eq 'bed' || BFILETYPE eq 'bed_refvar')) {
+                $next_b_line->{report} = 'POS=' . $next_b_line->{left} . ';END=' . $next_b_line->{right} . ';';
+            }
+            if (EMPTYBFIELDS()) {
+                for (@b_columns) {
+                    $b_fields[$_] = '.' if (!defined($b_fields[$_]));
+                }
+            }
+            if (BREPORTCOLUMN() >= 0) {
+                $next_b_line->{report} .= join ';', $b_fields[BREPORTCOLUMN()], (map {$b_colnames[$_] . '=' . $b_fields[$_]} @b_columns);
+            } else {
+                $next_b_line->{report} .= join ';', (map {$b_colnames[$_] . '=' . $b_fields[$_]} @b_columns);
+            }
+            last if ($next_b_line->{left} - PADDING() > $a_right);
         }
-      } elsif (BFILETYPE eq 'gff3') { ### b-file is gff3 file
-	$next_b_line->{left} =  $b_fields[3];
-	$next_b_line->{right} =  $b_fields[4];  # here we read END as the last included base
-      } elsif (BFILETYPE eq 'bed_refvar') {
-	$next_b_line->{left} =  $b_fields[1] + 1;
-	$next_b_line->{right} = $b_fields[2]; # here we read END as the last included base
-	($next_b_line->{ref},$next_b_line->{alt}) = split(/>/,$b_fields[3]);
-      } else { ### b-file is bed file
-	$next_b_line->{left} =  $b_fields[1] + 1;
-	$next_b_line->{right} = $b_fields[2]; # here we read END as the last included base
-      }
+        if (defined($next_b_line->{left}) && $next_b_line->{left} - PADDING() <= $a_right) {
+            # the while loop terminated because eof at b_fh
+            push(@b_lines, $next_b_line);
+            $next_b_line = {};
+        }
+    }
+    # Now compare a_line to all b_lines in b_lines hash
+    B_LINE_LOOP:
+    foreach $b_line (@b_lines) {
+        if ($b_line->{right} + PADDING() < $a_left) {
+            $b_line = undef; # delete($b_lines{$b_linenr}); #####
+            next;
+        }
+        if ($b_line->{left} - PADDING() > $a_right) {
+            last;
+        }
+        if ((BFILETYPE eq 'vcf' || BFILETYPE eq 'bed_refvar') && AFILETYPE() eq 'vcf') {
+            %a_alts = ();
+            map {$a_alts{uc($_)} = 1} split(',', $a_fields{ALT});
+            foreach $alt (split(',', $b_line->{alt})) { # to check for exact match we must go through all alt alleles in b files
+                if ($b_line->{left} == $a_left && $b_line->{right} == $a_right && uc($b_line->{ref}) eq uc($a_fields{REF}) && $a_alts{uc($alt)}) {
+                    $mh = { mt => 'exact',
+                        mr     => $b_line->{report},
+                        ofsd   => 3 };
+                    push(@matches, $mh);
+                    next B_LINE_LOOP;
+                }
+            }
+        }
+        next B_LINE_LOOP if (REPORTLEVEL == 4);
+        if ($b_line->{left} == $a_left && $b_line->{right} == $a_right) {
+            $mh = { mt => 'position',
+                mr     => $b_line->{report},
+                ofsd   => 2 };
+            push(@matches, $mh);
+            next;
+        }
+        if ($b_line->{left} <= $a_right && $b_line->{right} >= $a_left) {
+            if (BREAKPOINTMODE()) {
+                next if ($b_line->{left} - PADDING() > $a_left && $b_line->{right} + PADDING() < $a_right);
+            }
+            $ol_left = ($b_line->{left} > $a_left) ? $b_line->{left} : $a_left;
+            $ol_right = ($b_line->{right} < $a_right) ? $b_line->{right} : $a_right;
+            $ol_length = $ol_right - $ol_left + 1;
+            $ol_frac = $ol_length / (($b_line->{right} - $b_line->{left} > $a_right - $a_left) ? $b_line->{right} - $b_line->{left} + 1 : $a_right - $a_left + 1);
+            $ol_frac = sprintf("%.2f", $ol_frac);
+        } else {
+            $ol_frac = 0;
+        }
+        $dist_left = $b_line->{left} - $a_left;
+        $dist_right = $b_line->{right} - $a_right;
 
-      if ($next_b_line->{right}+PADDING() < $a_left) { # b-feature is left of a-feature; skip...
-	$next_b_line = {};
-	next;
-      }
-      if (REPORTBFEATCOORD && (BFILETYPE eq 'gff3' || BFILETYPE eq 'bed' || BFILETYPE eq 'bed_refvar')) {
-	$next_b_line->{report} = 'POS='.$next_b_line->{left}.';END='.$next_b_line->{right}.';';
-      }
-      if (EMPTYBFIELDS()) {
-	for (@b_columns) {
-	  $b_fields[$_] = '.' if (! defined($b_fields[$_]));
-	}
-      }
-      if (BREPORTCOLUMN() >= 0 ) {
-	$next_b_line->{report} .= join ';',  $b_fields[BREPORTCOLUMN()], (map { $b_colnames[$_] . '=' .$b_fields[$_] } @b_columns);
-      } else {
-	$next_b_line->{report} .= join ';',  (map { $b_colnames[$_] . '=' .$b_fields[$_] } @b_columns);
-      }
-      last if ($next_b_line->{left}-PADDING() > $a_right);
+        if (MINOVERLAPFRACTION() < 0 || $ol_frac >= MINOVERLAPFRACTION() || MAXBORDERDISTANCESUM() < 0 || abs($dist_left) + abs($dist_right) <= MAXBORDERDISTANCESUM()) {
+            $mh = { mt => "inexact(OF=$ol_frac;DL=$dist_left;DR=$dist_right)",
+                mr     => $b_line->{report},
+                ofsd   => $ol_frac };
+            push(@matches, $mh);
+            next;
+        }
     }
-    if (defined($next_b_line->{left}) && $next_b_line->{left}-PADDING() <= $a_right) { # the while loop terminated because eof at b_fh
-      push(@b_lines, $next_b_line);
-      $next_b_line = {};
-    }
-  }
-  # Now compare a_line to all b_lines in b_lines hash
- B_LINE_LOOP: foreach $b_line (@b_lines) {
-    if ( $b_line->{right}+PADDING() < $a_left ) {
-      $b_line = undef; # delete($b_lines{$b_linenr}); #####
-      next;
-    }
-    if ( $b_line->{left}-PADDING() > $a_right ) {
-      last;
-    }
-    if ((BFILETYPE eq 'vcf' || BFILETYPE eq 'bed_refvar') && AFILETYPE() eq 'vcf') {
-      %a_alts = ();
-      map { $a_alts{uc($_)} = 1 } split(',',$a_fields{ALT});
-      foreach $alt (split(',', $b_line->{alt})) { # to check for exact match we must go through all alt alleles in b files
-	if ( $b_line->{left} == $a_left && $b_line->{right} == $a_right && uc($b_line->{ref}) eq uc($a_fields{REF}) && $a_alts{uc($alt)} ) {
-	  $mh = {mt => 'exact',
-		 mr => $b_line->{report},
-		 ofsd => 3};
-	  push(@matches, $mh);
-	  next B_LINE_LOOP ;
-	}
-      }
-    }
-    next B_LINE_LOOP if (REPORTLEVEL == 4);
-    if ( $b_line->{left} == $a_left && $b_line->{right} == $a_right ) {
-      $mh = {mt => 'position',
-	     mr => $b_line->{report},
-	     ofsd => 2};
-      push(@matches, $mh);
-      next;
-    }
-    if ($b_line->{left} <= $a_right  && $b_line->{right} >= $a_left) {
-      if (BREAKPOINTMODE()) {
-	next if ($b_line->{left}-PADDING() > $a_left && $b_line->{right}+PADDING() < $a_right);
-      }
-      $ol_left = ($b_line->{left} > $a_left) ? $b_line->{left} : $a_left;
-      $ol_right = ($b_line->{right} < $a_right) ? $b_line->{right} : $a_right;
-      $ol_length = $ol_right - $ol_left + 1;
-      $ol_frac = $ol_length / (($b_line->{right}-$b_line->{left} > $a_right-$a_left) ? $b_line->{right}-$b_line->{left} + 1 : $a_right-$a_left + 1);
-      $ol_frac = sprintf("%.2f", $ol_frac);
-    } else {
-      $ol_frac = 0;
-    }
-    $dist_left = $b_line->{left} - $a_left;
-    $dist_right = $b_line->{right} - $a_right;
 
-    if (MINOVERLAPFRACTION() < 0 || $ol_frac >= MINOVERLAPFRACTION() || MAXBORDERDISTANCESUM() < 0 || abs($dist_left) + abs($dist_right) <= MAXBORDERDISTANCESUM()) {
-      $mh = {mt => "inexact(OF=$ol_frac;DL=$dist_left;DR=$dist_right)",
-	     mr => $b_line->{report},
-	     ofsd => $ol_frac};
-      push(@matches, $mh);
-      next;
-    }
-  }
-
-  @b_lines = grep { defined } @b_lines; # this should be improved!
+    @b_lines = grep {defined} @b_lines; # this should be improved!
 
 
-  $a_fields{COLUMNNAME()} = '';
-  if (REPORTLEVEL < 3) {
-    foreach (@matches) {
-      if ($_->{mt} eq 'exact') { # if we have an exact match report only this
-	$rs = REPORTMATCHTYPE() ? 'MATCH=' . $_->{mt} . ';' . $_->{mr} : $_->{mr};
-	$a_fields{COLUMNNAME()} = ($a_fields{COLUMNNAME()}) ? $a_fields{COLUMNNAME()} . '&' . $rs : $rs;
-	next;
-      }
-      if (REPORTLEVEL == 1 && $_->{mt} eq 'position') { # if we have a position match report only this (and exact matches if we have)
-	$rs = REPORTMATCHTYPE() ? 'MATCH=' . $_->{mt} . ';' . $_->{mr} : $_->{mr};
-	$a_fields{COLUMNNAME()} = ($a_fields{COLUMNNAME()}) ? $a_fields{COLUMNNAME()} . '&' . $rs : $rs;
-      }
+    $a_fields{COLUMNNAME()} = '';
+    if (REPORTLEVEL < 3) {
+        foreach (@matches) {
+            if ($_->{mt} eq 'exact') {
+                # if we have an exact match report only this
+                $rs = REPORTMATCHTYPE() ? 'MATCH=' . $_->{mt} . ';' . $_->{mr} : $_->{mr};
+                $a_fields{COLUMNNAME()} = ($a_fields{COLUMNNAME()}) ? $a_fields{COLUMNNAME()} . '&' . $rs : $rs;
+                next;
+            }
+            if (REPORTLEVEL == 1 && $_->{mt} eq 'position') {
+                # if we have a position match report only this (and exact matches if we have)
+                $rs = REPORTMATCHTYPE() ? 'MATCH=' . $_->{mt} . ';' . $_->{mr} : $_->{mr};
+                $a_fields{COLUMNNAME()} = ($a_fields{COLUMNNAME()}) ? $a_fields{COLUMNNAME()} . '&' . $rs : $rs;
+            }
+        }
     }
-  }
 
-  if (MAXNROFMATCHES() && @matches) {
-    @matches = (sort {$b->{ofsd} <=> $a->{ofsd}} @matches)[0 .. ((MAXNROFMATCHES()-1 < $#matches) ? MAXNROFMATCHES()-1 : $#matches)];
-  }
-
-  if (! $a_fields{COLUMNNAME()}) { # else report all matches
-    if (REPORTMATCHTYPE()) {
-      $a_fields{COLUMNNAME()} = join('&', (map {'MATCH=' . $_->{mt} .';' . $_->{mr}} @matches));
-    } else {
-      $a_fields{COLUMNNAME()} =  join('&', (map {$_->{mr}} @matches));
+    if (MAXNROFMATCHES() && @matches) {
+        @matches = (sort {$b->{ofsd} <=> $a->{ofsd}} @matches)[0 .. ((MAXNROFMATCHES() - 1 < $#matches) ? MAXNROFMATCHES() - 1 : $#matches)];
     }
-  }
-  if (! @matches) {
-    next if (REPORTONLYMATCHES());
-    $a_fields{COLUMNNAME()} = NOMATCHSTRING();
-  }
-  say join "\t", @a_fields{@a_columns};
+
+    if (!$a_fields{COLUMNNAME()}) { # else report all matches
+        if (REPORTMATCHTYPE()) {
+            $a_fields{COLUMNNAME()} = join('&', (map {'MATCH=' . $_->{mt} . ';' . $_->{mr}} @matches));
+        } else {
+            $a_fields{COLUMNNAME()} = join('&', (map {$_->{mr}} @matches));
+        }
+    }
+    if (!@matches) {
+        next if (REPORTONLYMATCHES());
+        $a_fields{COLUMNNAME()} = NOMATCHSTRING();
+    }
+    say join "\t", @a_fields{@a_columns};
 } # AFILE_LOOP
 close A;
 close $b_fh if (ref($b_fh));

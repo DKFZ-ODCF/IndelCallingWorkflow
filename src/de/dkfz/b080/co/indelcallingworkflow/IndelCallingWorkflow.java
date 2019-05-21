@@ -8,12 +8,13 @@ package de.dkfz.b080.co.indelcallingworkflow;
 
 import de.dkfz.b080.co.common.WorkflowUsingMergedBams;
 import de.dkfz.b080.co.files.*;
-import de.dkfz.roddy.config.ConfigurationValue;
 import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.knowledge.files.FileObject;
 import de.dkfz.roddy.knowledge.files.Tuple2;
 import de.dkfz.roddy.tools.LoggerWrapper;
+
+import java.io.File;
 
 /**
  * Indel calling based on the platypus pipeline.
@@ -25,7 +26,7 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
     private static VCFFileForIndels extractVCF(FileObject runResult) {
         return (VCFFileForIndels) ((Tuple2)runResult).value0;
     }
-    
+
     @Override
     public boolean execute(ExecutionContext context, BasicBamFile _bamControlMerged, BasicBamFile _bamTumorMerged) {
 
@@ -80,5 +81,25 @@ public class IndelCallingWorkflow extends WorkflowUsingMergedBams {
         if (!runFilter) return true;
         run("indelVcfFilterWithoutControl", bamTumorMerged, deepAnnotatedVCFFile);
         return true;
+    }
+
+    private boolean checkFileCValue(ExecutionContext context, String cvalueName) {
+        String filenameString = context.getConfigurationValues().getString(cvalueName);
+        return !context.valueIsEmpty(filenameString) &&
+                context.fileIsAccessible(new File(filenameString), cvalueName);
+    }
+
+    private boolean checkConfiguration(ExecutionContext context) {
+        boolean returnValue;
+        returnValue  = checkFileCValue(context, "REFERENCE_GENOME");
+        return returnValue;
+    }
+
+
+    @Override
+    public boolean checkExecutability(ExecutionContext context) {
+        boolean result = super.checkExecutability(context);
+        result &= checkConfiguration(context);
+        return result;
     }
 }
