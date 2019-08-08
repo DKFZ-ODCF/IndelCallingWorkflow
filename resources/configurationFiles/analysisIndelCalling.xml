@@ -116,21 +116,24 @@
         <cvalue name="rVcf" value="0.1" type="float"
                 description="max fraction of reads (reads/total reads) we tolerate in the direction opposite to the bias for it to be called an artefact"/>
 
+        <!--## If isNoControlWorkflow is false, then the extra filtering step will be omitted -->
+        <cvalue name="isNoControlWorkflow" value="false" type="boolean"/>
+
         <!--#### EXTRA ANNOTATION AND FILTERING -->
         <!--#### BELOW VALUES WILL BE NEGLECTED WHEN THE WORKFLOW IS RUN WITH CONTROL -->
         <!--## Filter switch -->
-        <cvalue name="FILTER_ExAC" value="false" type="boolean"/>
-        <cvalue name="FILTER_EVS" value="false" type="boolean"/>
-        <cvalue name="FILTER_GNOMAD_EXOMES" value="false" type="boolean"/>
-        <cvalue name="FILTER_GNOMAD_GENOMES" value="false" type="boolean"/>
-        <cvalue name="FILTER_1KGENOMES" value="false" type="boolean"/>
+        <cvalue name="FILTER_ExAC" value="${isNoControlWorkflow}" type="boolean"/>
+        <cvalue name="FILTER_EVS" value="${isNoControlWorkflow}" type="boolean"/>
+        <cvalue name="FILTER_GNOMAD_EXOMES" value="${isNoControlWorkflow}" type="boolean"/>
+        <cvalue name="FILTER_GNOMAD_GENOMES" value="${isNoControlWorkflow}" type="boolean"/>
+        <cvalue name="FILTER_1KGENOMES" value="${isNoControlWorkflow}" type="boolean"/>
         <cvalue name="FILTER_RECURRENCE" value="false" type="boolean"/>
-        <cvalue name="FILTER_LOCALCONTROL" value="false" type="boolean"/>
-        <cvalue name="FILTER_NON_CLINIC" value="false" type="boolean"/>
+        <cvalue name="FILTER_LOCALCONTROL" value="${isNoControlWorkflow}" type="boolean"/>
+        <cvalue name="FILTER_NON_CLINIC" value="${isNoControlWorkflow}" type="boolean"/>
 
         <!--## Filter criteria -->
         <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
-        <cvalue name="CRIT_ExAC_maxMAF" value="0.01" type="float"/>
+        <cvalue name="CRIT_ExAC_maxMAF" value="1.0" type="float"/>
         <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float"/>
         <cvalue name="CRIT_GNOMAD_EXOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_GNOMAD_GENOMES_maxMAF" value="0.001" type="float"/>
