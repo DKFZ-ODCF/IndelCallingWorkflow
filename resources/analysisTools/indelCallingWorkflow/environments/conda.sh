@@ -19,3 +19,4 @@ export TABIX_BINARY=tabix
 export BEDTOOLS_BINARY=bedtools
 export SAMTOOLS_BINARY=samtools
 export PYPY_BINARY=pypy
+export RSCRIPT_BINARY=Rscript

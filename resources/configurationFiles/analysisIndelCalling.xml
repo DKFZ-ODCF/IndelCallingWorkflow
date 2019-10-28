@@ -198,6 +198,7 @@
         <tool name="screenshot" value="visualize.py" basepath="indelCallingWorkflow"/>
         <tool name="vcfFilterByCrit" value="vcf_filter_by_crit.py" basepath="indelCallingWorkflow"/>
         <tool name="platypusIndelJson" value="indel_json_v1.0.pl" basepath="indelCallingWorkflow"/>
+        <tool name="textPdf" value="textPdf.R" basepath="indelCallingWorkflow"/>
 
         <!--## SwapChecker -->
         <tool name="checkSampleSwapScript" value="checkSampleSwap_TiN.pl" basepath="indelCallingWorkflow"/>
