@@ -76,15 +76,38 @@ functional_var_count=`cat ${somatic_functional_indel_vcf} | wc -l | cut -f1 -d "
 if [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]
 then
 
-  [[ "${isControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILENAME_CONTROL_BAM} --tumor=${FILENAME_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
-  [[ "${isNoControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILENAME_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
+    if [[ "${isControlWorkflow}" == true ]]; then
+        ${PYTHON_BINARY} ${TOOL_SCREENSHOT} \
+            --vcf=${somatic_functional_indel_vcf} \
+            --control=${FILENAME_CONTROL_BAM} \
+            --tumor=${FILENAME_TUMOR_BAM} \
+            --ref=${REFERENCE_GENOME} \
+            --prefix=${VCF_SCREENSHOTS_PREFIX} \
+            --window=${WINDOW_SIZE} \
+            --annotations=${REPEAT_MASKER} \
+            --samtoolsbin=${SAMTOOLS_BINARY} \
+            --tabixbin=${TABIX_BINARY}
+    fi
 
-  pngs=(`ls *.pdf`)
-  sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
+    if [[ "${isNoControlWorkflow}" == true ]]; then
+        ${PYTHON_BINARY} ${TOOL_SCREENSHOT} \
+            --vcf=${somatic_functional_indel_vcf} \
+            --tumor=${FILENAME_TUMOR_BAM} \
+            --ref=${REFERENCE_GENOME} \
+            --prefix=${VCF_SCREENSHOTS_PREFIX} \
+            --window=${WINDOW_SIZE} \
+            --annotations=${REPEAT_MASKER} \
+            --samtoolsbin=${SAMTOOLS_BINARY} \
+            --tabixbin=${TABIX_BINARY}
+    fi
+    pngs=(`ls *.pdf`)
+    sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
 
-  ${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
+    ${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
 else
-  printf "WARNINGS: No screenshots done, more than $MAX_VARIANT_SCREENSHOTS (cvalue - MAX_VARIANT_SCREENSHOTS) functional variants present in ${somatic_functional_indel_vcf} \n"
+    printf "WARNINGS: No screenshots done, more than $MAX_VARIANT_SCREENSHOTS (cvalue - MAX_VARIANT_SCREENSHOTS) functional variants present in ${somatic_functional_indel_vcf}\n"
+    $RSCRIPT_BINARY "$TOOL_TEXT_PDF" "WARNING\nNo screenshots done. More than $MAX_VARIANT_SCREENSHOTS functional variants." \
+        > "$combined_screen_shots"
 fi
 
 #### Indel QC json file
