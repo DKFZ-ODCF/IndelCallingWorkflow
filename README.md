@@ -60,6 +60,23 @@ TBD
 
 # Changelist
 
+* Version update to 2.4.1
+
+  * Create __non-empty__ sample swap JSON even if less than 50 germline variants
+  * More error-robust IO in sample swap TINDA Perl script
+
+* Version update to 2.4.0
+
+  * Bugfix: Casting error in canopy-based clustering R code
+  * Bugfix: Create warning PDF with text if number of to-be-merged PDFs is too large or zero, plus fix one-off bug
+  * Exit 0 instead of != 0 if less then 50 germline variants
+ 
+* Version update 2.3.0
+
+  * Added `isNoControlWorkflow` variable and make FILTER_database work with it
+  * Removed usage of ExAC from filtering, gnomAD includes ExAC
+  * Report only exact matches for database annotation
+
 * Version update to 2.2.0
 
   * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.4.1
