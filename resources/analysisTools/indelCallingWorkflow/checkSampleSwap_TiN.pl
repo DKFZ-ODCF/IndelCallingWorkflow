@@ -231,8 +231,16 @@ while(!eof($IN)) {
 close GTraw;
 
 ### Cleaning up MNPs, due to the MNPs escaping in multi-SNVs lines
-`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
+#`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
+my $resolve_complex_variants = "cat '$snvsGT_RawFile' | python '$split_mnps_script' > '$snvsGT_RawFile'.temp;
+(head -n 2000 '$snvsGT_RawFile'.temp | grep '#' ; 
+cat '$snvsGT_RawFile'.temp | grep -v '#' | sort -V -k1,2) | uniq > '$snvsGT_RawFile'.temp2; 
+mv -f '$snvsGT_RawFile'.temp2 '$snvsGT_RawFile'; 
+bgzip -f '$snvsGT_RawFile' && tabix -f -p vcf '${snvsGT_RawFile}'.gz;
+rm '$snvsGT_RawFile'.temp";
 
+print "\n$resolve_complex_variants\n";
+my $run_resolve_complex = system($resolve_complex_variants);
 
 ## Annotating with gnomAD and local control 
 my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
