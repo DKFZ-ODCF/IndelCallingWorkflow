@@ -52,8 +52,6 @@ set -o pipefail
 cmdAnnotation="zcat ${FILENAME_VCF_RAW} | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${DBSNP_INDEL} --columnName=${DBSNP_COL} --reportMatchType  --bAdditionalColumn=2 --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${KGENOME} --columnName=${KGENOMES_COL} --reportMatchType --bAdditionalColumn=2  --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${ExAC} --columnName=${ExAC_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName=${EVS_COL} --bFileType vcf --reportLevel 4 --reportMatchType| \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WES_ALL_INDEL} --columnName=${GNOMAD_WES_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WGS_ALL_INDEL} --columnName=${GNOMAD_WGS_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName=${LOCALCONTROL_COL} --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType| \
