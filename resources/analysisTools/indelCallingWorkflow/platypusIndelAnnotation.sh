@@ -74,13 +74,16 @@ ANNOVAR_DBFILEPATH=${ANNOVAR_DBPATH}/${ANNOVAR_FILE}
 [[ ! -f ${ANNOVAR_DBFILEPATH} ]]  && echo "Gene annotation database not found. Check ANNOVAR_DBTYPE." && exit -16
 
 ${ANNOVAR_BINARY} --buildver=${ANNOVAR_BUILDVER} ${ANNOVAR_DBTYPE} ${FOR_ANNOVAR} ${ANNOVAR_DBPATH}
+[[ "$?" != 0 ]] && echo 'An error occurred during the annovar execution' && exit $?
 
 # segdup annotation with annovar
 ${ANNOVAR_BINARY} --buildver=${ANNOVAR_BUILDVER} -regionanno -dbtype segdup --outfile=${ANNOVAR_SEGDUP} ${FOR_ANNOVAR} ${ANNOVAR_DBPATH}
+[[ "$?" != 0 ]] && echo 'An error occurred during the annovar execution' && exit $?
 av_segdup=`ls ${ANNOVAR_SEGDUP}*genomicSuperDups`
 
 # cytoband annotation with annovar
 ${ANNOVAR_BINARY} --buildver=${ANNOVAR_BUILDVER} -regionanno -dbtype band --outfile=${ANNOVAR_CYTOBAND} ${FOR_ANNOVAR} ${ANNOVAR_DBPATH}
+[[ "$?" != 0 ]] && echo 'An error occurred during the annovar execution' && exit $?
 av_cytoband=`ls ${ANNOVAR_CYTOBAND}*cytoBand`
 
 perl ${TOOL_NEW_COLS_TO_VCF} --vcfFile=${filenameVCFFinalUnzipped} \
