@@ -41,7 +41,10 @@
 	 <cvalue name='hg38DatabaseUCSCDirectory' value='/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/hg38/UCSC' type='path' />
 	 <cvalue name='hg38RefereceDirtory' value='/icgc/dkfzlsdf/analysis/B080/kensche/hg38-tests/GRCh38' type="path" />
 
-         <cvalue name="CHROM_SIZES_FILE" value='${hg38RefereceDirtory}/GRCh38_d1_vd1_phiX/stats/GRCh38_d1_vd1_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv' type="path"
+	<!-- Reference genomes -->
+	<cvalue name='REFERENCE_GENOME' value='${hg38RefereceDirtory}/GRCh38_d1_vd1_phiX/GRCh38_d1_vd1_phiX.fa' type="path"/>
+	<cvalue name='INDEX_PREFIX' value='${hg38RefereceDirtory}/GRCh38_d1_vd1_phiX/bwa-0.7.15/GRCh38_d1_vd1_phiX.fa' type="path"/>
+	<cvalue name="CHROM_SIZES_FILE" value='${hg38RefereceDirtory}/GRCh38_d1_vd1_phiX/stats/GRCh38_d1_vd1_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv' type="path"
                 description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin. Per chromosome counts of only A, T, C ond G IUPAC codes."/>
 
         <!--## Databases
