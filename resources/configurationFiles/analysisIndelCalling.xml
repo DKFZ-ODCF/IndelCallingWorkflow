@@ -60,9 +60,9 @@
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/> -->
         <cvalue name="LOCALCONTROL" value="${hg38DatabasesDirectory}/liftover/GRCh38_ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path" /> 
         <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
-        <cvalue name="GENE_MODEL_BEDFILE" value='/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/gencode/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
+        <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
         
-        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/gnomAD/v3/genomes/GRCh38/gnomad.genomes.r3.0.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/GRCh38/gnomad.genomes.r3.0.sites.SNV-INDEL.vcf.gz" type="path" />
 	<cvalue name="GNOMAD_V2_1_EXOME_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/liftover_grch38/exomes/gnomad.exomes.r2.1.1.sites.liftover_grch38.SNV.vcf.gz" type="path" />
         <cvalue name="LOCAL_CONTROL_PLATYPUS_SNV_INDEL" value="${hg38DatabasesDirectory}/liftover/GRCh38_ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
@@ -96,7 +96,7 @@
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
         
         <!-- gnomAD files for no-control workflow -->
-        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/gnomAD/v3/genomes/GRCh38/gnomad.genomes.r3.0.sites.INDEL.vcf.gz" />
+        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/GRCh38/gnomad.genomes.r3.0.sites.INDEL.vcf.gz" />
 	<cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/liftover_grch38/exomes/gnomad.exomes.r2.1.1.sites.liftover_grch38.INDEL.vcf.gz" />
  
         <!-- More configuration options -->
