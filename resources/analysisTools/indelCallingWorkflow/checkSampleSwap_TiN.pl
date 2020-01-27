@@ -21,8 +21,8 @@ use JSON::Create 'create_json';
 my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, 
   $gnomAD_genome, $gnomAD_exome, $split_mnps_script,
   $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
-  $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
-  $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
+  $localControl_2, $canopy_Function, $seqType, $bedtoolsBinary, $rightBorder, 
+  $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ, $chr_prefix, $override);
 
 # Filtering setting to assign common or rare variants
 my $AF_cutoff;
@@ -44,7 +44,6 @@ GetOptions ("pid=s"                      => \$pid,
             "normal_header_col=s"        => \$normal_header_pattern,
             "tumor_header_col=s"         => \$tumor_header_pattern,
             "sequenceType=s"             => \$seqType,
-            "exome_capture_kit_bed=s"    => \$captureKit,
             "gene_model_bed=s"           => \$geneModel,
             "TiNDA_rightBorder:f"        => \$rightBorder,
             "TiNDA_bottomBorder:f"       => \$bottomBorder,
@@ -52,8 +51,9 @@ GetOptions ("pid=s"                      => \$pid,
             "outfile_rareGermline:s"     => \$outfile_RG,
             "outfile_somaticRescue:s"    => \$outfile_SR,
             "outfile_allSomatic:s"       => \$outfile_AS,
-            "outfile_swapJSON:s"         => \$outfile_SJ)
-  or die("Error in SwapChecker input parameters");
+            "outfile_swapJSON:s"         => \$outfile_SJ,
+            "chr_prefix:s"               => \$chr_prefix)
+or die("Error in SwapChecker input parameters");
 
 die("ERROR: PID is not provided\n") unless defined $pid;
 die("ERROR: Raw vcf file is not provided\n") unless defined $rawFile;
@@ -115,8 +115,8 @@ my $updated_rawFile;
 # update in WES
 if($seqType eq 'WES') {
    $updated_rawFile = $rawFile.".intersect.gz";
-  `bedtools slop -i $geneModel -b 5 -g $chrLengthFile | bedtools merge -i - | bedtools intersect -header -a $rawFile -b - | bgzip -f > $updated_rawFile ; tabix -f -p vcf $updated_rawFile`;
-  #$updated_rawFile = $rawFile;
+   `bedtools slop -i $geneModel -b 5 -g $chrLengthFile |  cut -f1-3 | awk '{if(\$3<\$2){print \$1"\t"\$3"\t"\$2}else{print \$0}}' | bedtools merge -i - | bedtools intersect -header -a $rawFile -b - | bgzip -f > $updated_rawFile && tabix -f -p vcf $updated_rawFile`;
+   #$updated_rawFile = $rawFile;
 }
 elsif($seqType eq 'WGS') {
    $updated_rawFile = $rawFile;
@@ -193,7 +193,7 @@ while(!eof($IN)) {
 
     # Removing extra chr contigs, Indels and bad quality snvs
     # Including both indels and snvs - removed as we will have issue with bias Filter
-    if($chr=~/^(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
+    if($chr=~/^(chr)?(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
 
 
       my @tumor_dp = split(/,/, $tumor[$iDP]);
@@ -421,7 +421,7 @@ while(<GRA>){
     print RG "$tmp_GRA\n";
     print SR "$tmp_GRA\n";
   }
-  elsif($tmp_GRA=~/Germline|SomaticControlRare/){
+  elsif($tmp_GRA=~/\t(Germline|SomaticControlRare)\t/){
     print RG "$tmp_GRA\n";
   }
   elsif($tmp_GRA=~/Somatic_Rescue/){

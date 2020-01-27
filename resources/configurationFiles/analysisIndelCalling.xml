@@ -44,8 +44,7 @@
 	<!-- Reference genomes -->
 	<cvalue name='REFERENCE_GENOME' value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/GRCh38_d1_vd1_phiX.fa' type="path"/>
 	<cvalue name='INDEX_PREFIX' value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/bwa-0.7.15/GRCh38_d1_vd1_phiX.fa' type="path"/>
-	<cvalue name="CHROM_SIZES_FILE" value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/stats/GRCh38_d1_vd1_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv' type="path"
-                description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin. Per chromosome counts of only A, T, C ond G IUPAC codes."/>
+	<cvalue name="CHROM_SIZES_FILE" value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/stats/GRCh38_d1_vd1_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv' type="path" />
 
         <!--## Databases
 
@@ -59,7 +58,7 @@
 	<cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/> -->
         <cvalue name="LOCALCONTROL" value="${hg38DatabasesDirectory}/liftover/GRCh38_ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path" /> 
-        <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
+        <!--cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' /-->
         <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
         
         <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/GRCh38/gnomad.genomes.r3.0.sites.SNV-INDEL.vcf.gz" type="path" />
@@ -215,7 +214,7 @@
         <tool name="strandBiasFilterPythonFile" value="biasFilter.py" basepath='indelCallingWorkflow'/>
         <tool name="tumorInNormalPlotRscript" value="TiN_CanopyBasedClustering.R" basepath='indelCallingWorkflow'/>
         <tool name="canopyClusterFunctionRscript" value="canopyCluster_updatedFunction.R" basepath='indelCallingWorkflow'/>
-        <tool name="CanopyLinearChrData" value="chrlengths.plain.sorted.txt" basepath='indelCallingWorkflow'/>
+        <!--tool name="CanopyLinearChrData" value="chrlengths.plain.sorted.txt" basepath='indelCallingWorkflow'/-->
         <!--# SwapChecker end (but note, that the checkSampleSwap with and without control are also part of this.-->
 
         <!-- With control bam / germline -->
