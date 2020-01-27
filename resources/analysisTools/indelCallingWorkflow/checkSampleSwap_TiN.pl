@@ -243,8 +243,10 @@ print "\n$resolve_complex_variants\n";
 my $run_resolve_complex = system($resolve_complex_variants);
 
 ## Annotating with gnomAD and local control 
-my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
+my $annotation_command = "zcat '${snvsGT_RawFile}'.gz | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'";
+print "$annotation_command\n";
 
+my $runAnnotation = system($annotation_command);
 
 if($runAnnotation != 0 ) {
   `rm $jsonFile`;
