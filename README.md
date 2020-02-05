@@ -60,6 +60,10 @@ TBD
 
 # Changelist
 
+* Version update to 2.4.2
+
+  * Fixed missed annotations due to unsorted VCF
+
 * Version update to 2.4.1
 
   * Create __non-empty__ sample swap JSON even if less than 50 germline variants
