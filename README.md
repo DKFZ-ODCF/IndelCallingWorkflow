@@ -59,6 +59,9 @@ Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github
 TBD
 
 # Changelist
+* Version update to 2.5.0
+
+  * Added a local control generated from ~1k WES samples
 
 * Version update to 2.4.2
 
