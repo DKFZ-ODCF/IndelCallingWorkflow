@@ -19,8 +19,8 @@ use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
 my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, 
-  $gnomAD_genome, $gnomAD_exome, $split_mnps_script,
-  $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
+  $gnomAD_genome, $gnomAD_exome, $split_mnps_script, $localControl_wgs, $localControl_wes,
+  $TiN_R, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
   $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
   $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
 
@@ -32,7 +32,8 @@ GetOptions ("pid=s"                      => \$pid,
             "annotate_vcf=s"             => \$ANNOTATE_VCF, 
             "gnomAD_genome=s"            => \$gnomAD_genome,
             "gnomAD_exome=s"             => \$gnomAD_exome,
-            "localControl_commonSNV=s"   => \$localControl,
+            "localControl_WGS=s"         => \$localControl_wgs,
+            "localControl_WES=s"         => \$localControl_wes,
             "split_mnps_script=s"        => \$split_mnps_script,
             "bias_script=s"              => \$biasScript,
             "tumor_bam=s"                => \$tumorBAM,
@@ -243,7 +244,7 @@ print "\n$resolve_complex_variants\n";
 my $run_resolve_complex = system($resolve_complex_variants);
 
 ## Annotating with gnomAD and local control 
-my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
+my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl_wgs' --columnName='LocalControl_WGS' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl_wes' --columnName='LocalControl_WES' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
 
 
 if($runAnnotation != 0 ) {
@@ -270,7 +271,8 @@ while(!eof(ANN)) {
   my $end_col = $columnCounter+6;
   my $gnomAD_genome_col = $columnCounter+8;
   my $gnomAD_exome_col = $columnCounter+9;
-  my $localcontrol_col = $columnCounter+10;
+  my $localcontrol_wgs_col = $columnCounter+10;
+  my $localcontrol_wes_col = $columnCounter+11;
 
   if($annLine =~ /^#/) {
     print GermlineRareFile "$annLine\n";
@@ -284,7 +286,8 @@ while(!eof(ANN)) {
     ### rare or common in gnomAD or local control
     my $AF_gnomAD_genome = 0;
     my $AF_gnomAD_exome = 0;
-    my $AF_localcontrol = 0;
+    my $AF_localcontrol_wgs = 0;
+    my $AF_localcontrol_wes = 0;
     
     if($annLineSplit[$gnomAD_genome_col] =~/MATCH=(exact|position)/) {
       $AF_gnomAD_genome = parse_AF($annLineSplit[$gnomAD_genome_col] );      
@@ -292,12 +295,16 @@ while(!eof(ANN)) {
     if($annLineSplit[$gnomAD_exome_col] =~/MATCH=(exact|position)/) {
       $AF_gnomAD_exome = parse_AF($annLineSplit[$gnomAD_exome_col]);      
     }
-    if($annLineSplit[$localcontrol_col] =~ /MATCH=(exact|position)/) {
-      $AF_localcontrol = parse_AF($annLineSplit[$localcontrol_col]);      
+    if($annLineSplit[$localcontrol_wgs_col] =~ /MATCH=(exact|position)/) {
+      $AF_localcontrol_wgs = parse_AF($annLineSplit[$localcontrol_wgs_col]);
+    }
+    if($annLineSplit[$localcontrol_wes_col] =~ /MATCH=(exact|position)/) {
+      $AF_localcontrol_wes = parse_AF($annLineSplit[$localcontrol_wes_col]);
     }
 
+
     my $common_rare = "RARE";
-    if($AF_gnomAD_genome > $AF_cutoff || $AF_gnomAD_exome > $AF_cutoff || $AF_localcontrol > $AF_cutoff) {
+    if($AF_gnomAD_genome > $AF_cutoff || $AF_gnomAD_exome > $AF_cutoff || $AF_localcontrol_wgs > $AF_cutoff || $AF_localcontrol_wes) {
       $common_rare  = "COMMON";    
     }
     

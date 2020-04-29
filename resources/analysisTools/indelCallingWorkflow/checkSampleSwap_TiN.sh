@@ -30,7 +30,8 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --annotate_vcf=${TOOL_ANNOTATE_VCF_FILE} \
     --gnomAD_genome=${GNOMAD_V2_1_GENOME_SNV_INDEL} \
     --gnomAD_exome=${GNOMAD_V2_1_EXOME_SNV_INDEL} \
-    --localControl_commonSNV=${LOCAL_CONTROL_PLATYPUS_SNV_INDEL} \
+    --localControl_WGS=${LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL} \
+    --localControl_WES=${LOCAL_CONTROL_PLATYPUS_WES_SNVS_INDEL} \
     --split_mnps_script=${TOOL_SPLIT_MNPS_SCRIPT} \
     --bias_script=${TOOL_STRAND_BIAS_FILTER_PYTHON_FILE} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
