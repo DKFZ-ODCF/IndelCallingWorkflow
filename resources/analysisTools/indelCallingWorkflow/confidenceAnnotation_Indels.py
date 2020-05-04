@@ -119,7 +119,8 @@ def main(args):
                 variable_headers["EVS_COL"] = "^EVS$"
                 variable_headers["GNOMAD_EXOMES_COL"] = "^GNOMAD_EXOMES$"
                 variable_headers["GNOMAD_GENOMES_COL"] = "^GNOMAD_GENOMES$"
-                variable_headers["LOCALCONTROL_COL"] = "^LocalControlAF$"
+                variable_headers["LOCALCONTROL_WGS_COL"] = "^LocalControlAF_WGS$"
+                variable_headers["LOCALCONTROL_WES_COL"] = "^LocalControlAF_WES$"
             else:
                 fixed_headers += [ "^INFO_control", "^ANNOTATION_control$", ]
 
@@ -199,7 +200,8 @@ def main(args):
             inEVS = False
             inGnomAD_WES = False
             inGnomAD_WGS = False
-            inLocalControl = False
+            inLocalControl_WES = False
+            inLocalControl_WGS = False
 
         # 1) external information of if these SNPs have already been found (incl. false positives from 1000 genomes!)
         # dbSNP
@@ -225,7 +227,7 @@ def main(args):
             infos.append("1000G")
 
         if args.no_control:
-            if help["ExAC_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["ExAC_COL"], "AF").split(','))):
+            if help["ExAC_COL_VALID"] and any(af > 1.0 for af in map(float, extract_info(help["ExAC_COL"], "AF").split(','))):
                 inExAC = True
                 infos.append("ExAC")
             if help["EVS_COL_VALID"] and any(af > 1.0 for af in map(float, extract_info(help["EVS_COL"], "MAF").split(','))):
@@ -237,9 +239,12 @@ def main(args):
             if help["GNOMAD_GENOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
                 inGnomAD_WGS = True
                 infos.append("gnomAD_Genomes")
-            if help["LOCALCONTROL_COL_VALID"] and any(af > 0.02 for af in map(float, extract_info(help["LOCALCONTROL_COL"], "AF").split(','))):
-                inLocalControl = True
-                infos.append("LOCALCONTROL")
+            if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
+                inLocalControl_WGS = True
+                infos.append("LOCALCONTROL_WGS")
+            if help["LOCALCONTROL_WES_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
+                inLocalControl_WES = True
+                infos.append("LOCALCONTROL_WES")
 
         qual = help["QUAL"]
         ### variants with more than one alternative are still skipped e.g. chr12	19317131	.	GTT	GT,G	...
@@ -378,7 +383,7 @@ def main(args):
                 classification = "unclear"
             confidence = 1
 
-        if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inExAC or inEVS or inGnomAD_WES or inGnomAD_WGS or inLocalControl):
+        if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inExAC or inEVS or inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS or inLocalControl_WES):
             classification = "SNP_support_germline"
 
         if confidence < 1:	# Set confidence to 1 if it is below one

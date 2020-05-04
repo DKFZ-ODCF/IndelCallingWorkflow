@@ -56,7 +56,8 @@ cmdAnnotation="zcat ${FILENAME_VCF_RAW} | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName=${EVS_COL} --bFileType vcf --reportLevel 4 --reportMatchType| \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WES_ALL_INDEL} --columnName=${GNOMAD_WES_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WGS_ALL_INDEL} --columnName=${GNOMAD_WGS_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL} --columnName=${LOCALCONTROL_COL} --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType| \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL_WGS} --columnName=${LOCALCONTROL_WGS_COL} --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType| \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL_WES} --columnName=${LOCALCONTROL_WES_COL} --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType| \
     tee ${filenameVCFTemp} | perl ${TOOL_VCF_TO_ANNOVAR} ${CHR_PREFIX} ${CHR_SUFFIX} > ${FOR_ANNOVAR}.tmp"
 
 eval ${cmdAnnotation}

@@ -34,6 +34,11 @@ The name of the Conda environment is arbitrary but needs to be consistent with t
 
 There are quite extensive requirements in annotation etc. data required for the workflow. Please have a look at the file `resources/configurationFiles/analysisIndelCalling.xml`. Note that input all VCF and BED files need to be indexed with tabix.
 
+* Local controls:
+  * VCF files containing the frequency of the variants collected from the control samples sequenced and aligned locally using the same/similar workflows.
+  * Separate files for WES and WGS control samples.
+  * INFO column should contain the AF field.
+
 # Configuration Values
 
 |Switch                    |  Default     | Description
@@ -59,6 +64,9 @@ Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github
 TBD
 
 # Changelist
+* Version update to 2.5.0
+
+  * Added a local control generated from ~1k WES samples
 
 * Version update to 2.4.2
 

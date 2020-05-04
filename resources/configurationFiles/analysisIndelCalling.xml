@@ -49,13 +49,15 @@
         <cvalue name="DBSNP_SNV" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.SNV.vcf.gz" type="path"/>
         <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
-        <cvalue name="LOCALCONTROL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path"/>
+        <cvalue name="LOCALCONTROL_WGS" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path"/>
+        <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>
         <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
         <cvalue name="GENE_MODEL_BEDFILE" value='${hg19DatabasesDirectory}/gencode/gencode19/GencodeV19_Exons_plain.bed.gz' type="path" />
         
         <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
         <cvalue name="GNOMAD_V2_1_EXOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
-        <cvalue name="LOCAL_CONTROL_PLATYPUS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_H021_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
@@ -66,7 +68,8 @@
         <cvalue name="EVS_COL" value="EVS" type="string"/>
         <cvalue name="GNOMAD_WES_COL" value="GNOMAD_EXOMES" type="string"/>
         <cvalue name="GNOMAD_WGS_COL" value="GNOMAD_GENOMES" type="string"/>
-        <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
+        <cvalue name="LOCALCONTROL_WGS_COL" value="LocalControlAF_WGS" type="string"/>
+        <cvalue name="LOCALCONTROL_WES_COL" value="LocalControlAF_WES" type="string"/>
 
         <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='float'/>
         <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='float'/>
