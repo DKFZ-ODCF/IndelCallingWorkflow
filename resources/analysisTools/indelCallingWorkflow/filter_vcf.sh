@@ -71,20 +71,44 @@ ${PERL_BINARY} ${TOOL_PLATYPUS_INDEL_EXTRACTOR} --bgzip=${BGZIP_BINARY} --tabix=
 
 [[ ! -d ${screenshot_dir} ]] && mkdir ${screenshot_dir} && cd ${screenshot_dir}
 
-functional_var_count=`cat ${somatic_functional_indel_vcf} | wc -l | cut -f1 -d " "`
+functional_var_count=$(cat ${somatic_functional_indel_vcf} | tail -n +2 | wc -l | cut -f1 -d " ")
+if [[ $functional_var_count -eq 0 ]]; then
+    printf "WARNING: No functional variants present in ${somatic_functional_indel_vcf}\n"
+    $RSCRIPT_BINARY "$TOOL_TEXT_PDF" "WARNING: No functional variants." \
+        > "$combined_screen_shots"
 
-if [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]
-then
+elif [[ $functional_var_count -le $MAX_VARIANT_SCREENSHOTS ]]; then
+    if [[ "$isControlWorkflow" == true ]]; then
+        $PYTHON_BINARY "$TOOL_SCREENSHOT" \
+            --vcf="$somatic_functional_indel_vcf" \
+            --control="$FILENAME_CONTROL_BAM" \
+            --tumor="$FILENAME_TUMOR_BAM" \
+            --ref="$REFERENCE_GENOME" \
+            --prefix="$VCF_SCREENSHOTS_PREFIX" \
+            --window="$WINDOW_SIZE" \
+            --annotations="$REPEAT_MASKER" \
+            --samtoolsbin="$SAMTOOLS_BINARY" \
+            --tabixbin="$TABIX_BINARY"
+    fi
+    if [[ "$isNoControlWorkflow" == true ]]; then
+        $PYTHON_BINARY "$TOOL_SCREENSHOT" \
+            --vcf="$somatic_functional_indel_vcf" \
+            --tumor="$FILENAME_TUMOR_BAM" \
+            --ref="$REFERENCE_GENOME" \
+            --prefix="$VCF_SCREENSHOTS_PREFIX" \
+            --window="$WINDOW_SIZE" \
+            --annotations="$REPEAT_MASKER" \
+            --samtoolsbin="$SAMTOOLS_BINARY" \
+            --tabixbin="$TABIX_BINARY"
+    fi
+    pngs=(`ls *.pdf`)
+    sorted=$(printf "%s\n" ${pngs[@]} | sort -k1,1V)
 
-  [[ "${isControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --control=${FILENAME_CONTROL_BAM} --tumor=${FILENAME_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
-  [[ "${isNoControlWorkflow}" == true ]] && ${PYTHON_BINARY} ${TOOL_SCREENSHOT} --vcf=${somatic_functional_indel_vcf} --tumor=${FILENAME_TUMOR_BAM} --ref=${REFERENCE_GENOME} --prefix=${VCF_SCREENSHOTS_PREFIX} --window=${WINDOW_SIZE} --annotations=${REPEAT_MASKER} --samtoolsbin=${SAMTOOLS_BINARY} --tabixbin=${TABIX_BINARY}
-
-  pngs=(`ls *.pdf`)
-  sorted=$(printf "%s\n" ${pngs[@]}|sort -k1,1V)
-
-  ${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${combined_screen_shots} ${sorted}
+    ${GHOSTSCRIPT_BINARY} -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="$combined_screen_shots" "$sorted"
 else
-  printf "WARNINGS: No screenshots done, more than $MAX_VARIANT_SCREENSHOTS (cvalue - MAX_VARIANT_SCREENSHOTS) functional variants present in ${somatic_functional_indel_vcf} \n"
+  printf "WARNING: No screenshots done, more than $MAX_VARIANT_SCREENSHOTS (cvalue - MAX_VARIANT_SCREENSHOTS) functional variants present in ${somatic_functional_indel_vcf}\n"
+  $RSCRIPT_BINARY "$TOOL_TEXT_PDF" "WARNING: No screenshots done. More than $MAX_VARIANT_SCREENSHOTS functional variants." \
+        > "$combined_screen_shots"
 fi
 
 #### Indel QC json file

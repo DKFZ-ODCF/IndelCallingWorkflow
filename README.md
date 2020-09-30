@@ -60,6 +60,11 @@ TBD
 
 # Changelist
 
+* Version update to 2.2.1
+
+  * Stability improvement Perl to protect against I/O errors
+  * Write text PDf upon empty and too many indels
+
 * Version update to 2.2.0
 
   * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.4.1
