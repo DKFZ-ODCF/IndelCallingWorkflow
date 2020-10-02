@@ -38,3 +38,5 @@ export BGZIP_BINARY=bgzip
 export TABIX_BINARY=tabix
 export BEDTOOLS_BINARY=bedtools
 export PYPY_BINARY=pypy-c
+export RSCRIPT_BINARY=Rscript
+
