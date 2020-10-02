@@ -22,6 +22,8 @@ then
   VCF_NORMAL_HEADER_COL=`basename ${FILENAME_CONTROL_BAM} | sed 's/.bam$//'`
 fi
 
+LOGFILE=$(dirname "$FILENAME_RARE_GERMLINE")/checkSampleSwap_TiN.log
+
 ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
     --raw_file=${FILENAME_VCF_RAW} \
@@ -48,13 +50,17 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --outfile_rareGermline=${FILENAME_RARE_GERMLINE} \
     --outfile_somaticRescue=${FILENAME_SOMATIC_RESCUE} \
     --outfile_allSomatic=${FILENAME_ALL_SOMATIC} \
-    --outfile_swapJson=${FILENAME_SWAP_JSON}
+    --outfile_swapJson=${FILENAME_SWAP_JSON} \
+    2>&1 | tee "$LOGFILE"
 
-### Check the perl run was success or not
-if [[ $? == 0 ]] 
+### Check whether Perl run was success or not
+if [[ $? -eq 0 ]]
 then
-  touch ${FILENAME_CHECKPOINT_SWAP}
-  exit 0
+    touch "$FILENAME_CHECKPOINT_SWAP"
+    exit 0
+elif grep -P 'Less than \d+ rare germline variants' "$LOGFILE"; then
+    touch "$FILENAME_CHECKPOINT_SWAP"
+    exit 0
 else
-  exit 1
+    exit 1
 fi

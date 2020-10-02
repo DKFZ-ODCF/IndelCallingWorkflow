@@ -12,15 +12,16 @@
 ### 
 ############
 use strict;
+use warnings;
 use File::Basename;
 use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, 
+my ($pid, $rawFile, $ANNOTATE_VCF, $biasScript, $tumorBAM, $controlBAM, $ref,
   $gnomAD_genome, $gnomAD_exome, $split_mnps_script,
   $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
-  $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
+  $localControl_2, $canopy_Function, $seqType, $captureKit, $rightBorder,
   $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
 
 # Filtering setting to assign common or rare variants
@@ -52,8 +53,7 @@ GetOptions ("pid=s"                      => \$pid,
             "outfile_somaticRescue:s"    => \$outfile_SR,
             "outfile_allSomatic:s"       => \$outfile_AS,
             "outfile_swapJSON:s"         => \$outfile_SJ)
-
-or die("Error in SwapChecker input parameters");
+  or die("Error in SwapChecker input parameters");
 
 die("ERROR: PID is not provided\n") unless defined $pid;
 die("ERROR: Raw vcf file is not provided\n") unless defined $rawFile;
@@ -123,8 +123,10 @@ elsif($seqType eq 'WGS') {
    #`zcat $rawFile | python $split_mnps_script | bgzip -f > $updated_rawFile; tabix -f -p vcf $updated_rawFile`;
 }
 
-open(my $IN, 'zcat '. $updated_rawFile.'| ') || die "Cant read in the $updated_rawFile\n";
-open(JSON, ">$jsonFile") || die "Can't craete the $jsonFile\n";
+open(my $IN, 'zcat '. $updated_rawFile.'| ')
+    || die "Can't read in the '$updated_rawFile'\n";
+open(JSON, ">$jsonFile")
+    || die "Can't create the '$jsonFile'\n";
 
 ## Filtering for Somatic variants and germline based on platypus genotype
 my ($controlCol, $tumorCol, $formatCol);
@@ -132,11 +134,13 @@ my ($controlCol, $tumorCol, $formatCol);
 my $columnCounter;
 
 ## Creating tumor and control raw somatic snvs files 
-open(GTraw, ">$snvsGT_RawFile") || die "Can't create the $snvsGT_RawFile\n";
+open(GTraw, ">$snvsGT_RawFile")
+    || die "Can't create the '$snvsGT_RawFile'\n";
 
-while(<$IN>) {
-  chomp;
-  my $line = $_;  
+while(!eof($IN)) {
+  my $line = readline($IN)
+      || die("Error reading from zcatted '$updated_rawFile': $!");
+  chomp $line;
    
   if($line =~ /^#/)  {
     # Headers
@@ -161,7 +165,7 @@ while(<$IN>) {
       else {
         print GTraw "$line\tControl_AF\tTumor_AF\tTumor_dpALT\tTumor_dp\tControl_dpALT\tControl_dp\tGT_Classification\n";
       }
-    } 
+    }
     else {
       ## Rest of the header rows
       print GTraw "$line\n";
@@ -248,8 +252,11 @@ open(GermlineRareFileText, ">$snvsGT_germlineRare_txt") || die "cant create the 
 print GermlineRareFileText "CHR\tPOS\tREF\tALT\tControl_AF\tTumor_AF\tTumor_dpALT\tTumor_dp\tControl_dpALT\tControl_dp\tRareness\n";
 
 open(SomaticFile, ">$snvsGT_somatic") || die "cant create the $snvsGT_somatic\n";
-while(<ANN>) {
-  chomp;
+while(!eof(ANN)) {
+  my $annLine = readline(ANN)
+      || die "Error reading from '$snvsGT_gnomADFile': $!";
+  chomp $annLine;
+
   # column counters
   my $start_col = $columnCounter+1;
   my $end_col = $columnCounter+6;
@@ -257,7 +264,6 @@ while(<ANN>) {
   my $gnomAD_exome_col = $columnCounter+9;
   my $localcontrol_col = $columnCounter+10;
 
-  my $annLine = $_;
   if($annLine =~ /^#/) {
     print GermlineRareFile "$annLine\n";
     print SomaticFile "$annLine\n";    
@@ -279,7 +285,7 @@ while(<ANN>) {
       $AF_gnomAD_exome = parse_AF($annLineSplit[$gnomAD_exome_col]);      
     }
     if($annLineSplit[$localcontrol_col] =~ /MATCH=(exact|position)/) {
-      $AF_localcontrol = parse_AF($annLineSplit[$localcontrol_col]);      
+      $AF_localcontrol = parse_AF($annLineSplit[$localcontrol_col]);
     }
 
     my $common_rare = "RARE";
@@ -315,10 +321,12 @@ while(<ANN>) {
 
 close GermlineRareFile;
 close SomaticFile;
-close Ann;
+close ANN;
 
-### Crashing when there is less than 50 germline variants
+### Crashing when there is less than 50 germline variants. Write whatever information has been gathered.
 if($json{'germlineSmallVarsInBothRare'} < 50){
+  print JSON create_json (\%json);
+  close JSON;
   die "Less than 50 rare germline variants. Might be a sample swap or poor coverage on any one of the samples, please check the coverage information.\nExiting the analysis";
 }
 
@@ -349,14 +357,16 @@ if($runRscript != 0) {
 open(TINDA_rareOutput, $snvsGT_germlineRare_oFile) || die "Can't open the $snvsGT_germlineRare_oFile: $!";
 my @SomaticRescue_control_AF;
 
-while(<TINDA_rareOutput>) {
-  chomp;
-  if($_=~/Germline/){
+while(!eof(TINDA_rareOutput)) {
+  my $line = readline(TINDA_rareOutput)
+      || die "Error reading from '$snvsGT_germlineRare_oFile': $!";
+  chomp $line;
+  if ($line =~/Germline/) {
     $json{'tindaGermlineRareAfterRescue'}++;
   }
-  elsif($_=~/Somatic_Rescue/){
+  elsif ($line =~ /Somatic_Rescue/) {
     $json{'tindaSomaticAfterRescue'}++;
-    my @gr_ss = split(/\t/, $_);
+    my @gr_ss = split(/\t/, $line);
     push(@SomaticRescue_control_AF, $gr_ss[4]);
   }  
 }
@@ -375,11 +385,8 @@ sub median {
 }
 
 if($json{'tindaSomaticAfterRescue'} > 0) {
-
   $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = median(@SomaticRescue_control_AF);
-}
-else
-{
+} else {
   $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = 0;
 }
 
@@ -399,18 +406,17 @@ open(RG, ">$snvsGT_germlineRare_oVCF_annovar_rG") || die "$snvsGT_germlineRare_o
 open(SR, ">$snvsGT_germlineRare_oVCF_annovar_sR") || die "$snvsGT_germlineRare_oVCF_annovar_sR can't be open for writing. $!";
 open(GRA, "<$snvsGT_germlineRare_oVCF_annovar") || die "can't open $snvsGT_germlineRare_oVCF_annovar $!";
 
-while(<GRA>){
-  my $tmp_GRA = $_;
-  chomp $tmp_GRA;
-  if($tmp_GRA=~/^#/) {
-    print RG "$tmp_GRA\n";
-    print SR "$tmp_GRA\n";
-  }
-  elsif($tmp_GRA=~/Germline|SomaticControlRare/){
-    print RG "$tmp_GRA\n";
-  }
-  elsif($tmp_GRA=~/Somatic_Rescue/){
-    print SR "$tmp_GRA\n";
+while(!eof(GRA)){
+  my $line = readline(GRA)
+      || die "Error reading from '$snvsGT_germlineRare_oVCF_annovar': $!";
+  chomp $line;
+  if($line =~ /^#/) {
+    print RG "$line\n";
+    print SR "$line\n";
+  } elsif ($line =~ /Germline|SomaticControlRare/) {
+    print RG "$line\n";
+  } elsif ($line =~ /Somatic_Rescue/) {
+    print SR "$line\n";
   }
 }
 close RG;
@@ -419,43 +425,46 @@ close GRA;
 #######################################
 ## Running Bias Filters
 
-my $runBiasScript_code = join("", "python '$biasScript' '$snvsGT_somatic' '$tumorBAM' '$ref' '$snvsGT_somaticRareBiasFile'",
+my $runBiasScript_command = join("", "python '$biasScript' '$snvsGT_somatic' '$tumorBAM' '$ref' '$snvsGT_somaticRareBiasFile'",
   " --tempFolder $analysisBasePath",
   " --maxOpRatioPcr=0.34",
   " --maxOpRatioSeq=0.34",
   " --maxOpReadsPcrWeak=2",
   " --maxOpReadsPcrStrong=2");
   
-my $runBiasScript = system($runBiasScript_code);
+my $runBiasScript = system($runBiasScript_command);
 
-if($runBiasScript !=0) {
-  die "Error while running $biasScript in swapChecker\n";
+if($runBiasScript != 0) {
+  die "Error while running $biasScript in swapChecker: exit code = $runBiasScript\n";
 }
 
 
 ### Counting The Numbers 
-open(SOM_RareBias, "<$snvsGT_somaticRareBiasFile") || die "Can't open the file $snvsGT_somaticRareBiasFile\n";
+open(SOM_RareBias, "<$snvsGT_somaticRareBiasFile")
+    || die "Can't open the file $snvsGT_somaticRareBiasFile\n";
 
-while(<SOM_RareBias>) {
-  chomp;
-  if($_!~/^#/) {
-    if($_=~/Tumor_Somatic_Common/ && $_!~/bPcr|bSeq/) {
+while(!eof(SOM_RareBias)) {
+  my $line = readline(SOM_RareBias)
+      || die "Error reading from '$snvsGT_somaticRareBiasFile': $!";
+  chomp $line;
+  if($line !~ /^#/) {
+    if($line =~ /Tumor_Somatic_Common/ && $line !~ /bPcr|bSeq/) {
       $json{'somaticSmallVarsInTumorCommonInGnomad'}++;
     }
-    elsif($_=~/Tumor_Somatic/ && $_=~/bPcr|bSeq/) {
+    elsif($line =~ /Tumor_Somatic/ && $line =~ /bPcr|bSeq/) {
       $json{'somaticSmallVarsInTumorInBias'}++;
     }
-    elsif($_=~/Tumor_Somatic_Rare/) {
+    elsif($line =~ /Tumor_Somatic_Rare/) {
       $json{'somaticSmallVarsInTumorPass'}++;
     }
 
-    if($_=~/Control_Somatic_Common/ && $_!~/bPcr|bSeq/) {
+    if($line =~ /Control_Somatic_Common/ && $line !~ /bPcr|bSeq/) {
       $json{'somaticSmallVarsInControlCommonInGnomad'}++;    
     }
-    elsif($_=~/Control_Somatic/ && $_=~/bPcr|bSeq/) {
+    elsif($line =~ /Control_Somatic/ && $line =~ /bPcr|bSeq/) {
       $json{'somaticSmallVarsInControlInBias'}++;
     }
-    elsif($_=~/Control_Somatic_Rare/) {
+    elsif($line =~ /Control_Somatic_Rare/) {
       $json{'somaticSmallVarsInControlPass'}++;
     }   
   }
@@ -493,12 +502,12 @@ close JSON;
 
 ######################################
 #### Cleaning up files 
-#`rm $snvsGT_RawFile $snvsGT_gnomADFile`;
+`rm $snvsGT_RawFile $snvsGT_gnomADFile`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
 
-#`rm $snvsGT_somatic $snvsGT_germlineRare`;
-#`rm $snvsGT_germlineRare_txt`;
+`rm $snvsGT_somatic $snvsGT_germlineRare`;
+`rm $snvsGT_germlineRare_txt`;
 `rm $snvsGT_germlineRare_oVCF_annovar`;
 
 
