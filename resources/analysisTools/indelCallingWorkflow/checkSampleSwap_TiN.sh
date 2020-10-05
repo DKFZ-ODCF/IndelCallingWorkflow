@@ -46,7 +46,7 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --gene_model_bed=${GENE_MODEL_BEDFILE} \
     --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
     --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
-    --maf_thershold=${TINDA_MAX_MAF_CUTOFF} \
+    --maf_threshold=${TINDA_MAX_MAF_CUTOFF} \
     --outfile_rareGermline=${FILENAME_RARE_GERMLINE} \
     --outfile_somaticRescue=${FILENAME_SOMATIC_RESCUE} \
     --outfile_allSomatic=${FILENAME_ALL_SOMATIC} \
