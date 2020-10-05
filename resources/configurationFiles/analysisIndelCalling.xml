@@ -209,11 +209,12 @@
         <!-- With control bam / germline -->
         <tool name="indelCalling" value="indelCalling.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="16" cores="8" nodes="1" walltime="00:30:00" queue="devel"/>
                 <rset size="xs" memory="16" cores="8" nodes="1" walltime="1"/>
                 <rset size="s" memory="16" cores="8" nodes="1" walltime="5"/>
                 <rset size="m" memory="16" cores="8" nodes="1" walltime="25"/>
                 <rset size="l" memory="16" cores="8" nodes="1" walltime="50"/>
-                <rset size="xl" memory="16" cores="8" nodes="1" walltime="100"/>
+                <rset size="xl" memory="30" cores="8" nodes="1" walltime="110"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
@@ -221,6 +222,7 @@
         </tool>
         <tool name="checkSampleSwap" value="checkSampleSwap_TiN.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="3" cores="3" nodes="1" walltime="00:30:00" queue="devel"/>
                 <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
                 <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
                 <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
@@ -239,10 +241,11 @@
         </tool>
         <tool name="indelAnnotation" value="platypusIndelAnnotation.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="8" cores="3" nodes="1" walltime="2" queue="devel"/>
                 <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
                 <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
                 <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
-                <rset size="xl" memory="8" cores="3" nodes="1" walltime="10"/>
+                <rset size="xl" memory="8" cores="3" nodes="1" walltime="12"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
@@ -254,6 +257,7 @@
         </tool>
         <tool name="indelDeepAnnotation" value="vcf_pipeAnnotator.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="1" cores="3" nodes="1" walltime="00:30:00" queue="devel"/>
                 <rset size="s" memory="1" cores="3" nodes="1" walltime="2"/>
                 <rset size="m" memory="1" cores="3" nodes="1" walltime="2"/>
                 <rset size="l" memory="1" cores="3" nodes="1" walltime="20"/>
@@ -268,10 +272,11 @@
         </tool>
         <tool name="indelVcfFilter" value="filter_vcf.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="1" cores="1" nodes="1" walltime="00:30:00" queue="devel"/>
                 <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
                 <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
                 <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
+                <rset size="xl" memory="5" cores="1" nodes="1" walltime="12"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
@@ -283,21 +288,23 @@
         <!-- Without control bam / germline -->
         <tool name="indelCallingWithoutControl" value="indelCalling.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="16" cores="8" nodes="1" walltime="00:30:00" queue="devel"/>
                 <rset size="xs" memory="16" cores="8" nodes="1" walltime="1"/>
                 <rset size="s" memory="16" cores="8" nodes="1" walltime="5"/>
                 <rset size="m" memory="16" cores="8" nodes="1" walltime="25"/>
                 <rset size="l" memory="16" cores="8" nodes="1" walltime="50"/>
-                <rset size="xl" memory="16" cores="8" nodes="1" walltime="100"/>
+                <rset size="xl" memory="30" cores="8" nodes="1" walltime="110"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <output type="file" typeof="VCFFileForIndels" fnpatternselectiontag="rawVCF" scriptparameter="FILENAME_VCF_RAW"/>
         </tool>
         <tool name="indelAnnotationWithoutControl" value="platypusIndelAnnotation.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="8" cores="3" nodes="1" walltime="2" queue="devel"/>
                 <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
                 <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
                 <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
-                <rset size="xl" memory="8" cores="3" nodes="1" walltime="10"/>
+                <rset size="xl" memory="8" cores="3" nodes="1" walltime="12"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF_RAW"/>
@@ -308,10 +315,11 @@
         </tool>
         <tool name="indelVcfFilterWithoutControl" value="filter_vcf.sh" basepath="indelCallingWorkflow">
             <resourcesets>
+                <rset size="t" memory="1" cores="1" nodes="1" walltime="00:30:00" queue="devel"/>
                 <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
                 <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
                 <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
+                <rset size="xl" memory="5" cores="1" nodes="1" walltime="12"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF"/>
