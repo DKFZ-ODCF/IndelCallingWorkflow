@@ -13,6 +13,7 @@ import pysam
 import numpy as np
 import math
 from scipy.stats import binom
+import os
 
 #################
 # Help Routines #
@@ -329,7 +330,10 @@ def calculateErrorMatrix(vcfFilename, vcf_filename_temp, referenceFilename, bamF
 	# Open files
 	vcfFile = open(vcfFilename, "r")
 	reference = pysam.Fastafile(referenceFilename)
-	bamFile = pysam.Samfile(bamFilename)
+	if os.path.splitext(bamFilename)[1] == ".cram":
+		bamFile = pysam.Samfile(bamFilename, 'rc')
+	else:
+		bamFile = pysam.Samfile(bamFilename)
 	vcf_file_temp=open(vcf_filename_temp, "w")
 
 	possible_mutations = ["CA", "CG", "CT", "TA", "TC", "TG"]

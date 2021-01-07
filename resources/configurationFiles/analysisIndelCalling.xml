@@ -6,7 +6,8 @@
                usedToolFolders="indelCallingWorkflow,tools">
     <configurationvalues>
 
-	    <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
+	<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
+        <cvalue name="checkSampleSwapEnvironmentScript" value="checkSampleSwapEnvironment_tbiCluster" type="string"/>
         <cvalue name="condaEnvironmentName" value="IndelCallingWorkflow" type="string"/>
 
         <cvalue name='INDELFILE_PREFIX' value='indel_' type="string"/>
@@ -198,6 +199,7 @@
     <processingTools>
         <tool name="workflowEnvironment_conda" value="conda.sh" basepath="indelCallingWorkflow/environments"/>
     	<tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="indelCallingWorkflow/environments"/>
+        <tool name="checkSampleSwapEnvironment_tbiCluster" value="tbi-cluster_checkSampleSwap.sh" basepath="indelCallingWorkflow/environments"/>
 
         <tool name="platypusConfidenceAnnotation" value="confidenceAnnotation_Indels.py" basepath="indelCallingWorkflow"/>
         <tool name="platypusConfidenceAnnotationNoControl" value="platypusConfidenceAnnotation_noControl.pl" basepath="indelCallingWorkflow"/>
