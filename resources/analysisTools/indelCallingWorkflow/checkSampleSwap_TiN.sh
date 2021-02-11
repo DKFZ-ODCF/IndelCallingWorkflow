@@ -28,9 +28,9 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
     --raw_file=${FILENAME_VCF_RAW} \
     --annotate_vcf=${TOOL_ANNOTATE_VCF_FILE} \
-    --gnomAD_genome=${GNOMAD_V2_1_GENOME_SNV_INDEL} \
-    --gnomAD_exome=${GNOMAD_V2_1_EXOME_SNV_INDEL} \
-    --localControl_commonSNV=${LOCAL_CONTROL_PLATYPUS_SNV_INDEL} \
+    --gnomAD_genome=${GNOMAD_GENOME_SNV_INDEL} \
+    --gnomAD_exome=${GNOMAD_EXOME_SNV_INDEL} \
+    --localControl_SNV_INDEL=${LOCAL_CONTROL_PLATYPUS_SNV_INDEL} \
     --split_mnps_script=${TOOL_SPLIT_MNPS_SCRIPT} \
     --bias_script=${TOOL_STRAND_BIAS_FILTER_PYTHON_FILE} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
