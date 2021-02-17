@@ -16,10 +16,10 @@ library(jsonlite)
 
 option_list = list(
   make_option(c("-f", "--file"), type="character", default=NULL, help="All base coverage file"),
-  make_option(c("-oP", "--oPlot"), type="character", default=NULL, help="Output png file path"),
-  make_option(c("-oF", "--oFile"), type="character", default=NULL, help="Output table file path"),
+  make_option(c("-P", "--oPlot"), type="character", default=NULL, help="Output png file path"),
+  make_option(c("-F", "--oFile"), type="character", default=NULL, help="Output table file path"),
   make_option(c("-v", "--vcf"), type="character", default=NULL, help="input vcf file"),
-  make_option(c("-oV", "--Ovcf"), type="character", default=NULL, help="out vcf file"),
+  make_option(c("-V", "--Ovcf"), type="character", default=NULL, help="out vcf file"),
   make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
   make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
   make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function"),
