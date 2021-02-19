@@ -73,7 +73,7 @@ then
 
   if [[ $corruptLines -gt 10 ]]
   then 
-    echo "Error: More than 10 corrupt lines in platypus indel calling." && exit 6
+    printf "Error: The raw file contains more than 10 rows with 11 columns.\nRaw VCF should not contain more than 11 columns, nine default columns + 2 sample columns.\nThe file might have corrupted or there could be more than 2 sample columns, check ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt file\n" && exit 6
   fi
 else 
   ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus
