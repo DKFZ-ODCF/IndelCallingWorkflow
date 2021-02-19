@@ -31,6 +31,20 @@ def extract_info(info, keys, sep=";"):
         rtn = '0' if rtn == "None" else rtn
         return rtn
 
+
+def exit_column_header(sample_name, not_nocontrol=True):
+
+    message = "Exiting! " + sample_name + " sample name in the BAM SM tag didn't match the raw VCF header!\n"
+
+    if not_nocontrol:
+        message += "If the control genotype is at 10th column and tumor genotype is at 11th column, "
+    else:
+        message += "If the tumor genotype is at the 10th column in the raw VCF heaer, "
+
+    message += "use --skip_order_check and overrule SM tag based check.\n"
+
+    return(message)
+
 def main(args):
     if not args.no_makehead:
         header = '##fileformat=VCFv4.1\n' \
@@ -128,13 +142,22 @@ def main(args):
 
             if args.no_control:
                 if header_indices["TUMOR_COL"] == -1:
-                    header_indices["TUMOR_COL"] = 9
+                    if args.skipOrderCheck: 
+                        header_indices["TUMOR_COL"] = 9
+                    else:
+                        sys.exit(exit_column_header(args.tumorColName, False))
             else:
                 if header_indices["CONTROL_COL"] == -1:
-                    header_indices["CONTROL_COL"] = 9
+                    if args.skipOrderCheck:
+                        header_indices["CONTROL_COL"] = 9
+                    else:
+                        sys.exit(exit_column_header(args.controlColName))
 
                 if header_indices["TUMOR_COL"] == -1:
-                    header_indices["TUMOR_COL"] = 10
+                    if args.skipOrderCheck:
+                        header_indices["TUMOR_COL"] = 10
+                    else:
+                        sys.exit(exit_column_header(args.tumorColName))
 
             # create headers if they don't exist
             for optional_header in ["CLASSIFICATION", "CONFIDENCE", "REGION_CONFIDENCE", ]:
@@ -539,6 +562,9 @@ if __name__ == "__main__":
     parser.add_argument("-H", "--addhead", dest="additional_header", nargs="+", default=[],
                         help="String with additional header line infer multiple times for multiple additional lines.")
     parser.add_argument("-p", "--pid", dest="pid", nargs="?", help="Patient ID (default NA).", default="NA")
+    parser.add_argument("--skip_order_check", dest="skipOrderCheck", 
+                        help="Skip the order of control and tumor names in the VCF when they don't match the SM tags in BAM the file! " \
+                        "Make sure the control genotype is at 10th column and tumor genotype is at 11th column", action="store_true")
     parser.add_argument("-g", "--refgenome", dest="refgenome", nargs=2,
                         default=["hs37d5", "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/" \
                                            "phase2_reference_assembly_sequence/hs37d5.fa.gz", ],
