@@ -19,11 +19,11 @@ option_list = list(
   make_option(c("-P", "--oPlot"), type="character", default=NULL, help="Output png file path"),
   make_option(c("-F", "--oFile"), type="character", default=NULL, help="Output table file path"),
   make_option(c("-v", "--vcf"), type="character", default=NULL, help="input vcf file"),
-  make_option(c("-V", "--Ovcf"), type="character", default=NULL, help="out vcf file"),
+  make_option(c("-V", "--oVcf"), type="character", default=NULL, help="out vcf file"),
   make_option(c("-p", "--pid"), type="character", default=NULL, help="Name of the pid"),
   make_option(c("-c", "--chrLength"), type="character", default=NULL, help="Chromosomes length file"),
   make_option(c("-s", "--cFunction"), type="character", default=NULL, help="Updated canopy function"),
-  make_option(c("-t", "--SeqType"), type="character", default = NULL, help="WES or WGS"),
+  make_option(c("-t", "--seqType"), type="character", default = NULL, help="WES or WGS"),
   make_option(c("-r", "--rightBorder"), type="character", default = NULL, help="Maximum control AF"),
   make_option(c("-b", "--bottomBorder"), type="character", default = NULL, help="Minimum tumor AF")
 )
@@ -46,13 +46,13 @@ if(is.null(opt$file)) {
 } else if(is.null(opt$cFunction)) {
     print_help(opt_parser)
     stop("Canopy updated function not provided\n", call.=F)
-} else if(is.null(opt$SeqType)) {
+} else if(is.null(opt$seqType)) {
     print_help(opt_parser)
     stop("Sequence type not provided\n", call.=F)
 } else if(is.null(opt$vcf)){
     print_help(opt_parser)
     stop("Rare vcf file missing")
-} else if(is.null(opt$Ovcf)) {
+} else if(is.null(opt$oVcf)) {
     print_help(opt_parser)
     stop("Rare vcf out file missing")
 }
@@ -79,7 +79,7 @@ clusterCentroid <- function (seqType, maxControl=0.45, minTumor=0.01){
               "maxControl" = maxControl, "minTumor" = minTumor))
 }
 
-centroid <- clusterCentroid(opt$SeqType, maxControl = as.numeric(opt$rightBorder),
+centroid <- clusterCentroid(opt$seqType, maxControl = as.numeric(opt$rightBorder),
                             minTumor = as.numeric(opt$bottomBorder))
 
 ## Testing for enough variants for clustering
@@ -101,12 +101,12 @@ canopy.clust <- tryCatch(
   canopy.cluster(R, X, num_cluster = centroid$numberCluster, 
                              num_run = 1, Mu.init = centroid$mu.init)
   }, error = function(e){
-    if(opt$SeqType == "WGS") {
+    if(opt$seqType == "WGS") {
     centroid <- clusterCentroid("WES")
     print("Error catched!")
     canopy.cluster(R, X, num_cluster = centroid$numberCluster, 
                    num_run = 1, Mu.init = centroid$mu.init)
-    } else if(opt$SeqType == "WES") {
+    } else if(opt$seqType == "WES") {
       print("Error in centriod assignment in WES data")
     }
   }
@@ -281,5 +281,5 @@ dat$CHR <- as.character(dat$CHR)
 
 vcf %>% left_join(dat %>% select(CHR:ALT, TiN_Class) %>% rename("CHROM"="CHR")) %>%
   rename("#CHROM"="CHROM")  %>%
-  write_tsv(opt$Ovcf, na=".")
+  write_tsv(opt$oVcf, na=".")
 
