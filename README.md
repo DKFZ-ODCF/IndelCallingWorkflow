@@ -64,6 +64,13 @@ Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github
 TBD
 
 # Changelist
+* Version update to 2.6.0
+
+  * Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+  * Crash the workflow if genotype column names could not be verified through BAM SM tags
+  * Added `--skip_order_tag` to skip the above if users manually verified the genotype column order
+  * Crash the workflow if more than two samples are present in the raw VCF file. This could be due to multiple RG tags.
+
 * Version update to 2.5.0
 
   * Added a local control generated from ~1k WES samples
