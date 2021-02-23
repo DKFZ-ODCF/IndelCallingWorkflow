@@ -63,6 +63,14 @@ source(opt$cFunction)
 dat<-read.delim(opt$file, header=T, sep="\t")
 chr.length <- read.table(opt$chrLength, header=T)
 
+## Testing seqtype options
+opt$seqType <- toupper(opt$seqType)
+known_seqType <- c('WES', 'WGS')
+
+if(!(opt$seqType %in% known_seqType)){
+ stop("Stopping! Unknown sequence type provided. Known sequence types are 'WES' and 'WGS'") 
+}
+
 # Initial cluster centroid
 clusterCentroid <- function (seqType, maxControl=0.45, minTumor=0.01){
   if(seqType == "WGS") {
