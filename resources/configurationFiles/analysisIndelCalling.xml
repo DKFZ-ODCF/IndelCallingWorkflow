@@ -29,7 +29,7 @@
         <cvalue name='runTinda' value="true" type="boolean" description="Check for sample swaps."/>
 
         <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string"
-                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag. Use --skip_order_check to overrule the order checking of control and tumor columns."/>
 
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>

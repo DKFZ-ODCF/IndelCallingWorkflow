@@ -352,14 +352,14 @@ if($json{'germlineSmallVarsInBothRare'} < 50){
 my $runRscript_code  = join("", "Rscript '$TiN_R' -f '$snvsGT_germlineRare_txt'", 
   " --oPlot $snvsGT_germlineRare_png",
   " --oFile $snvsGT_germlineRare_oFile",
-  " -p $pid",
+  " --pid $pid",
   " --chrLength $chrLengthFile",
   " --cFunction $canopy_Function",
-  " --SeqType $seqType",
+  " --seqType $seqType",
   " --rightBorder $rightBorder",
   " --bottomBorder $bottomBorder",
   " --vcf $snvsGT_germlineRare",
-  " --Ovcf $snvsGT_germlineRare_oVCF");
+  " --oVcf $snvsGT_germlineRare_oVCF");
 
 print $runRscript_code, "\n";
 

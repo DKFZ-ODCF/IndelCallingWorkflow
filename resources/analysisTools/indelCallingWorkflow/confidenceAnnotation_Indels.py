@@ -31,6 +31,20 @@ def extract_info(info, keys, sep=";"):
         rtn = '0' if rtn == "None" else rtn
         return rtn
 
+
+def exit_column_header(sample_name, nocontrol=False):
+
+    message = "Exiting! " + sample_name + " sample name in the BAM SM tag didn't match the raw VCF header!\n"
+
+    if nocontrol:
+        message += "If the tumor genotype is at the 10th column of the raw VCF header, "
+    else:
+        message += "If the control genotype is at the 10th column and tumor genotype is at the 11th column of the raw VCF header, "
+
+    message += "use --skip_order_check and overrule SM tag-based check.\n"
+
+    return(message)
+
 def main(args):
     if not args.no_makehead:
         header = '##fileformat=VCFv4.1\n' \
@@ -128,13 +142,22 @@ def main(args):
 
             if args.no_control:
                 if header_indices["TUMOR_COL"] == -1:
-                    header_indices["TUMOR_COL"] = 9
+                    if args.skipOrderCheck: 
+                        header_indices["TUMOR_COL"] = 9
+                    else:
+                        sys.exit(exit_column_header(args.tumorColName, True))
             else:
                 if header_indices["CONTROL_COL"] == -1:
-                    header_indices["CONTROL_COL"] = 9
+                    if args.skipOrderCheck:
+                        header_indices["CONTROL_COL"] = 9
+                    else:
+                        sys.exit(exit_column_header(args.controlColName))
 
                 if header_indices["TUMOR_COL"] == -1:
-                    header_indices["TUMOR_COL"] = 10
+                    if args.skipOrderCheck:
+                        header_indices["TUMOR_COL"] = 10
+                    else:
+                        sys.exit(exit_column_header(args.tumorColName))
 
             # create headers if they don't exist
             for optional_header in ["CLASSIFICATION", "CONFIDENCE", "REGION_CONFIDENCE", ]:
@@ -510,6 +533,9 @@ def main(args):
         if dbsnp_id is not None and dbsnp_pos is not None:
             entries[2] = dbsnp_id + "_" + dbsnp_pos
 
+        ### Change the columns to make sure control is always in column 9 and tumor in column 10 (0 based)
+        entries[9], entries[10] = entries[header_indices["CONTROL_COL"]], entries[header_indices["TUMOR_COL"]]
+
         print '\t'.join(entries)
 
     args.infile.close()
@@ -536,6 +562,9 @@ if __name__ == "__main__":
     parser.add_argument("-H", "--addhead", dest="additional_header", nargs="+", default=[],
                         help="String with additional header line infer multiple times for multiple additional lines.")
     parser.add_argument("-p", "--pid", dest="pid", nargs="?", help="Patient ID (default NA).", default="NA")
+    parser.add_argument("--skip_order_check", dest="skipOrderCheck", 
+                        help="Force the column 10 (1-based indexing) to be interpreted as control genotype (CONTROL_COL) and column 11 as tumor genotype (TUMOR_COL). "\
+                        "A check for whether the order of the CONTROL_COL and TUMOR_COL columns in the VCF matches the SM tags in BAM the file is skipped! ", action="store_true")
     parser.add_argument("-g", "--refgenome", dest="refgenome", nargs=2,
                         default=["hs37d5", "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/" \
                                            "phase2_reference_assembly_sequence/hs37d5.fa.gz", ],
