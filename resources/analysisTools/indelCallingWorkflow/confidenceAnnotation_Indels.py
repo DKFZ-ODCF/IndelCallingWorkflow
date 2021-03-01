@@ -31,6 +31,20 @@ def extract_info(info, keys, sep=";"):
         rtn = '0' if rtn == "None" else rtn
         return rtn
 
+
+def exit_column_header(sample_name, nocontrol=False):
+
+    message = "Exiting! " + sample_name + " sample name in the BAM SM tag didn't match the raw VCF header!\n"
+
+    if nocontrol:
+        message += "If the tumor genotype is at the 10th column of the raw VCF header, "
+    else:
+        message += "If the control genotype is at the 10th column and tumor genotype is at the 11th column of the raw VCF header, "
+
+    message += "use --skip_order_check and overrule SM tag-based check.\n"
+
+    return(message)
+
 def main(args):
     if not args.no_makehead:
         header = '##fileformat=VCFv4.1\n' \
@@ -119,7 +133,8 @@ def main(args):
                # variable_headers["EVS_COL"] = "^EVS$" 
                 variable_headers["GNOMAD_EXOMES_COL"] = "^GNOMAD_EXOMES$"
                 variable_headers["GNOMAD_GENOMES_COL"] = "^GNOMAD_GENOMES$"
-                variable_headers["LOCALCONTROL_COL"] = "^LocalControlAF$"
+                variable_headers["LOCALCONTROL_WGS_COL"] = "^LocalControlAF_WGS$"
+                variable_headers["LOCALCONTROL_WES_COL"] = "^LocalControlAF_WES$"
             else:
                 fixed_headers += [ "^INFO_control", "^ANNOTATION_control$", ]
 
@@ -127,13 +142,22 @@ def main(args):
 
             if args.no_control:
                 if header_indices["TUMOR_COL"] == -1:
-                    header_indices["TUMOR_COL"] = 9
+                    if args.skipOrderCheck: 
+                        header_indices["TUMOR_COL"] = 9
+                    else:
+                        sys.exit(exit_column_header(args.tumorColName, True))
             else:
                 if header_indices["CONTROL_COL"] == -1:
-                    header_indices["CONTROL_COL"] = 9
+                    if args.skipOrderCheck:
+                        header_indices["CONTROL_COL"] = 9
+                    else:
+                        sys.exit(exit_column_header(args.controlColName))
 
                 if header_indices["TUMOR_COL"] == -1:
-                    header_indices["TUMOR_COL"] = 10
+                    if args.skipOrderCheck:
+                        header_indices["TUMOR_COL"] = 10
+                    else:
+                        sys.exit(exit_column_header(args.tumorColName))
 
             # create headers if they don't exist
             for optional_header in ["CLASSIFICATION", "CONFIDENCE", "REGION_CONFIDENCE", ]:
@@ -199,7 +223,8 @@ def main(args):
             #inEVS = False
             inGnomAD_WES = False
             inGnomAD_WGS = False
-            inLocalControl = False
+            inLocalControl_WES = False
+            inLocalControl_WGS = False
 
         # 1) external information of if these SNPs have already been found (incl. false positives from 1000 genomes!)
         # dbSNP
@@ -225,21 +250,18 @@ def main(args):
             infos.append("1000G")
 
         if args.no_control:
-            # if help["ExAC_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["ExAC_COL"], "AF").split(','))):
-              #  inExAC = True
-               # infos.append("ExAC")
-           # if help["EVS_COL_VALID"] and any(af > 1.0 for af in map(float, extract_info(help["EVS_COL"], "MAF").split(','))):
-            #    inEVS = True
-             #   infos.append("EVS")
             if help["GNOMAD_EXOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_EXOMES_COL"], "AF").split(','))):
                 inGnomAD_WES = True
                 infos.append("gnomAD_Exomes")
             if help["GNOMAD_GENOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
                 inGnomAD_WGS = True
                 infos.append("gnomAD_Genomes")
-            if help["LOCALCONTROL_COL_VALID"] and any(af > 0.02 for af in map(float, extract_info(help["LOCALCONTROL_COL"], "AF").split(','))):
-                inLocalControl = True
-                infos.append("LOCALCONTROL")
+            if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
+                inLocalControl_WGS = True
+                infos.append("LOCALCONTROL_WGS")
+            if help["LOCALCONTROL_WES_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
+                inLocalControl_WES = True
+                infos.append("LOCALCONTROL_WES")
 
         qual = help["QUAL"]
         ### variants with more than one alternative are still skipped e.g. chr12	19317131	.	GTT	GT,G	...
@@ -509,6 +531,9 @@ def main(args):
         if dbsnp_id is not None and dbsnp_pos is not None:
             entries[2] = dbsnp_id + "_" + dbsnp_pos
 
+        ### Change the columns to make sure control is always in column 9 and tumor in column 10 (0 based)
+        entries[9], entries[10] = entries[header_indices["CONTROL_COL"]], entries[header_indices["TUMOR_COL"]]
+
         print '\t'.join(entries)
 
     args.infile.close()
@@ -535,6 +560,9 @@ if __name__ == "__main__":
     parser.add_argument("-H", "--addhead", dest="additional_header", nargs="+", default=[],
                         help="String with additional header line infer multiple times for multiple additional lines.")
     parser.add_argument("-p", "--pid", dest="pid", nargs="?", help="Patient ID (default NA).", default="NA")
+    parser.add_argument("--skip_order_check", dest="skipOrderCheck", 
+                        help="Force the column 10 (1-based indexing) to be interpreted as control genotype (CONTROL_COL) and column 11 as tumor genotype (TUMOR_COL). "\
+                        "A check for whether the order of the CONTROL_COL and TUMOR_COL columns in the VCF matches the SM tags in BAM the file is skipped! ", action="store_true")
     parser.add_argument("-g", "--refgenome", dest="refgenome", nargs=2,
                         default=["hs37d5", "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/" \
                                            "phase2_reference_assembly_sequence/hs37d5.fa.gz", ],

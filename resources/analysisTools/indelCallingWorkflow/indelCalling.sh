@@ -54,26 +54,31 @@ ${PLATYPUS_BINARY} callVariants \
 
 [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 1
 
-lineCount=`grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | cut -f 12 | sort | uniq | grep -v '^$' | wc -l`
-echo "Number of corrupt rows: $lineCount"
 
-if [[ $lineCount -gt 0 ]]
+# Capture extra VCF columns
+totalVCFColumns=11
+if [[ ${isNoControlWorkflow} == true ]]; then
+  totalVCFColumns=10
+fi
+extraVCFColumn=$((totalVCFColumns + 1))
+
+corruptLines=`grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | cut -f ${extraVCFColumn} | sort | uniq | grep -v '^$' | wc -l`
+echo "Number of corrupt rows: $corruptLines"
+
+if [[ $corruptLines -gt 0 ]]
 then
-  (grep "#" ${FILENAME_VCF_RAW}.tmp.platypus ; grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF == 11){print $0}}') > ${FILENAME_VCF_RAW}.tmp.platypus.11
+  (grep "#" ${FILENAME_VCF_RAW}.tmp.platypus ; grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk -v vcfColumns=$totalVCFColumns '{if(NF == vcfColumns){print $0}}') > ${FILENAME_VCF_RAW}.tmp.platypus.11
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 3
 
   ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus.11 > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus.11
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 4
 
-  grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk '{if(NF > 11 ){print $0}}' > ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt && rm ${FILENAME_VCF_RAW}.tmp.platypus
+  grep -v "^#" ${FILENAME_VCF_RAW}.tmp.platypus | awk -v vcfColumns=$totalVCFColumns '{if(NF > vcfColumns ){print $0}}' > ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt && rm ${FILENAME_VCF_RAW}.tmp.platypus
   [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 5
-
-  corruptLines=`cat ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt | wc -l` 
-  echo "$corruptLine corrupt lines in the platypus indel calling raw file."
 
   if [[ $corruptLines -gt 10 ]]
   then 
-    echo "Error: More than 10 corrupt lines in platypus indel calling." && exit 6
+    printf "Error: Raw VCF should not contain more than 10 columns for the noControl and 11 columns for the control-tumor workflows. The raw file contains more than 10 rows with ${totalVCFColumns} columns.\nIt might have been corrupted or there could be more than one read-groups in a BAM, check ${FILENAME_VCF_RAW}.tmp.platypus.linesCorrupt file\n" && exit 6
   fi
 else 
   ${BGZIP_BINARY} -c -f ${FILENAME_VCF_RAW}.tmp.platypus > ${FILENAME_VCF_RAW}.tmp && rm ${FILENAME_VCF_RAW}.tmp.platypus

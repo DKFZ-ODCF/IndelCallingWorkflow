@@ -19,10 +19,10 @@ use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
 my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, 
-  $gnomAD_genome, $gnomAD_exome, $split_mnps_script,
-  $TiN_R, $localControl, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
-  $canopy_Function, $seqType, $bedtoolsBinary, $rightBorder, 
-  $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ, $chr_prefix, $override);
+  $gnomAD_genome, $gnomAD_exome, $split_mnps_script, $localControl_wgs, $localControl_wes,
+  $TiN_R, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
+  $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
+  $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
 
 # Filtering setting to assign common or rare variants
 my $AF_cutoff;
@@ -32,7 +32,8 @@ GetOptions ("pid=s"                      => \$pid,
             "annotate_vcf=s"             => \$ANNOTATE_VCF, 
             "gnomAD_genome=s"            => \$gnomAD_genome,
             "gnomAD_exome=s"             => \$gnomAD_exome,
-            "localControl_SNV_INDEL=s"   => \$localControl,
+            "localControl_WGS=s"         => \$localControl_wgs,
+            "localControl_WES=s"         => \$localControl_wes,
             "split_mnps_script=s"        => \$split_mnps_script,
             "bias_script=s"              => \$biasScript,
             "tumor_bam=s"                => \$tumorBAM,
@@ -232,19 +233,19 @@ close GTraw;
 
 ### Cleaning up MNPs, due to the MNPs escaping in multi-SNVs lines
 #`cat $snvsGT_RawFile | python $split_mnps_script | uniq > $snvsGT_RawFile.temp ; mv -f $snvsGT_RawFile.temp $snvsGT_RawFile`;
-my $resolve_complex_variants = "cat '$snvsGT_RawFile' | python '$split_mnps_script' > '$snvsGT_RawFile'.temp;
-(head -n 2000 '$snvsGT_RawFile'.temp | grep '#' ; 
-cat '$snvsGT_RawFile'.temp | grep -v '#' | sort -V -k1,2) | uniq > '$snvsGT_RawFile'.temp2; 
-mv -f '$snvsGT_RawFile'.temp2 '$snvsGT_RawFile'; 
-bgzip -f '$snvsGT_RawFile' && tabix -f -p vcf '${snvsGT_RawFile}'.gz;
-rm '$snvsGT_RawFile'.temp";
-
+my $resolve_complex_variants = "(head -n 2000 '$snvsGT_RawFile' | grep '#' ; 
+  cat '$snvsGT_RawFile' | python '$split_mnps_script' | grep -v '#' | sort -V -k1,2) | uniq > '$snvsGT_RawFile'.temp ;
+  mv -f '$snvsGT_RawFile'.temp '$snvsGT_RawFile';";
+ 
 print "\n$resolve_complex_variants\n";
 my $run_resolve_complex = system($resolve_complex_variants);
 
+if($run_resolve_complex !=0){
+  die("ERROR: During cleaning up MNPs\n");
+}
+
 ## Annotating with gnomAD and local control 
-my $annotation_command = "zcat '${snvsGT_RawFile}'.gz | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl' --columnName='LocalControl' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'";
-print "$annotation_command\n";
+my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl_wgs' --columnName='LocalControl_WGS' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl_wes' --columnName='LocalControl_WES' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
 
 my $runAnnotation = system($annotation_command);
 
@@ -272,7 +273,8 @@ while(!eof(ANN)) {
   my $end_col = $columnCounter+6;
   my $gnomAD_genome_col = $columnCounter+8;
   my $gnomAD_exome_col = $columnCounter+9;
-  my $localcontrol_col = $columnCounter+10;
+  my $localcontrol_wgs_col = $columnCounter+10;
+  my $localcontrol_wes_col = $columnCounter+11;
 
   if($annLine =~ /^#/) {
     print GermlineRareFile "$annLine\n";
@@ -286,7 +288,8 @@ while(!eof(ANN)) {
     ### rare or common in gnomAD or local control
     my $AF_gnomAD_genome = 0;
     my $AF_gnomAD_exome = 0;
-    my $AF_localcontrol = 0;
+    my $AF_localcontrol_wgs = 0;
+    my $AF_localcontrol_wes = 0;
     
     if($annLineSplit[$gnomAD_genome_col] =~/MATCH=(exact|position)/) {
       $AF_gnomAD_genome = parse_AF($annLineSplit[$gnomAD_genome_col] );      
@@ -294,12 +297,16 @@ while(!eof(ANN)) {
     if($annLineSplit[$gnomAD_exome_col] =~/MATCH=(exact|position)/) {
       $AF_gnomAD_exome = parse_AF($annLineSplit[$gnomAD_exome_col]);      
     }
-    if($annLineSplit[$localcontrol_col] =~ /MATCH=(exact|position)/) {
-      $AF_localcontrol = parse_AF($annLineSplit[$localcontrol_col]);      
+    if($annLineSplit[$localcontrol_wgs_col] =~ /MATCH=(exact|position)/) {
+      $AF_localcontrol_wgs = parse_AF($annLineSplit[$localcontrol_wgs_col]);
+    }
+    if($annLineSplit[$localcontrol_wes_col] =~ /MATCH=(exact|position)/) {
+      $AF_localcontrol_wes = parse_AF($annLineSplit[$localcontrol_wes_col]);
     }
 
+
     my $common_rare = "RARE";
-    if($AF_gnomAD_genome > $AF_cutoff || $AF_gnomAD_exome > $AF_cutoff || $AF_localcontrol > $AF_cutoff) {
+    if($AF_gnomAD_genome > $AF_cutoff || $AF_gnomAD_exome > $AF_cutoff || $AF_localcontrol_wgs > $AF_cutoff || $AF_localcontrol_wes) {
       $common_rare  = "COMMON";    
     }
     
@@ -346,14 +353,14 @@ if($json{'germlineSmallVarsInBothRare'} < 50){
 my $runRscript_code  = join("", "Rscript '$TiN_R' -f '$snvsGT_germlineRare_txt'", 
   " --oPlot $snvsGT_germlineRare_png",
   " --oFile $snvsGT_germlineRare_oFile",
-  " -p $pid",
+  " --pid $pid",
   " --chrLength $chrLengthFile",
   " --cFunction $canopy_Function",
-  " --SeqType $seqType",
+  " --seqType $seqType",
   " --rightBorder $rightBorder",
   " --bottomBorder $bottomBorder",
   " --vcf $snvsGT_germlineRare",
-  " --Ovcf $snvsGT_germlineRare_oVCF");
+  " --oVcf $snvsGT_germlineRare_oVCF");
 
 print $runRscript_code, "\n";
 
@@ -511,12 +518,12 @@ close JSON;
 
 ######################################
 #### Cleaning up files 
-#`rm $snvsGT_RawFile $snvsGT_gnomADFile`;
+`rm $snvsGT_RawFile $snvsGT_gnomADFile`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
 `rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
 
-#`rm $snvsGT_somatic $snvsGT_germlineRare`;
-#`rm $snvsGT_germlineRare_txt`;
+`rm $snvsGT_somatic $snvsGT_germlineRare`;
+`rm $snvsGT_germlineRare_txt`;
 `rm $snvsGT_germlineRare_oVCF_annovar`;
 
 

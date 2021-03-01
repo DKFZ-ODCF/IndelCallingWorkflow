@@ -34,6 +34,11 @@ The name of the Conda environment is arbitrary but needs to be consistent with t
 
 There are quite extensive requirements in annotation etc. data required for the workflow. Please have a look at the file `resources/configurationFiles/analysisIndelCalling.xml`. Note that input all VCF and BED files need to be indexed with tabix.
 
+* Local controls:
+  * VCF files containing the frequency of the variants collected from the control samples sequenced and aligned locally using the same/similar workflows.
+  * Separate files for WES and WGS control samples.
+  * INFO column should contain the AF field.
+
 # Configuration Values
 
 |Switch                    |  Default     | Description
@@ -59,6 +64,20 @@ Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github
 TBD
 
 # Changelist
+* Version update to 2.6.0
+
+  * Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+  * Crash the workflow if genotype column names could not be verified through BAM SM tags
+  * Added `--skip_order_tag` to skip the above if users manually verified the genotype column order
+  * Crash the workflow if more than two samples are present in the raw VCF file. This could be due to multiple RG tags.
+
+* Version update to 2.5.0
+
+  * Added a local control generated from ~1k WES samples
+
+* Version update to 2.4.2
+
+  * Fixed missed annotations due to unsorted VCF
 
 * Version update to 2.4.1
 

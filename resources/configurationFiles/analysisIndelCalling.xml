@@ -30,39 +30,36 @@
         <cvalue name='runTinda' value="true" type="boolean" description="Check for sample swaps."/>
 
         <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string"
-                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag. Use --skip_order_check to overrule the order checking of control and tumor columns."/>
 
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
 
         <cvalue name='REPEAT_MASKER' value="" type="string"/>
+
+        <cvalue name="CHROM_SIZES_FILE" value="${hg19DatabaseDirectory}/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab" type="path"
+                description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin. Per chromosome counts of only A, T, C ond G IUPAC codes."/>
 	
-	 <!-- Base directories for hg38 (may be changed in future -->
-	 <cvalue name='hg38DatabasesDirectory' value='/icgc/ngs_share/assemblies/hg_GRCh38/databases' type='path' />
-	 <cvalue name='hg38DatabaseUCSCDirectory' value='/icgc/ngs_share/assemblies/hg_GRCh38/databases/UCSC' type='path' />
-	 <cvalue name='hg38ReferenceDirectory' value='/icgc/dkfzlsdf/analysis/UniExome/GermlineAnnotation/annotationInfo/hg38/hg38-tests' type="path" />
-
-	<!-- Reference genomes -->
-	<cvalue name='REFERENCE_GENOME' value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/GRCh38_d1_vd1_phiX.fa' type="path"/>
-	<cvalue name='INDEX_PREFIX' value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/bwa-0.7.15/GRCh38_d1_vd1_phiX.fa' type="path"/>
-	<cvalue name="CHROM_SIZES_FILE" value='${hg38ReferenceDirectory}/GRCh38_d1_vd1_phiX/stats/GRCh38_d1_vd1_phiX.fa.chrLenOnlyACGT_realChromosomes.tsv' type="path" />
-
+	 
         <!--## Databases
 
          All .vcf.gz and .bed.gz files needs to be accompanied by a tabix index (same path + .tbi suffix).
 
          -->
-        <cvalue name="KGENOME" value="${hg38DatabasesDirectory}/1000Genome/hg38/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz" type="path"/>
-	<cvalue name="DBSNP_SNV" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.SNV.vcf.gz" type="path"/>
-	<cvalue name="DBSNP_INDEL" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.INDEL.vcf.gz" type="path"/>
-
-        <cvalue name="LOCALCONTROL" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/MPsnvs_PLindels/GRCh38_ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path" /> 
-        <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
+        <cvalue name="KGENOME" value="${hg19DatabasesDirectory}/1000genomes/ALL.wgs.phase1_integrated_calls.20101123.indels_plain.vcf.gz" type="path"/>
+        <cvalue name="DBSNP_INDEL" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.INDEL.vcf.gz" type="path"/>
+        <cvalue name="DBSNP_SNV" value="${hg19DatabasesDirectory}/dbSNP/dbSNP_147/00-All.SNV.vcf.gz" type="path"/>
+        <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
+        <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
+        <cvalue name="LOCALCONTROL_WGS" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path"/>
+        <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>
+        <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
+        <cvalue name="GENE_MODEL_BEDFILE" value='${hg19DatabasesDirectory}/gencode/gencode19/GencodeV19_Exons_plain.bed.gz' type="path" />
         
-        <cvalue name="GNOMAD_GENOME_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/gnomad.genomes.r3.0.sites.SNV-INDEL.vcf.gz" type="path" />
-	<cvalue name="GNOMAD_EXOME_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.SNV.vcf.gz" type="path" />
-
-        <cvalue name="LOCAL_CONTROL_PLATYPUS_SNV_INDEL" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/PLsnvs_PLindels/GRCh38_ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_H021_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
@@ -71,19 +68,20 @@
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
         <cvalue name="GNOMAD_WES_COL" value="GNOMAD_EXOMES" type="string"/>
         <cvalue name="GNOMAD_WGS_COL" value="GNOMAD_GENOMES" type="string"/>
-        <cvalue name="LOCALCONTROL_COL" value="LocalControlAF" type="string"/>
+        <cvalue name="LOCALCONTROL_WGS_COL" value="LocalControlAF_WGS" type="string"/>
+        <cvalue name="LOCALCONTROL_WES_COL" value="LocalControlAF_WES" type="string"/>
 
         <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='float'/>
         <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='float'/>
         <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string'/>
         <cvalue name="SEQUENCE_TYPE" value='WGS' type='string' description="Only required for TiNDA."/>
 
-        <cvalue name='ANNOVAR_BINARY' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/annotate_variation.pl' type='path'
+        <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/annotate_variation.pl' type='path'
                 description="Full path to annotate_variation.pl script, which can be found in the bin/ directory in the AnnoVar distribution."/>
-        <cvalue name='ANNOVAR_BUILDVER' value='hg38' type='string'/>
-        <cvalue name='ANNOVAR_DBPATH' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/humandb/' type='path'
+        <cvalue name='ANNOVAR_BUILDVER' value='hg19' type='string'/>
+        <cvalue name='ANNOVAR_DBPATH' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/humandb/' type='path'
                 description="Path to humandb/ directory in the AnnoVar distribution"/>
-        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV31'" type='string'
+        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV19'" type='string'
                 description="-dbtype option used for the ANNOVAR_BINARY (see above)."/>
 
         <cvalue name="ANNOVAR_GENEANNO_COLS" value='"ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS"' type="string"/>
@@ -91,9 +89,9 @@
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
         
         <!-- gnomAD files for no-control workflow -->
-        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/gnomad.genomes.r3.0.sites.INDEL.vcf.gz" />
-	<cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.INDEL.vcf.gz" />
- 
+        <cvalue name="GNOMAD_WGS_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.INDEL.vcf.gz" />
+        <cvalue name="GNOMAD_WES_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.INDEL.vcf.gz" />
+
         <!-- More configuration options -->
         <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
                 description="Required in the indelAnnotation step. Max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
@@ -137,8 +135,6 @@
 
         <!--## Filter criteria -->
         <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
-        <!--  <cvalue name="CRIT_ExAC_maxMAF" value="1.0" type="float"/>
-        <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float"/> -->
         <cvalue name="CRIT_GNOMAD_EXOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_GNOMAD_GENOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float"/>
@@ -167,19 +163,27 @@
              -->
 
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
-            <cvalue name='MAPABILITY' value='"${hg38DatabasesDirectory}/mappability/GRCh38_Mappability_Align_100mer.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
-	    <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg38DatabaseUCSCDirectory}/simple_tandem_repeats/2019-08-15_SimpleTandemRepeats_Human_hg38.sorted_plain.bed.gz:4' type="path"/>
-	    <cvalue name='REPEAT_MASKER' value='${hg38DatabaseUCSCDirectory}/repeatMasker/2019-08-14_RepeatMasker_Human_hg38.sorted_plain.bed.gz' type="path"/>
+            <cvalue name='MAPABILITY' value='"${hg19DatabaseUCSCDirectory}/wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
+            <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path"/>
+            <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg19DatabaseUCSCDirectory}/repeats/SimpleTandemRepeats_chr.bed.gz:4' type="path"/>
+            <cvalue name='REPEAT_MASKER' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_RepeatMasker.bed.gz' type="path"/>
+            <cvalue name='DUKE_EXCLUDED' value='${hg19DatabaseUCSCDirectory}/DukeExcluded_chr.bed.gz' type="path"/>
+            <cvalue name='DAC_BLACKLIST' value='${hg19DatabaseUCSCDirectory}/DACBlacklist_chr.bed.gz' type="path"/>
+            <cvalue name='SELFCHAIN' value='${hg19DatabaseUCSCDirectory}/selfChain_chr.bed.gz:4::--maxNrOfMatches=5' type="path"/>
         </configurationValueBundle>
 
         <configurationValueBundle name='PIPE_CONFIG:INDEL_DEEPANNOTATION'>
-           <cvalue name='CpGislands' value='${hg38DatabaseUCSCDirectory}/cpg_islands/2019-08-15_CpG_Islands_Human_hg38.sorted_plain.bed.gz' type="path"/>
-	   <cvalue name='Enhancers' value='${hg38DatabasesDirectory}/enhancers/FANTOM5/F5.hg38.enhancers.sorted_plain.bed.gz' type="path"/>
-	   <cvalue name='miRNAs_sncRNAs' value='${hg38DatabasesDirectory}/miRNA/dashr.v2.sncRNA.annotation.hg38.sncType.sorted_plain.bed.gz' type="path"/>
-	   <cvalue name='miRBase' value='${hg38DatabasesDirectory}/miRNA/miRBase_version-22_hg38.sorted_plain.bed.gz' type="path"/>
-	   <cvalue name='COSMIC' value='${hg38DatabasesDirectory}/COSMIC/cosmic_v81/Cosmic_v81_hg38_all.coding_snvs.bed.gz:7,8,9:1' type="path"/>
-	   <cvalue name='ENCODE_DNASE' value='${hg38DatabaseUCSCDirectory}/DNAase/2019-08-15_Encode_DNAase_clusters_Human_hg38.sorted_plain.bed.gz' type="path"/>
-	   <cvalue name='ENCODE_TFBS' value='${hg38DatabaseUCSCDirectory}/TF_clusters/2019-08-15_Encode_TF_clusters_Human_hg38.sorted_plain.bed.gz' type="path"/>
+            <cvalue name='CpGislands' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_CpG_islands.bed.gz' type="path"/>
+            <cvalue name='CgiMountains' value='${assembliesHG191000GenomesDirectory}/CustomDeepAnnotation/CgiMountains_chr.bed.gz:4' type="path"/>
+            <cvalue name='Enhancers' value='${hg19DatabaseUCSCDirectory}/Enhancers_Vista_2011_01_14_chr.bed.gz' type="path"/>
+            <cvalue name='miRNAs_snoRNAs' value='${hg19DatabasesDirectory}/miRNA/miRNA_snoRNAs_miRBaseRelease15_chr.bed.gz' type="path"/>
+            <cvalue name='miRBase18' value='${hg19DatabasesDirectory}/miRNA/miRBase_version-18_chr.bed.gz' type="path"/>
+            <cvalue name='miRNAtargets' value='${hg19DatabasesDirectory}/miRNA/miRNAsites_TargetScan_BartelLab_2011_01_14_chr.bed.gz' type="path"/>
+            <cvalue name='phastConsElem20bp' value='${hg19DatabaseUCSCDirectory}/phastConsElem_min20bp_chr.bed.gz:4' type="path"/>
+            <cvalue name='TFBScons' value='${hg19DatabaseUCSCDirectory}/tfbsConsSites_noncoding_merged_chr.bed.gz' type="path"/>
+            <cvalue name='COSMIC' value='${hg19DatabasesDirectory}/COSMIC/Cosmic_v77_hg19_coding_SNVs.bed.gz:7,8,9:1' type="path"/>
+            <cvalue name='ENCODE_DNASE' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_DNase_cluster_V2.bed.gz' type="path"/>
+            <cvalue name='ENCODE_TFBS' value='${hg19DatabaseUCSCDirectory}/Sept2013/UCSC_27Sept2013_wgEncodeRegTfbsClusteredV3.bed.gz' type="path"/>
         </configurationValueBundle>
 
     </configurationvalues>
