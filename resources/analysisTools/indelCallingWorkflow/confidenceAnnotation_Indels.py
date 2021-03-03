@@ -401,7 +401,7 @@ def main(args):
                 classification = "unclear"
             confidence = 1
 
-        if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inGnomAD_WES or inGnomAD_WGS or inLocalControl):
+        if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS or inLocalControl_WES):
             classification = "SNP_support_germline"
 
         if confidence < 1:	# Set confidence to 1 if it is below one
