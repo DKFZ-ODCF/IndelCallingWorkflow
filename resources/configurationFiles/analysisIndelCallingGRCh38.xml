@@ -21,6 +21,7 @@
 	    <cvalue name="DBSNP_SNV" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.SNV.vcf.gz" type="path"/>
 	    <cvalue name="DBSNP_INDEL" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.INDEL.vcf.gz" type="path"/>
       <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencode/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
+        <cvalue name="disableAutoBAMHeaderAnalysis" value="true" type="boolean"/>
 
       <!-- GRCh38 local control liftover from hg19 local control -->
       <!-- For no control workflow-->

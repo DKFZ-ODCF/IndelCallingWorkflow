@@ -35,8 +35,8 @@ if [[ ${isControlWorkflow} == true ]]; then
     bamFiles="${FILENAME_CONTROL_BAM},${bamFiles}"
 fi
 
-#source ${TOOL_ANALYZE_BAM_HEADER}
-#getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
+source ${TOOL_ANALYZE_BAM_HEADER}
+getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
 
 ${PLATYPUS_BINARY} callVariants \
 	--refFile=${REFERENCE_GENOME} \
