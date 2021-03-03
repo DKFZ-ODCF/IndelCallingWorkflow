@@ -125,12 +125,15 @@ def main(args):
                              "REPEAT_MASKER", "^CONFIDENCE$",
                              "^CLASSIFICATION$", "^REGION_CONFIDENCE$", "^PENALTIES$", "^REASONS$",
                             ]
+            
+            hs37d5_headers = ["DAC_BLACKLIST", "DUKE_EXCLUDED", "HISEQDEPTH", "SELFCHAIN"]
+            if args.refgenome[0] == "hs37d5":
+                fixed_headers = fixed_headers + hs37d5_headers                
+
             variable_headers = { "ANNOVAR_SEGDUP_COL": "^SEGDUP$", "KGENOMES_COL": "^1K_GENOMES$", "DBSNP_COL": "^DBSNP$",
                                  "CONTROL_COL": "^" + args.controlColName + "$", "TUMOR_COL": "^" + args.tumorColName + "$"}
 
             if args.no_control:
-               # variable_headers["ExAC_COL"] = "^ExAC$" 
-               # variable_headers["EVS_COL"] = "^EVS$" 
                 variable_headers["GNOMAD_EXOMES_COL"] = "^GNOMAD_EXOMES$"
                 variable_headers["GNOMAD_GENOMES_COL"] = "^GNOMAD_GENOMES$"
                 variable_headers["LOCALCONTROL_WGS_COL"] = "^LocalControlAF_WGS$"
@@ -219,8 +222,6 @@ def main(args):
 
             is_commonSNP = False
             is_clinic = False
-            #inExAC = False
-            #inEVS = False
             inGnomAD_WES = False
             inGnomAD_WGS = False
             inLocalControl_WES = False

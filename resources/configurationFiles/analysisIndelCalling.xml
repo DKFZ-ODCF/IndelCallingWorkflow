@@ -52,8 +52,7 @@
         <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
         <cvalue name="LOCALCONTROL_WGS" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path"/>
-        <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>
-        <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
+        <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>        
         <cvalue name="GENE_MODEL_BEDFILE" value='${hg19DatabasesDirectory}/gencode/gencode19/GencodeV19_Exons_plain.bed.gz' type="path" />
         
         <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
@@ -92,10 +91,7 @@
         <cvalue name="GNOMAD_WGS_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.INDEL.vcf.gz" />
         <cvalue name="GNOMAD_WES_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.INDEL.vcf.gz" />
 
-        <!-- More configuration options -->
-        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
-                description="Required in the indelAnnotation step. Max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
-
+        <!-- More configuration options -->        
         <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
         <cvalue name="ALLELE_FREQ" value="0" type="integer" description="ignore SNVs with MAF below that value (rainfall plot)"/>
         <cvalue name="CLINICALANNO" value='""' type="string" description="tab separated file with fields in the following order: ID, decoded PID, gender, age, subgroup"/>
@@ -124,8 +120,6 @@
         <!--#### EXTRA ANNOTATION AND FILTERING -->
         <!--#### BELOW VALUES WILL BE NEGLECTED WHEN THE WORKFLOW IS RUN WITH CONTROL -->
         <!--## Filter switch -->
-        <!-- <cvalue name="FILTER_ExAC" value="${isNoControlWorkflow}" type="boolean"/>
-        <cvalue name="FILTER_EVS" value="${isNoControlWorkflow}" type="boolean"/> -->
         <cvalue name="FILTER_GNOMAD_EXOMES" value="${isNoControlWorkflow}" type="boolean"/>
         <cvalue name="FILTER_GNOMAD_GENOMES" value="${isNoControlWorkflow}" type="boolean"/>
         <cvalue name="FILTER_1KGENOMES" value="${isNoControlWorkflow}" type="boolean"/>
