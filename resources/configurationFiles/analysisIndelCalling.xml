@@ -197,8 +197,7 @@
 
         <!--## SwapChecker -->
         <tool name="checkSampleSwapScript" value="checkSampleSwap_TiN.pl" basepath="indelCallingWorkflow"/>
-        <tool name="splitMnpsScript" value="splitMNPsAndComplex.py" basepath="indelCallingWorkflow"/>
-        <tool name="strandBiasFilterPythonFile" value="biasFilter.py" basepath='indelCallingWorkflow'/>
+        <tool name="splitMnpsScript" value="splitMNPsAndComplex.py" basepath="indelCallingWorkflow"/>        
         <tool name="tumorInNormalPlotRscript" value="TiN_CanopyBasedClustering.R" basepath='indelCallingWorkflow'/>
         <tool name="canopyClusterFunctionRscript" value="canopyCluster_updatedFunction.R" basepath='indelCallingWorkflow'/>
         <!--tool name="CanopyLinearChrData" value="chrlengths.plain.sorted.txt" basepath='indelCallingWorkflow'/-->
