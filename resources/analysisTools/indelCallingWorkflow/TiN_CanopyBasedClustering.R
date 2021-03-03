@@ -281,10 +281,14 @@ vcf <- read.vcfR(opt$vcf)
 vcf <- as.data.frame(cbind(vcf@fix, vcf@gt))
 vcf$POS <- as.integer(as.character(vcf$POS))
 
-vcf$CHR <- as.character(vcf$CHR)
+vcf$CHROM <- as.character(vcf$CHROM)
 dat$CHR <- as.character(dat$CHR)
 
-vcf %>% left_join(dat %>% select(CHR:ALT, TiN_Class) %>% rename("CHROM"="CHR")) %>%
+vcf %>% left_join(
+                  dat %>% 
+                  select(CHR:ALT, rawCluster, TiN_Class) %>% 
+                  rename("CHROM"="CHR")
+                  ) %>%
   rename("#CHROM"="CHROM")  %>%
   write_tsv(opt$oVcf, na=".")
   
