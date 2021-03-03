@@ -5,8 +5,8 @@
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 #
 ## Bam header analysis
-#source ${TOOL_ANALYZE_BAM_HEADER}
-#getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
+source ${TOOL_ANALYZE_BAM_HEADER}
+getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
 
 ## Getting tumor and control header
 VCF_TUMOR_HEADER_COL=`samtools view -H ${FILENAME_TUMOR_BAM} | grep -P "^@RG" | perl -ne 'chomp; @s=split(/\t/, $_) ; map{if($_=~/SM:/){$_=~/SM:(.*)/; print "$1\n"}} @s;' | sort | uniq`
@@ -28,12 +28,11 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
     --raw_file=${FILENAME_VCF_RAW} \
     --annotate_vcf=${TOOL_ANNOTATE_VCF_FILE} \
-    --gnomAD_genome=${GNOMAD_GENOME_SNV_INDEL} \
-    --gnomAD_exome=${GNOMAD_EXOME_SNV_INDEL} \
+    --gnomAD_genome=${GNOMAD_WGS_SNV_INDEL} \
+    --gnomAD_exome=${GNOMAD_WES_SNV_INDEL} \
     --localControl_WGS=${LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL} \
     --localControl_WES=${LOCALCONTROL_PLATYPUS_WES_SNV_INDEL} \
     --split_mnps_script=${TOOL_SPLIT_MNPS_SCRIPT} \
-    --bias_script=${TOOL_STRAND_BIAS_FILTER_PYTHON_FILE} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
     --control_bam=${FILENAME_CONTROL_BAM} \
     --reference=${REFERENCE_GENOME} \
@@ -47,11 +46,8 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
     --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
     --maf_thershold=${TINDA_MAX_MAF_CUTOFF} \
-    --outfile_rareGermline=${FILENAME_RARE_GERMLINE} \
-    --outfile_somaticRescue=${FILENAME_SOMATIC_RESCUE} \
-    --outfile_allSomatic=${FILENAME_ALL_SOMATIC} \
+    --outfile_tindaVCF=${FILENAME_TINDA_VCF} \
     --outfile_swapJson=${FILENAME_SWAP_JSON} \
-    --chr_prefix=${CHR_PREFIX} \
     2>&1 | tee "$LOGFILE"
 
 ### Check whether Perl run was success or not

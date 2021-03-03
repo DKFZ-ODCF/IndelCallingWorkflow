@@ -235,9 +235,7 @@
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
             <output type="tuple" >
                 <output type="file" typeof="TextFile" scriptparameter="FILENAME_CHECKPOINT_SWAP"/>
-                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_RARE_GERMLINE" />
-                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_SOMATIC_RESCUE" />
-                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_ALL_SOMATIC" />
+                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_TINDA_VCF" />
                 <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_SWAP_JSON" />
             </output>
         </tool>
@@ -340,9 +338,7 @@
         <filename class='CPFileFilter'   onTool="indelVcfFilterWithoutControl" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
 
         <filename class='TextFile' onScriptParameter='FILENAME_CHECKPOINT_SWAP' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
-        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_RARE_GERMLINE' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.rareGermline.vcf'/>
-        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_SOMATIC_RESCUE' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.somaticRescue.vcf'/>
-        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_ALL_SOMATIC' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.allSomatic.vcf'/>
+        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_TINDA_VCF' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf'/>
         <filename class='VCFFileForIndels' onScriptParameter='FILENAME_SWAP_JSON' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/checkSampleSwap.json'/>
 
         <!--filename class='CPFileSwap'   onTool="checkSampleSwap" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/-->
