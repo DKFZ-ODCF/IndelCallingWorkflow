@@ -71,7 +71,7 @@ my $snvsGT_germlineRare_txt    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnom
 my $snvsGT_germlineRare_png    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.png";
 my $snvsGT_germlineRare_oFile  = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.txt";
 my $snvsGT_germlineRare_oVCF   = $outfile_tindaVCF;
-my $jsonFile                   = $outfile_SJ"; # checkSwap.json
+my $jsonFile                   = $outfile_SJ; # checkSwap.json
 
 ###########################################################################################
 ### For JSON file
