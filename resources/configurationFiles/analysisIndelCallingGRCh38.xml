@@ -1,68 +1,72 @@
-<configuration name='indelCallingAnalysis' description='Indel Calling for NGS data using platypus.'
+<configuration name='indelCallingAnalysisGRCh38' description='Indel Calling for NGS data using platypus.'
                configurationType='analysis' class='de.dkfz.roddy.core.Analysis' workflowClass='de.dkfz.b080.co.indelcallingworkflow.IndelCallingWorkflow'
                runtimeServiceClass='de.dkfz.b080.co.common.BasicCOProjectsRuntimeService'
-               imports="commonCOWorkflowsSettings,analysisIndelCalling"
+               imports="commonCOWorkflowsSettings,indelCallingAnalysis"
                listOfUsedTools="indelCalling,indelAnnotation,indelDeepAnnotation,indelVcfFilter,platypusIndelExtractor"
                usedToolFolders="indelCallingWorkflow,tools">
-    
-    <configurationvalues>
-      <!-- Base directories for hg38 (may be changed in future -->
-      <cvalue name='hg38BaseDirectory' value='/icgc/ngs_share/assemblies/hg_GRCh38' type='path' />
- 	    <cvalue name='hg38DatabasesDirectory' value="${hg38BaseDirectory}/databases" type='path' />
-	    <cvalue name='hg38DatabaseUCSCDirectory' value="${hg38DatabasesDirectory}/UCSC" type='path' />	    
+        
+        <configurationvalues>        
+        <!-- Base directories for hg38 (may be changed in future -->
+        <cvalue name='hg38BaseDirectory' value='/icgc/ngs_share/assemblies/hg_GRCh38' type='path' />
+        <cvalue name='hg38DatabasesDirectory' value="${hg38BaseDirectory}/databases" type='path' />
+        <cvalue name='hg38DatabaseUCSCDirectory' value="${hg38DatabasesDirectory}/UCSC" type='path' />
 
-	    <!-- Reference genomes -->
-	    <cvalue name='REFERENCE_GENOME' value="${hg38BaseDirectory}/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa" type="path"/>
-	    <cvalue name='INDEX_PREFIX' value="${hg38BaseDirectory}/indexes/bwa/bwa07_GRCh38_decoy_ebv_phiX_alt_hla_chr/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa" type="path"/>
-	    <cvalue name="CHROM_SIZES_FILE" value="${hg38BaseDirectory}/stats/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa.chrLenOnlyACGT_realChromosomes.tsv" type="path" />
+        <!-- Reference genomes -->
+        <cvalue name='REFERENCE_GENOME' value="${hg38BaseDirectory}/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa" type="path"/>
+        <cvalue name='INDEX_PREFIX' value="${hg38BaseDirectory}/indexes/bwa/bwa07_GRCh38_decoy_ebv_phiX_alt_hla_chr/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa" type="path"/>
+        <cvalue name="CHROM_SIZES_FILE" value="${hg38BaseDirectory}/stats/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa.chrLenOnlyACGT_realChromosomes.tsv" type="path" />
 
-      <!-- GRCh38 annotation databases-->
-      <cvalue name="KGENOME" value="${hg38DatabasesDirectory}/1000Genome/hg38/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz" type="path"/>
-	    <cvalue name="DBSNP_SNV" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.SNV.vcf.gz" type="path"/>
-	    <cvalue name="DBSNP_INDEL" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.INDEL.vcf.gz" type="path"/>
-      <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencode/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
         <cvalue name="disableAutoBAMHeaderAnalysis" value="true" type="boolean"/>
 
-      <!-- GRCh38 local control liftover from hg19 local control -->
-      <!-- For no control workflow-->
-      <cvalue name="LOCALCONTROL_WGS" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/MPsnvs_PLindels/GRCh38_ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path" />
-      <cvalue name="LOCALCONTROL_WES" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/MPsnvs_PLindels/GRCh38_ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path" />    
-      <!-- GRCh38 local control for TiNDA-->
-      <cvalue name="LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/PLsnvs_PLindels/GRCh38_ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
-      <cvalue name="LOCALCONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/PLsnvs_PLindels/GRCh38_ExclusionList_2019_H021_MP_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <!-- GRCh38 annotation databases-->
+        <cvalue name="KGENOME" value="${hg38DatabasesDirectory}/1000Genome/hg38/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz" type="path"/>
+        <cvalue name="DBSNP_SNV" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.SNV.vcf.gz" type="path"/>
+        <cvalue name="DBSNP_INDEL" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.INDEL.vcf.gz" type="path"/>
+        <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencode/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
+        
+        <!-- GRCh38 local control liftover from hg19 local control -->
+        <!-- For no control workflow-->
+        <cvalue name="LOCALCONTROL_WGS" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/MPsnvs_PLindels/GRCh38_ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="LOCALCONTROL_WES" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/MPsnvs_PLindels/GRCh38_ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path" />    
+        <!-- GRCh38 local control for TiNDA-->
+        <cvalue name="LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/PLsnvs_PLindels/GRCh38_ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg38DatabasesDirectory}/LocalControls/ExclusionList_2019_liftover/PLsnvs_PLindels/GRCh38_ExclusionList_2019_H021_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
 
-      <!-- gnomAD files for hg38 no-control workflow -->
-      <cvalue name="GNOMAD_WGS_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/gnomad.genomes.r3.0.sites.INDEL.vcf.gz" />
-	    <cvalue name="GNOMAD_WES_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.INDEL.vcf.gz" />
-      <!-- gnomAD files for TiNDA -->
-      <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/gnomad.genomes.r3.0.sites.SNV-INDEL.vcf.gz" type="path" />
-	    <cvalue name="GNOMAD_WES_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.SNV.vcf.gz" type="path" />
+        <!-- gnomAD files for hg38 no-control workflow -->
+        <cvalue name="GNOMAD_WGS_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/gnomad.genomes.r3.0.sites.INDEL.vcf.gz" />
+        <cvalue name="GNOMAD_WES_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.INDEL.vcf.gz" />
+        <!-- gnomAD files for TiNDA -->
+        <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v3/genomes/gnomad.genomes.r3.0.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_WES_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.SNV.vcf.gz" type="path" />
          
-         
+        <!--ANNOVAR annotations-->
+        <cvalue name='ANNOVAR_BINARY' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/annotate_variation.pl' type='path'
+                description="Full path to annotate_variation.pl script, which can be found in the bin/ directory in the AnnoVar distribution."/>
+        <cvalue name='ANNOVAR_BUILDVER' value='hg38' type='string'/>
+        <cvalue name='ANNOVAR_DBPATH' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/humandb/' type='path'
+                description="Path to humandb/ directory in the AnnoVar distribution"/>
+        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV31'" type='string'
+                description="-dbtype option used for the ANNOVAR_BINARY (see above)."/>
 
-      <!--ANNOVAR annotations-->
-      <cvalue name='ANNOVAR_BINARY' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/annotate_variation.pl' type='path'
-              description="Full path to annotate_variation.pl script, which can be found in the bin/ directory in the AnnoVar distribution."/>
-      <cvalue name='ANNOVAR_BUILDVER' value='hg38' type='string'/>
-      <cvalue name='ANNOVAR_DBPATH' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/humandb/' type='path'
-              description="Path to humandb/ directory in the AnnoVar distribution"/>
-      <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV31'" type='string'
-              description="-dbtype option used for the ANNOVAR_BINARY (see above)."/>
+        <!--Reference annotations-->
+        <cvalue name="CONFIDENCE_OPTS_INDEL" value="--refgenome GRCh38 ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/core_ref_GRCh38_hla_decoy_ebv.tar.gz" type="string" />
 
-      <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
-        <cvalue name='MAPABILITY' value='"${hg38DatabasesDirectory}/mappability/GRCh38_Mappability_Align_100mer.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
-	      <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg38DatabaseUCSCDirectory}/simple_tandem_repeats/2019-08-15_SimpleTandemRepeats_Human_hg38.sorted_plain.bed.gz:4' type="path"/>
-	      <cvalue name='REPEAT_MASKER' value='${hg38DatabaseUCSCDirectory}/repeatMasker/2019-08-14_RepeatMasker_Human_hg38.sorted_plain.bed.gz' type="path"/>
-      </configurationValueBundle>
 
-      <configurationValueBundle name='PIPE_CONFIG:INDEL_DEEPANNOTATION'>
-        <cvalue name='CpGislands' value='${hg38DatabaseUCSCDirectory}/cpg_islands/2019-08-15_CpG_Islands_Human_hg38.sorted_plain.bed.gz' type="path"/>
-	      <cvalue name='Enhancers' value='${hg38DatabasesDirectory}/enhancers/FANTOM5/F5.hg38.enhancers.sorted_plain.bed.gz' type="path"/>
-	      <cvalue name='miRNAs_sncRNAs' value='${hg38DatabasesDirectory}/miRNA/dashr.v2.sncRNA.annotation.hg38.sncType.sorted_plain.bed.gz' type="path"/>
-	      <cvalue name='miRBase' value='${hg38DatabasesDirectory}/miRNA/miRBase_version-22_hg38.sorted_plain.bed.gz' type="path"/>
-	      <cvalue name='COSMIC' value='${hg38DatabasesDirectory}/COSMIC/cosmic_v81/Cosmic_v81_hg38_all.coding_snvs.bed.gz:7,8,9:1' type="path"/>
-	      <cvalue name='ENCODE_DNASE' value='${hg38DatabaseUCSCDirectory}/DNAase/2019-08-15_Encode_DNAase_clusters_Human_hg38.sorted_plain.bed.gz' type="path"/>
-	      <cvalue name='ENCODE_TFBS' value='${hg38DatabaseUCSCDirectory}/TF_clusters/2019-08-15_Encode_TF_clusters_Human_hg38.sorted_plain.bed.gz' type="path"/>
+        <!--Annotation bundles-->
+        <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
+                <cvalue name='MAPABILITY' value='"${hg38DatabasesDirectory}/mappability/GRCh38_Mappability_Align_100mer.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
+	        <cvalue name='SIMPLE_TANDEMREPEATS' value='${hg38DatabaseUCSCDirectory}/simple_tandem_repeats/2019-08-15_SimpleTandemRepeats_Human_hg38.sorted_plain.bed.gz:4' type="path"/>
+	        <cvalue name='REPEAT_MASKER' value='${hg38DatabaseUCSCDirectory}/repeatMasker/2019-08-14_RepeatMasker_Human_hg38.sorted_plain.bed.gz' type="path"/>
+        </configurationValueBundle>
+
+        <configurationValueBundle name='PIPE_CONFIG:INDEL_DEEPANNOTATION'>
+                <cvalue name='CpGislands' value='${hg38DatabaseUCSCDirectory}/cpg_islands/2019-08-15_CpG_Islands_Human_hg38.sorted_plain.bed.gz' type="path"/>
+	        <cvalue name='Enhancers' value='${hg38DatabasesDirectory}/enhancers/FANTOM5/F5.hg38.enhancers.sorted_plain.bed.gz' type="path"/>
+	        <cvalue name='miRNAs_sncRNAs' value='${hg38DatabasesDirectory}/miRNA/dashr.v2.sncRNA.annotation.hg38.sncType.sorted_plain.bed.gz' type="path"/>
+	        <cvalue name='miRBase' value='${hg38DatabasesDirectory}/miRNA/miRBase_version-22_hg38.sorted_plain.bed.gz' type="path"/>
+	        <cvalue name='COSMIC' value='${hg38DatabasesDirectory}/COSMIC/cosmic_v81/Cosmic_v81_hg38_all.coding_snvs.bed.gz:7,8,9:1' type="path"/>
+	        <cvalue name='ENCODE_DNASE' value='${hg38DatabaseUCSCDirectory}/DNAase/2019-08-15_Encode_DNAase_clusters_Human_hg38.sorted_plain.bed.gz' type="path"/>
+	        <cvalue name='ENCODE_TFBS' value='${hg38DatabaseUCSCDirectory}/TF_clusters/2019-08-15_Encode_TF_clusters_Human_hg38.sorted_plain.bed.gz' type="path"/>
       </configurationValueBundle>
 
     </configurationvalues>
