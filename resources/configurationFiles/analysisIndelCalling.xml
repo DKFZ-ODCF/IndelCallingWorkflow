@@ -133,7 +133,7 @@
         <cvalue name="CRIT_GNOMAD_GENOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float"/>
         <cvalue name="CRIT_RECURRENCE" value="7" type="integer"/>
-        <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float"/>
+        <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.05" type="float"/>
         <!--#### END EXTRA ANNOTATION AND FILTERING -->
 
         <!-- PIPE_CONFIG configuration bundles are needed for the createpipes.pl script (from the COWorkflow plugin). The createpipes.pl script
