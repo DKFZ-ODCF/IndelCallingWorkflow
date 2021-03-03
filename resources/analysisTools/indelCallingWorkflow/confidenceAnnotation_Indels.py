@@ -414,17 +414,21 @@ def main(args):
         # the blacklists have few entries; the HiSeqDepth has more "reads attracting" regions,
         # often coincide with tandem repeats and CEN/TEL, not always with low mapability
         # Duke excluded and ENCODE DAC blacklist, only consider if not already annotated as suspicious repeat
-        
-	#if help["DUKE_EXCLUDED_VALID"] or help["DAC_BLACKLIST_VALID"] or help["HISEQDEPTH_VALID"]:
-         #   region_conf -= 3 # really bad region, usually centromeric repeats
-          #  reasons += "Blacklist(-3)"
 
-        #if help["ANNOVAR_SEGDUP_COL_VALID"] or help["SELFCHAIN_VALID"]:
-        #    region_conf -= 1
-         #   reasons += "SelfchainAndOrSegdup(-1)"
-	if help["ANNOVAR_SEGDUP_COL_VALID"]:
-		region_conf -= 1
-		reasons += "Segdup(-1)"
+        ## DUKE, DAC, Hiseq, Self chain are only available for hg19 reference genome
+        if args.refgenome[0] == "hs37d5":
+
+            if help["DUKE_EXCLUDED_VALID"] or help["DAC_BLACKLIST_VALID"] or help["HISEQDEPTH_VALID"]:
+                region_conf -= 3 # really bad region, usually centromeric repeats
+                reasons += "Blacklist(-3)"
+            
+            if help["ANNOVAR_SEGDUP_COL_VALID"] or help["SELFCHAIN_VALID"]:
+                region_conf -= 1
+                reasons += "SelfchainAndOrSegdup(-1)"
+
+        if help["ANNOVAR_SEGDUP_COL_VALID"]:
+            region_conf -= 1
+            reasons += "Segdup(-1)"
 
         if any(word in help["REPEAT_MASKER"] for word in ["Simple_repeat", "Low_", "Satellite", ]) or help["SIMPLE_TANDEMREPEATS_VALID"]:
             region_conf -= 2
