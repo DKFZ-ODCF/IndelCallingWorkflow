@@ -124,7 +124,8 @@ if [[ ${isControlWorkflow} == true ]]; then
     control_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_CONTROL_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
     ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --infile=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 else
-    ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --nocontrol --infile=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
+    ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --nocontrol --infile=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} \
+        --gnomAD_WGS_maxMAF=${CRIT_GNOMAD_GENOMES_maxMAF} --gnomAD_WES_maxMAF=${CRIT_GNOMAD_EXOMES_maxMAF} --localControl_WGS_maxMAF=${CRIT_LOCALCONTROL_maxMAF} --localControl_WES_maxMAF=${CRIT_LOCALCONTROL_maxMAF} --1000genome_maxMAF=${CRIT_1KGENOMES_maxMAF} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 fi
 
 [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6

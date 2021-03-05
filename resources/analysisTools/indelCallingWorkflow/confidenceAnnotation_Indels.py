@@ -245,22 +245,22 @@ def main(args):
         # 1000 genomes
         if help["KGENOMES_COL_VALID"] and "MATCH=exact" in help["KGENOMES_COL"]:
             if args.no_control:
-                af = extract_info(help["KGENOMES_COL"].split("&")[0], "EUR_AF")
-                if af is not None and any(af > 0.01 for af in map(float, af.split(','))) > 0.01:
+                af = extract_info(help["KGENOMES_COL"].split("&")[0], "EUR_AF")                
+                if af is not None and any(af > args.kgenome_maxMAF for af in map(float, af.split(','))):
                     in1KG_AF = True
             infos.append("1000G")
 
         if args.no_control:
-            if help["GNOMAD_EXOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_EXOMES_COL"], "AF").split(','))):
+            if help["GNOMAD_EXOMES_COL_VALID"] and any(af > args.gnomAD_WES_maxMAF for af in map(float, extract_info(help["GNOMAD_EXOMES_COL"], "AF").split(','))):
                 inGnomAD_WES = True
                 infos.append("gnomAD_Exomes")
-            if help["GNOMAD_GENOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
+            if help["GNOMAD_GENOMES_COL_VALID"] and any(af > args.gnomAD_WGS_maxMAF for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
                 inGnomAD_WGS = True
                 infos.append("gnomAD_Genomes")
-            if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
+            if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > args.localControl_WGS_maxMAF for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
                 inLocalControl_WGS = True
                 infos.append("LOCALCONTROL_WGS")
-            if help["LOCALCONTROL_WES_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
+            if help["LOCALCONTROL_WES_COL_VALID"] and any(af > args.localControl_WES_maxMAF for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
                 inLocalControl_WES = True
                 infos.append("LOCALCONTROL_WES")
 
@@ -581,9 +581,14 @@ if __name__ == "__main__":
     parser.add_argument("--homcontr", dest="homcontr", type=float, default=-4.60517,
                         help="Score that a 0/0 call in the control is actually 1/1 (the more negative, the less likely).")
     parser.add_argument("--homreftum", dest="homreftum", type=float, default=-4.60517,
-                        help="Score that a 0/1 or 1/0 or 1/1 in tumor is actually 0/0 (the more negative, the less likely).")
+                        help="Score that a 0/1 or 1/0 or 1/1 in tumor is actually 0/0 (the more negative, the less likely).")                        
     parser.add_argument("--tumaltgen", dest="tumaltgen", type=float, default=0,
                         help="Score that a 0/1 or 1/0 call in tumor is actually 1/1 or that a 1/1 call in tumor is " \
                              "actually 1/0 or 0/1 (the more negative, the less likely).")
+    parser.add_argument("--gnomAD_WGS_maxMAF", dest="gnomAD_WGS_maxMAF", type=float, help="Max gnomAD WGS AF", default=0.001)
+    parser.add_argument("--gnomAD_WES_maxMAF", dest="gnomAD_WES_maxMAF", type=float, help="Max gnomAD WES AF", default=0.001)
+    parser.add_argument("--localControl_WGS_maxMAF", dest="localControl_WGS_maxMAF", type=float, help="Max local control WGS AF", default=0.01)
+    parser.add_argument("--localControl_WES_maxMAF", dest="localControl_WES_maxMAF", type=float, help="Max local control WES AF", default=0.01)    
+    parser.add_argument("--1000genome_maxMAF", dest="kgenome_maxMAF", type=float, help="Max 1000 genome AF", default=0.01)
 args = parser.parse_args()
 main(args)
