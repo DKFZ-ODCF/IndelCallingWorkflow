@@ -89,13 +89,8 @@ else
 fi
 
 #Sort Indel alphanumerically, needed for hg38 transfer
-(zcat ${FILENAME_VCF_RAW}.tmp | grep '#' ; zcat ${FILENAME_VCF_RAW}.tmp | grep -v '#' | sort -V -k1,2) > indelSorted_pid.vcf.raw.tmp
+(zcat ${FILENAME_VCF_RAW}.tmp | grep '#' ; zcat ${FILENAME_VCF_RAW}.tmp | grep -v '#' | sort -V -k1,2) | bgzip -f > ${FILENAME_VCF_RAW}.tmp.sorted.tmp
 
-bgzip indelSorted_pid.vcf.raw.tmp
+mv ${FILENAME_VCF_RAW}.tmp.sorted.tmp ${FILENAME_VCF_RAW} && rm ${FILENAME_VCF_RAW}.tmp
 
-mv ${FILENAME_VCF_RAW}.tmp indelUnsorted_pid.vcf.raw.gz #Just for control. Can be deleted in future script
-
-mv indelSorted_pid.vcf.raw.tmp.gz ${FILENAME_VCF_RAW}.tmp
-
-#Last line is from old code
-mv ${FILENAME_VCF_RAW}.tmp ${FILENAME_VCF_RAW} && ${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_RAW}
+${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_RAW}
