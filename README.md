@@ -64,78 +64,96 @@ Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github
 TBD
 
 # Changelist
-* Version update to 2.6.0
 
-  * Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
-  * Crash the workflow if genotype column names could not be verified through BAM SM tags
-  * Added `--skip_order_tag` to skip the above if users manually verified the genotype column order
-  * Crash the workflow if more than two samples are present in the raw VCF file. This could be due to multiple RG tags.
+* Version update to 3.1.0 (2.6.0-deprecated) 
 
-* Version update to 2.5.0
+  - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+  - Crash the workflow if genotype column names could not be verified through BAM SM tags
+  - Added `--skip_order_tag` to skip the above if users manually verified the genotype column order
+  - Crash the workflow if more than two samples are present in the raw VCF file. This could be due to multiple RG tags.
 
-  * Added a local control generated from ~1k WES samples
+* Version update to 3.0.0 (2.5.0-deprecated)
+
+  - Added a local control generated from ~1k WES samples
   
 * Version update to 2.4.3
 
-  * Bugfix: `platypusIndelAnnotation.sh` now checks output of annovar execution for error code != 0. Without this the workflow will continue even if annovar throws an exception.
+  - Bugfix: `platypusIndelAnnotation.sh` now checks output of annovar execution for error code != 0. Without this the workflow will continue even if annovar throws an exception.
 
 * Version update to 2.4.2
 
-  * Fixed missed annotations due to unsorted VCF
+  - Fixed missed annotations due to unsorted VCF
+
+* Version update to 2.4.1-1 (ReleaseBranch_2.4.1)
+
+  - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
 
 * Version update to 2.4.1
 
-  * Create __non-empty__ sample swap JSON even if less than 50 germline variants
-  * More error-robust IO in sample swap TINDA Perl script
+  - Create __non-empty__ sample swap JSON even if less than 50 germline variants
+  - More error-robust IO in sample swap TINDA Perl script
 
 * Version update to 2.4.0
 
-  * Bugfix: Casting error in canopy-based clustering R code
-  * Bugfix: Create warning PDF with text if number of to-be-merged PDFs is too large or zero, plus fix one-off bug
-  * Exit 0 instead of != 0, if less then 50 germline variants
+  - Bugfix: Casting error in canopy-based clustering R code
+  - Bugfix: Create warning PDF with text if number of to-be-merged PDFs is too large or zero, plus fix one-off bug
+  - Exit 0 instead of != 0, if less then 50 germline variants
  
 * Version update 2.3.0
 
-  * Added `isNoControlWorkflow` variable and make FILTER_database work with it
-  * Removed usage of ExAC from filtering, gnomAD includes ExAC
-  * Report only exact matches for database annotation
+  - Added `isNoControlWorkflow` variable and make FILTER_database work with it
+  - Removed usage of ExAC from filtering, gnomAD includes ExAC
+  - Report only exact matches for database annotation
+
+* Version update to 2.2.2 (ReleaseBranch_2.2)
+
+  - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+
+* Version update to 2.2.1 
+ 
+  - Stability improvement Perl to protect against I/O errors
+  - Write text PDf upon empty and too many indels
 
 * Version update to 2.2.0
 
-  * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.4.1
+  - Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.4.1
 
 * Version update to 2.1.0-2
 
-  * Fixed FILENAME_ parameter
-  * Executability check for `REFERENCE_GENOME` variable (file accessible from submission host)
-  * Fixed reported version.
-  * Code cleanup in `annotate_vcf.pl`
+  - Fixed FILENAME_ parameter
+  - Executability check for `REFERENCE_GENOME` variable (file accessible from submission host)
+  - Fixed reported version.
+  - Code cleanup in `annotate_vcf.pl`
 
 * Version update to 2.1.0-1
 
-  * Added gnomAD exomes
-  * Added local controls
-  * Adding python script for parsing MNPs
-  * Check REF_genome for BAM files
-  * Check BAM file readability
+  - Added gnomAD exomes
+  - Added local controls
+  - Adding python script for parsing MNPs
+  - Check REF_genome for BAM files
+  - Check BAM file readability
 
 * Version update to 2.0.0-2
 
-  * Restricting screenshot generation to 100
-
+  - Restricting screenshot generation to 100
+  
 * Version update to 2.0.0-1
 
-  * README update
+  - README update
 
+* Version update to 2.0.0-0.1 (ReleaseBranch_2.0.0)
+
+  - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+  
 * Version update to 2.0.0
 
   - TiNDA workflow was updated
-   - Two local controls are removed, and a new local control created from ~3000 WGS platypus variant calls were added.
-   - gnomAD v2.1 exomes and genomes are added
-   - Variants with MAF above 0.01 in any one of 3 of the background data sets (gnomAD exomes, gnomAD genomes or local control) were considered as common SNPs are were removed.
-   - Rare germline variants and somatic variants are annotated with ANNOVAR using gencode v19 model
-   - Temporary TiNDA files are cleaned up
-   - TiNDA will stop if there are less than 50 rare germline variants
+    - Two local controls are removed, and a new local control created from ~3000 WGS platypus variant calls were added.
+    - gnomAD v2.1 exomes and genomes are added
+    - Variants with MAF above 0.01 in any one of 3 of the background data sets (gnomAD exomes, gnomAD genomes or local control) were considered as common SNPs are were removed.
+    - Rare germline variants and somatic variants are annotated with ANNOVAR using gencode v19 model
+    - Temporary TiNDA files are cleaned up
+    - TiNDA will stop if there are less than 50 rare germline variants
 
 * Version update to 1.3.0
 
@@ -148,13 +166,39 @@ TBD
   - Updating the COWorkflowsBasePlugin.
   - Including gnomAD exomes and genomes for nocontrol workflow filtering
 
-* Version update to 1.2.177
+* Version update to 1.2.177-8
 
-  - Roddy 3.0 support.
-  - 1.2.177 is equivalent to 1.0.176-9.
-  - 1.2.177-1 is equivalent to 1.0.176-10.
+* Version update to 1.2.177-7
 
-* Version update to 1.0.176-9
+* Version update to 1.2.177-106 (ReleaseBranch_1.2.177-6)
+
+  - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+
+* Version update to 1.2.177-6
+
+  - Platypus update 0.8.1 to 0.8.1.1 (this only fixes the reported Platypus version number in the VCF)
+  - Added conda environment
+  - Reordered cvalues in plugin XML configuration
+  - Neutral refactoring in `indelCalling.sh`
+
+* Version update to 1.2.177-5
+
+  - Bugfix: JSON syntax for "file"
+
+* Version update to 1.2.177-4 (includes development versions 1.2.177-1 to -3)
+
+  - Roddy 3.0 support
+  - Updated COWorkflows base plugin from 1.2.59 to 1.2.76
+  - Fixed reported version
+  - Bugfix in `indel_extractor_v1.pl` concerning ncRNA_exonic and ncRNA_splicing annotations for somatic calls.
+  - Added `runTindo` cvalue
+
+* Version update to 1.0.176-10 (=1.2.177-1)
+
+  - Added right and bottom border features to `TiN_canopyBasedClustering.R`
+  - Version is not backwards compatible
+
+* Version update to 1.0.176-9 (=1.0.177)
 
   - Fix of a bug affecting versions 1.0.176 to 1.0.176-8 that results in higher false positive rate.
 
@@ -167,6 +211,10 @@ TBD
 * Version update to 1.0.168
 
   - Further checks for the platypus indel calling step are introduced. A zgrep will be performed, together with a linecount to see if there are any faulty lines in the raw vcf file.
+  
+* Version update to 1.0.167
+
+  - Note that commit e8d8fc27 _introduced_ a bug. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
 
 * Version update to 1.0.161
 
