@@ -74,6 +74,10 @@ TBD
 * Version update to 2.5.0
 
   * Added a local control generated from ~1k WES samples
+  
+* Version update to 2.4.3
+
+  * Bugfix: `platypusIndelAnnotation.sh` now checks output of annovar execution for error code != 0. Without this the workflow will continue even if annovar throws an exception.
 
 * Version update to 2.4.2
 
@@ -88,7 +92,7 @@ TBD
 
   * Bugfix: Casting error in canopy-based clustering R code
   * Bugfix: Create warning PDF with text if number of to-be-merged PDFs is too large or zero, plus fix one-off bug
-  * Exit 0 instead of != 0 if less then 50 germline variants
+  * Exit 0 instead of != 0, if less then 50 germline variants
  
 * Version update 2.3.0
 
@@ -99,15 +103,21 @@ TBD
 * Version update to 2.2.0
 
   * Upgrade from [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.1.0 to 1.4.1
+
+* Version update to 2.1.0-2
+
+  * Fixed FILENAME_ parameter
   * Executability check for `REFERENCE_GENOME` variable (file accessible from submission host)
+  * Fixed reported version.
+  * Code cleanup in `annotate_vcf.pl`
 
 * Version update to 2.1.0-1
 
   * Added gnomAD exomes
-  * Check REF_genome for BAM files
-  * Check BAM file readability
   * Added local controls
   * Adding python script for parsing MNPs
+  * Check REF_genome for BAM files
+  * Check BAM file readability
 
 * Version update to 2.0.0-2
 
@@ -120,7 +130,7 @@ TBD
 * Version update to 2.0.0
 
   - TiNDA workflow was updated
-   - Two local controls are removed and a new local control created from ~3000 WGS platypus variant calls were added.
+   - Two local controls are removed, and a new local control created from ~3000 WGS platypus variant calls were added.
    - gnomAD v2.1 exomes and genomes are added
    - Variants with MAF above 0.01 in any one of 3 of the background data sets (gnomAD exomes, gnomAD genomes or local control) were considered as common SNPs are were removed.
    - Rare germline variants and somatic variants are annotated with ANNOVAR using gencode v19 model
