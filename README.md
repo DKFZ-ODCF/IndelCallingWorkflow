@@ -141,7 +141,7 @@ TBD
 
   - README update
 
-* Version update to 2.0.0-0.1 (ReleaseBranch_2.0.0)
+* Version update to 2.0.0-101 (ReleaseBranch_2.0.0-1)
 
   - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
   
@@ -170,7 +170,7 @@ TBD
 
 * Version update to 1.2.177-7
 
-* Version update to 1.2.177-106 (ReleaseBranch_1.2.177-6)
+* Version update to 1.2.177-601 (ReleaseBranch_1.2.177-6)
 
   - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
 
