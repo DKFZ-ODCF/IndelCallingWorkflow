@@ -55,10 +55,16 @@
         <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>        
         <cvalue name="GENE_MODEL_BEDFILE" value='${hg19DatabasesDirectory}/gencode/gencode19/GencodeV19_Exons_plain.bed.gz' type="path" />
         
-        <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
-        <cvalue name="GNOMAD_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
-        <cvalue name="LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
-        <cvalue name="LOCALCONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_H021_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />        
+        <cvalue name="GNOMAD_V2_1_EXOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        <cvalue name="LOCAL_CONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_H021_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        
+        <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${GNOMAD_V2_1_GENOME_SNV_INDEL}" type="path" />
+        <cvalue name="GNOMAD_WES_SNV_INDEL" value="${GNOMAD_V2_1_EXOME_SNV_INDEL}" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL" value="${LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL}" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WES_SNV_INDEL" value="${LOCAL_CONTROL_PLATYPUS_WES_SNV_INDEL}" type="path" />
+        
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
