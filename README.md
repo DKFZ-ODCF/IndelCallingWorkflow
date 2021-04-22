@@ -176,13 +176,14 @@ TBD
 
 * Version update to 1.2.177-6
 
+  - removed a `umask` from `checkSampleSwap_TiN.sh`
+
+* Version update to 1.2.177-5
+
   - Platypus update 0.8.1 to 0.8.1.1 (this only fixes the reported Platypus version number in the VCF)
   - Added conda environment
   - Reordered cvalues in plugin XML configuration
   - Neutral refactoring in `indelCalling.sh`
-
-* Version update to 1.2.177-5
-
   - Bugfix: JSON syntax for "file"
 
 * Version update to 1.2.177-4 (includes development versions 1.2.177-1 to -3)
