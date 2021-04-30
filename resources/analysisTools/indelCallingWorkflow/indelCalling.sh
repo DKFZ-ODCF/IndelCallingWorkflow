@@ -88,4 +88,9 @@ else
   #lineCount=`zgrep -v "^#" ${FILENAME_VCF_RAW}.tmp | cut -f 12 | sort | uniq -c | wc -l`
 fi
 
-mv ${FILENAME_VCF_RAW}.tmp ${FILENAME_VCF_RAW} && ${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_RAW}
+#Sort Indel alphanumerically, needed for hg38 transfer
+(zcat ${FILENAME_VCF_RAW}.tmp | grep '#' ; zcat ${FILENAME_VCF_RAW}.tmp | grep -v '#' | sort -V -k1,2) | bgzip -f > ${FILENAME_VCF_RAW}.tmp.sorted.tmp
+
+mv ${FILENAME_VCF_RAW}.tmp.sorted.tmp ${FILENAME_VCF_RAW} && rm ${FILENAME_VCF_RAW}.tmp
+
+${TABIX_BINARY} -f -p vcf ${FILENAME_VCF_RAW}

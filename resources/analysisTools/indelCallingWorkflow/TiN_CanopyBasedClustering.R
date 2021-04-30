@@ -61,7 +61,8 @@ source(opt$cFunction)
 ##### Data Analysis
 # read the Rare.txt file and chromosome left file
 dat<-read.delim(opt$file, header=T, sep="\t")
-chr.length <- read.table(opt$chrLength, header=T)
+chr.length <- read_tsv(opt$chrLength, col_names=c("CHR", "Length"))
+chr.length$shiftLength <- c(0, chr.length$Length[1:23])
 
 ## Testing seqtype options
 opt$seqType <- toupper(opt$seqType)
@@ -121,6 +122,10 @@ canopy.clust <- tryCatch(
 )
 
 dat$canopyCluster<-canopy.clust$sna_cluster
+
+### Raw filtering
+dat %>%
+  mutate(rawCluster = ifelse(Tumor_AF > Control_AF + 0.1 & Control_AF < 0.25, 'Somatic_Rescue', 'Germline')) -> dat
 
 ## Select the TiN cluster
 somaticClass <- dat %>%  
@@ -182,29 +187,22 @@ dat %>% filter(grepl("Somatic_Rescue", TiN_Class)) %>%
 dat %>% filter(grepl("Germline", TiN_Class)) %>% 
   rbind(somRes) -> dat
 
-#dat %>% group_by(Rareness, TiN_Class) %>% summarise(count=n())
-
-# Plot 1 with canopy cluster
-poly.df <- data.frame(x=c(0, 0, centroid$maxControl, centroid$maxControl), 
-                      y=c(centroid$minTumor, 1, 1, centroid$maxControl))
-
-p1 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=factor(canopyCluster)), alpha=0.5, data=dat) + 
+# Plot 1 with threshold based cluster
+p1 <- ggplot() + geom_point(aes(Control_AF, Tumor_AF, color=factor(rawCluster)), alpha=0.5, data=dat) + 
   theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
   xlab("Control VAF") + ylab("Tumor VAF") + 
   xlim(0,1) + ylim(0,1) +
-  guides(color=guide_legend("Canopy clusters")) + 
-  ggtitle(paste0("Clusters from Canopy")) + 
-  geom_polygon(data=poly.df, aes(x, y), alpha=0.2, fill="gold")
+  guides(color=guide_legend("Raw clusters")) + 
+  ggtitle(paste0("Clusters from raw filters"))
 
 # Plot 2 with TiN cluster
-p2 <- ggplot() + geom_polygon(data=poly.df, aes(x, y), alpha=0.2, fill="#d8161688") + 
+p2 <- ggplot() +
   geom_point(aes(Control_AF, Tumor_AF, color=TiN_Class), alpha=0.3, data=dat) + 
   theme_bw() + theme(text = element_text(size=15), legend.position="bottom") + 
   xlab("Control VAF") + ylab("Tumor VAF") + 
   xlim(0,1) + ylim(0,1) +
-  guides(color=guide_legend("TiN clusters")) + 
-  ggtitle(paste0("TiN clusters")) + 
-  geom_polygon(data=poly.df, aes(x, y), alpha=0.2, fill="gold")
+  guides(color=guide_legend("TiNDA clusters")) + 
+  ggtitle(paste0("TiNDA clusters"))
   
 ## function to plot linear chromosome
 plotGenome_ggplot <- function(data, Y, chr.length, colorCol) {
@@ -228,18 +226,21 @@ plotGenome_ggplot <- function(data, Y, chr.length, colorCol) {
 p3<-plotGenome_ggplot(dat, 'Control_AF', chr.length, 'TiN_Class')
 p4<-plotGenome_ggplot(dat, 'Tumor_AF', chr.length, 'TiN_Class')
 
-#### multi plotting
-# Blank region 
-#blank <- grid.rect(gp=gpar(col="white"))
-
-# Rescue info table
-#rescueInfo<-as.data.frame(table(dat$TiN_Class))
-#colnames(rescueInfo)<-c("Reclassification", "Counts")
-
-rescueInfo <- dat %>% 
-  group_by(TiN_Class) %>% 
+rescueInfo <- dat %>%
+  group_by(TiN_Class) %>%
   summarise(Count =n(), Median_Control_VAF = formatC(median(Control_AF), digits=5, format="f"),
-                        Median_Tumor_VAF = formatC(median(Tumor_AF), digits=5, format="f"))
+                        Median_Tumor_VAF = formatC(median(Tumor_AF), digits=5, format="f")) %>%
+  mutate(Clustering = "Canopy") %>%
+  rename(TiNDA_Class = TiN_Class)
+
+rescueInfo <- dat %>%
+  group_by(rawCluster) %>%
+  summarise(Count =n(), Median_Control_VAF = formatC(median(Control_AF), digits=5, format="f"),
+                        Median_Tumor_VAF = formatC(median(Tumor_AF), digits=5, format="f")) %>%
+  mutate(Clustering = "Raw") %>%
+  rename(TiNDA_Class = rawCluster) %>%
+  bind_rows(rescueInfo) %>%
+  select(Clustering, TiNDA_Class, Count, Median_Control_VAF, Median_Tumor_VAF)
 
 rescueInfo.toFile <- rescueInfo
 if("Somatic_Rescue" %in% rescueInfo.toFile$TiN_Class) {
@@ -248,6 +249,7 @@ if("Somatic_Rescue" %in% rescueInfo.toFile$TiN_Class) {
   rescueInfo.toFile<-rbind(rescueInfo.toFile, c("Somatic_Rescue", 0, 0, 0))
   rescueInfo.toFile$Pid<-opt$pid
 }
+
 
 TableTheme <- gridExtra::ttheme_default(
   core = list(fg_params=list(cex = 1, hjust=1, x=0.95)),
@@ -262,8 +264,6 @@ PlotLayout <-rbind(c(1,2,3),
                    c(5,5,5))
 
 ### Writing as png file
-
-
 png(file = opt$oPlot, width=1500, height=800)
 grid.arrange(p1, p2, TableAnn, p3, p4, 
              layout_matrix = PlotLayout,
@@ -274,9 +274,6 @@ dev.off()
 # Saving the rescue table file 
 write.table(dat, file=opt$oFile, sep="\t", row.names = F, quote = F)
 
-## 
-#reg.finalizer(environment(), cleanup, onexit = FALSE)
-
 ###############################################################################
 ## TiN classification to the vcf file
 library(vcfR)
@@ -284,10 +281,14 @@ vcf <- read.vcfR(opt$vcf)
 vcf <- as.data.frame(cbind(vcf@fix, vcf@gt))
 vcf$POS <- as.integer(as.character(vcf$POS))
 
-vcf$CHR <- as.character(vcf$CHR)
+vcf$CHROM <- as.character(vcf$CHROM)
 dat$CHR <- as.character(dat$CHR)
 
-vcf %>% left_join(dat %>% select(CHR:ALT, TiN_Class) %>% rename("CHROM"="CHR")) %>%
+vcf %>% left_join(
+                  dat %>% 
+                  select(CHR:ALT, rawCluster, TiN_Class) %>% 
+                  rename("CHROM"="CHR")
+                  ) %>%
   rename("#CHROM"="CHROM")  %>%
   write_tsv(opt$oVcf, na=".")
-
+  

@@ -121,16 +121,19 @@ def main(args):
 
         if line[0] == "#":
             headers = list(line[1:].rstrip().split('\t'))
-            fixed_headers = ["^QUAL$", "^INFO$", "^FILTER$" , "MAPABILITY", "HISEQDEPTH", "SIMPLE_TANDEMREPEATS",
-                             "REPEAT_MASKER", "DUKE_EXCLUDED", "DAC_BLACKLIST", "SELFCHAIN", "^CONFIDENCE$",
+            fixed_headers = ["^QUAL$", "^INFO$", "^FILTER$" , "MAPABILITY", "SIMPLE_TANDEMREPEATS",
+                             "REPEAT_MASKER", "^CONFIDENCE$",
                              "^CLASSIFICATION$", "^REGION_CONFIDENCE$", "^PENALTIES$", "^REASONS$",
                             ]
+            
+            hs37d5_headers = ["DAC_BLACKLIST", "DUKE_EXCLUDED", "HISEQDEPTH", "SELFCHAIN"]
+            if args.refgenome[0] == "hs37d5":
+                fixed_headers = fixed_headers + hs37d5_headers                
+
             variable_headers = { "ANNOVAR_SEGDUP_COL": "^SEGDUP$", "KGENOMES_COL": "^1K_GENOMES$", "DBSNP_COL": "^DBSNP$",
                                  "CONTROL_COL": "^" + args.controlColName + "$", "TUMOR_COL": "^" + args.tumorColName + "$"}
 
             if args.no_control:
-                variable_headers["ExAC_COL"] = "^ExAC$"
-                variable_headers["EVS_COL"] = "^EVS$"
                 variable_headers["GNOMAD_EXOMES_COL"] = "^GNOMAD_EXOMES$"
                 variable_headers["GNOMAD_GENOMES_COL"] = "^GNOMAD_GENOMES$"
                 variable_headers["LOCALCONTROL_WGS_COL"] = "^LocalControlAF_WGS$"
@@ -219,8 +222,6 @@ def main(args):
 
             is_commonSNP = False
             is_clinic = False
-            inExAC = False
-            inEVS = False
             inGnomAD_WES = False
             inGnomAD_WGS = False
             inLocalControl_WES = False
@@ -244,28 +245,22 @@ def main(args):
         # 1000 genomes
         if help["KGENOMES_COL_VALID"] and "MATCH=exact" in help["KGENOMES_COL"]:
             if args.no_control:
-                af = extract_info(help["KGENOMES_COL"].split("&")[0], "EUR_AF")
-                if af is not None and any(af > 0.01 for af in map(float, af.split(','))) > 0.01:
+                af = extract_info(help["KGENOMES_COL"].split("&")[0], "EUR_AF")                
+                if af is not None and any(af > args.kgenome_maxMAF for af in map(float, af.split(','))):
                     in1KG_AF = True
             infos.append("1000G")
 
         if args.no_control:
-            if help["ExAC_COL_VALID"] and any(af > 1.0 for af in map(float, extract_info(help["ExAC_COL"], "AF").split(','))):
-                inExAC = True
-                infos.append("ExAC")
-            if help["EVS_COL_VALID"] and any(af > 1.0 for af in map(float, extract_info(help["EVS_COL"], "MAF").split(','))):
-                inEVS = True
-                infos.append("EVS")
-            if help["GNOMAD_EXOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_EXOMES_COL"], "AF").split(','))):
+            if help["GNOMAD_EXOMES_COL_VALID"] and any(af > args.gnomAD_WES_maxMAF for af in map(float, extract_info(help["GNOMAD_EXOMES_COL"], "AF").split(','))):
                 inGnomAD_WES = True
                 infos.append("gnomAD_Exomes")
-            if help["GNOMAD_GENOMES_COL_VALID"] and any(af > 0.001 for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
+            if help["GNOMAD_GENOMES_COL_VALID"] and any(af > args.gnomAD_WGS_maxMAF for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
                 inGnomAD_WGS = True
                 infos.append("gnomAD_Genomes")
-            if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
+            if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > args.localControl_WGS_maxMAF for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
                 inLocalControl_WGS = True
                 infos.append("LOCALCONTROL_WGS")
-            if help["LOCALCONTROL_WES_COL_VALID"] and any(af > 0.01 for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
+            if help["LOCALCONTROL_WES_COL_VALID"] and any(af > args.localControl_WES_maxMAF for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
                 inLocalControl_WES = True
                 infos.append("LOCALCONTROL_WES")
 
@@ -406,7 +401,7 @@ def main(args):
                 classification = "unclear"
             confidence = 1
 
-        if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inExAC or inEVS or inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS or inLocalControl_WES):
+        if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS or inLocalControl_WES):
             classification = "SNP_support_germline"
 
         if confidence < 1:	# Set confidence to 1 if it is below one
@@ -419,13 +414,21 @@ def main(args):
         # the blacklists have few entries; the HiSeqDepth has more "reads attracting" regions,
         # often coincide with tandem repeats and CEN/TEL, not always with low mapability
         # Duke excluded and ENCODE DAC blacklist, only consider if not already annotated as suspicious repeat
-        if help["DUKE_EXCLUDED_VALID"] or help["DAC_BLACKLIST_VALID"] or help["HISEQDEPTH_VALID"]:
-            region_conf -= 3 # really bad region, usually centromeric repeats
-            reasons += "Blacklist(-3)"
 
-        if help["ANNOVAR_SEGDUP_COL_VALID"] or help["SELFCHAIN_VALID"]:
+        ## DUKE, DAC, Hiseq, Self chain are only available for hg19 reference genome
+        if args.refgenome[0] == "hs37d5":
+
+            if help["DUKE_EXCLUDED_VALID"] or help["DAC_BLACKLIST_VALID"] or help["HISEQDEPTH_VALID"]:
+                region_conf -= 3 # really bad region, usually centromeric repeats
+                reasons += "Blacklist(-3)"
+            
+            if help["ANNOVAR_SEGDUP_COL_VALID"] or help["SELFCHAIN_VALID"]:
+                region_conf -= 1
+                reasons += "SelfchainAndOrSegdup(-1)"
+
+        if help["ANNOVAR_SEGDUP_COL_VALID"]:
             region_conf -= 1
-            reasons += "SelfchainAndOrSegdup(-1)"
+            reasons += "Segdup(-1)"
 
         if any(word in help["REPEAT_MASKER"] for word in ["Simple_repeat", "Low_", "Satellite", ]) or help["SIMPLE_TANDEMREPEATS_VALID"]:
             region_conf -= 2
@@ -578,9 +581,14 @@ if __name__ == "__main__":
     parser.add_argument("--homcontr", dest="homcontr", type=float, default=-4.60517,
                         help="Score that a 0/0 call in the control is actually 1/1 (the more negative, the less likely).")
     parser.add_argument("--homreftum", dest="homreftum", type=float, default=-4.60517,
-                        help="Score that a 0/1 or 1/0 or 1/1 in tumor is actually 0/0 (the more negative, the less likely).")
+                        help="Score that a 0/1 or 1/0 or 1/1 in tumor is actually 0/0 (the more negative, the less likely).")                        
     parser.add_argument("--tumaltgen", dest="tumaltgen", type=float, default=0,
                         help="Score that a 0/1 or 1/0 call in tumor is actually 1/1 or that a 1/1 call in tumor is " \
                              "actually 1/0 or 0/1 (the more negative, the less likely).")
+    parser.add_argument("--gnomAD_WGS_maxMAF", dest="gnomAD_WGS_maxMAF", type=float, help="Max gnomAD WGS AF", default=0.001)
+    parser.add_argument("--gnomAD_WES_maxMAF", dest="gnomAD_WES_maxMAF", type=float, help="Max gnomAD WES AF", default=0.001)
+    parser.add_argument("--localControl_WGS_maxMAF", dest="localControl_WGS_maxMAF", type=float, help="Max local control WGS AF", default=0.01)
+    parser.add_argument("--localControl_WES_maxMAF", dest="localControl_WES_maxMAF", type=float, help="Max local control WES AF", default=0.01)    
+    parser.add_argument("--1000genome_maxMAF", dest="kgenome_maxMAF", type=float, help="Max 1000 genome AF", default=0.01)
 args = parser.parse_args()
 main(args)
