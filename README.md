@@ -67,14 +67,16 @@ TBD
 
 * Version update to 3.1.0 (2.6.0-deprecated) 
 
-  - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
-  - Crash the workflow if genotype column names could not be verified through BAM SM tags
-  - Added `--skip_order_tag` to skip the above if users manually verified the genotype column order
-  - Crash the workflow if more than two samples are present in the raw VCF file. This could be due to multiple RG tags.
+  - Minor: Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
+  - Minor: Added `--skip_order_tag` to skip the above if users manually verified the genotype column order
+  - Patch: Crash the workflow if genotype column names could not be verified through BAM SM tags
+  - Patch: Crash the workflow if more than two samples are present in the raw VCF file. This could be due to multiple RG tags.
+  - Deprecated 2.6.0 because of the major-level change in 2.5.0-deprecated/3.0.0.
 
 * Version update to 3.0.0 (2.5.0-deprecated)
 
-  - Added a local control generated from ~1k WES samples
+  - Major: Added a local control generated from ~1k WES samples
+  - Deprecated 2.5.0 because this is actually a major-level change.
   
 * Version update to 2.4.3
 
