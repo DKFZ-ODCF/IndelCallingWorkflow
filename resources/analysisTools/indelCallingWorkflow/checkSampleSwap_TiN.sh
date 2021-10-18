@@ -36,6 +36,7 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
     --control_bam=${FILENAME_CONTROL_BAM} \
     --reference=${REFERENCE_GENOME} \
+    --chr_prefix=${CHR_PREFIX} \
     --TiN_R_script=${TOOL_TUMOR_IN_NORMAL_PLOT_RSCRIPT} \
     --canopyFunction=${TOOL_CANOPY_CLUSTER_FUNCTION_RSCRIPT} \
     --chrLengthFile=${CHROM_SIZES_FILE} \

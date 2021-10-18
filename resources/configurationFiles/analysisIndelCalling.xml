@@ -206,7 +206,6 @@
         <tool name="splitMnpsScript" value="splitMNPsAndComplex.py" basepath="indelCallingWorkflow"/>        
         <tool name="tumorInNormalPlotRscript" value="TiN_CanopyBasedClustering.R" basepath='indelCallingWorkflow'/>
         <tool name="canopyClusterFunctionRscript" value="canopyCluster_updatedFunction.R" basepath='indelCallingWorkflow'/>
-        <!--tool name="CanopyLinearChrData" value="chrlengths.plain.sorted.txt" basepath='indelCallingWorkflow'/-->
         <!--# SwapChecker end (but note, that the checkSampleSwap with and without control are also part of this.-->
 
         <!-- With control bam / germline -->

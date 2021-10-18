@@ -38,6 +38,7 @@ GetOptions ("pid=s"                      => \$pid,
             "tumor_bam=s"                => \$tumorBAM,
             "control_bam=s"              => \$controlBAM,
             "reference=s"                => \$ref,
+            "chr_prefix=s"               => \$chr_prefix,
             "TiN_R_script=s"             => \$TiN_R,
             "canopyFunction=s"           => \$canopy_Function,
             "chrLengthFile=s"            => \$chrLengthFile,
@@ -185,7 +186,7 @@ while(!eof($IN)) {
 
     # Removing extra chr contigs, Indels and bad quality snvs
     # Including both indels and snvs - removed as we will have issue with bias Filter
-    if($chr=~/^(chr)?(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
+    if($chr=~/^($chr_prefix)?(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
 
 
       my @tumor_dp = split(/,/, $tumor[$iDP]);
