@@ -65,9 +65,11 @@ TBD
 
 # Changelist
 
-Currently, the following versions are run in our production system. In all of them a bug that was introduced in version 1.0.167 is fixed that could result in swapped column labels. If Note that versions 2.0, 2.2, and 2.4 are not mutually exchangeable, despite having the same major version number.
+Currently, the following versions are run in our production system. In all of them a bug that was introduced in version 1.0.167 is fixed that could result in swapped column labels. Note that versions 2.0, 2.2, and 2.4 are not mutually exchangeable, despite having the same major version number. The versioning did not follow the [SemVer 2.0](https://semver.org) scheme.
 
-* Version update to 3.1.0 (2.6.0-deprecated)
+The currently supported branches are 3 (master), 2.4.1, 2.2, 2.0.0-1, and 1.2.177. Only on master new features are implemented, so the other branches are only for bugfixes. The most recent commit on each of these branches is listed at the top:
+
+* Version update to 3.1.0 (2.6.0-deprecated, master)
 
   - Minor: Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
   - Minor: Added `--skip_order_tag` to skip the above, if users manually verified the genotype column order
