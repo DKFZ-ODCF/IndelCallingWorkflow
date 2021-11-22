@@ -234,7 +234,7 @@ The following are older versions of the workflow on which no further development
 
 * Version update to 1.0.167 (Column bug 1.0.167)
 
-  - Note that commit e8d8fc27 _introduced_ a bug that caused the labels of the control and tumor genotype columns (10 & 11) to be swapped into alphabetical order, but left the data in the original order. The root cause of the bug is that Platypus reorders these columns alphabetically, but that this was not accounted for in the workflow code. The bug has no influence on the list of reported indels. This means that all somatic indels are correct. Only samples in which the alphabetical order of the tumor sample is before that of the control sample (e.g. cell_line < control).
+  - Note that commit e8d8fc27 _introduced_ a bug that caused the labels of the control and tumor genotype columns (10 & 11) to be swapped into alphabetical order, but left the data in the original order. The root cause of the bug is that Platypus reorders these columns alphabetically, but that this was not accounted for in the workflow code. The bug has no influence on the list of reported indels. This means that all somatic indels are correct. Only sample pairs are affected for which the alphabetical order of the tumor sample is before that of the control sample (e.g. cell_line < control).
 
 * Version update to 1.0.161
 
