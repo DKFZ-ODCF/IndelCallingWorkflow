@@ -245,8 +245,8 @@ The following are older versions of the workflow on which no further development
 
 * Version update to 1.0.167 (<a id="column-bug"></a>Column bug)
 
-  - Background: Platypus always orders the columns alpha-numerically. In our data, usually sample ID for the control is alpha-numerically smaller than that for the tumor, e.g., control/normal/blood < tumor/metastasis. Only for the sample pairs where tumor ID comes before the control (e.g. 'cell_line' < 'control'), the tumor genotype columns come before the control column in the raw VCF. This column swap was accounted for in the workflow code while detecting the somatic variants and control and, if needed, it swapped the columns. 
-    Bug: The commit e8d8fc27, which replaced the Perl script with the Python script, introduced a bug that replaced the names of the columns in the 10th & 11th columns with the unsorted labels, but left the data in the order created by Platypus. Consequently, if Platypus reordered the columns and the script reused the unordered labels, the labels are swapped.
+  - Background: Platypus always orders the columns alpha-numerically. In our data, usually sample ID for the control is alpha-numerically smaller than that for the tumor, e.g., control/normal/blood < tumor/metastasis. Only for the sample pairs where tumor ID comes before the control (e.g. 'cell_line' < 'control'), the tumor genotype columns come before the control column in the raw VCF. This column swap was accounted for in the workflow code while detecting the somatic variants: if needed, the columns were swapped. 
+    Bug: The commit e8d8fc27, which replaced the Perl script with the Python script, introduced a bug that replaced the names of the columns in the 10th & 11th columns with the unsorted labels, but left the data in the order created by Platypus.
     > NOTE: This bug has no influence on the list of reported indels, and all somatic indels are correct. Only the genotype data are in the wrong columns.
 
 * Version update to 1.0.161
