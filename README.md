@@ -4,6 +4,24 @@ A Platypus-based insertion/deletion-detection workflow with extensive quality co
 
 > <table><tr><td><a href="https://www.denbi.de/"><img src="docs/images/denbi.png" alt="de.NBI logo" width="300" align="left"></a></td><td><strong>Your opinion matters!</strong> The development of this workflow is supported by the <a href="https://www.denbi.de/">German Network for Bioinformatic Infrastructure (de.NBI)</a>. By completing <a href="https://www.surveymonkey.de/r/denbi-service?sc=hd-hub&tool=IndelCallingWorkflow">this very short (30-60 seconds) survey</a> you support our efforts to improve this tool.</td></tr></table>
 
+## Citing
+
+The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and can be cited with the following publication:
+
+* Pan-cancer analysis of whole genomes.<br>
+  The ICGC/TCGA Pan-Cancer Analysis of Whole Genomes Consortium.<br>
+  Nature volume 578, pages 82–93 (2020).<br>
+  DOI [10.1038/s41586-020-1969-6](https://doi.org/10.1038/s41586-020-1969-6)
+
+Containers are available in [Dockstore](https://dockstore.org/containers/quay.io/pancancer/pcawg-dkfz-workflow)
+
+Furthermore, the workflow is regularly used at the DKFZ throug the automation system [One-Touch Pipeline](https://gitlab.com/one-touch-pipeline/otp):
+
+* OTP: An automatized system for managing and processing NGS data.<br>
+  Eva Reisinger, Lena Genthner, Jules Kerssemakers, Philip Kenschea, Stefan Borufka, Alke Jugold, Andreas Kling, Manuel Prinz, Ingrid Scholz, Gideon Zipprich, Roland Eils, Christian Lawerenz, Jürgen Eils.<br>
+   Journal of Biotechnology, volume 261, pages 53-62 (2017).<br>
+   DOI: [10.1016/j.jbiotec.2017.08.006](https://doi.org/10.1016/j.jbiotec.2017.08.006)
+
 ## Software Requirements
 
 Please refer to the Roddy [website](https://github.com/eilslabs/Roddy) for instructions on how to install Roddy.
