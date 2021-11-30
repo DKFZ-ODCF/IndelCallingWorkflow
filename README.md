@@ -18,7 +18,7 @@ Containers are available in [Dockstore](https://dockstore.org/containers/quay.io
 Furthermore, the workflow is regularly used at the DKFZ throug the automation system [One-Touch Pipeline](https://gitlab.com/one-touch-pipeline/otp):
 
 * OTP: An automatized system for managing and processing NGS data.<br>
-  Eva Reisinger, Lena Genthner, Jules Kerssemakers, Philip Kenschea, Stefan Borufka, Alke Jugold, Andreas Kling, Manuel Prinz, Ingrid Scholz, Gideon Zipprich, Roland Eils, Christian Lawerenz, Jürgen Eils.<br>
+  Eva Reisinger, Lena Genthner, Jules Kerssemakers, Philip Kensche, Stefan Borufka, Alke Jugold, Andreas Kling, Manuel Prinz, Ingrid Scholz, Gideon Zipprich, Roland Eils, Christian Lawerenz, Jürgen Eils.<br>
    Journal of Biotechnology, volume 261, pages 53-62 (2017).<br>
    DOI: [10.1016/j.jbiotec.2017.08.006](https://doi.org/10.1016/j.jbiotec.2017.08.006)
 
