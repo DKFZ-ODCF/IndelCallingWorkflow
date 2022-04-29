@@ -7,7 +7,7 @@
         
         <configurationvalues>        
         <!-- Base directories for hg38 (may be changed in future -->
-        <cvalue name='hg38BaseDirectory' value='/icgc/ngs_share/assemblies/hg_GRCh38' type='path' />
+        <cvalue name='hg38BaseDirectory' value='/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg_GRCh38' type='path' />
         <cvalue name='hg38DatabasesDirectory' value="${hg38BaseDirectory}/databases" type='path' />
         <cvalue name='hg38DatabaseUCSCDirectory' value="${hg38DatabasesDirectory}/UCSC" type='path' />
 
@@ -17,7 +17,7 @@
         <cvalue name="CHROM_SIZES_FILE" value="${hg38BaseDirectory}/stats/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa.chrLenOnlyACGT_realChromosomes.tsv" type="path" />
 
         <cvalue name="disableAutoBAMHeaderAnalysis" value="true" type="boolean"/>
-        <cvalue name="CHR_PREFIX" value='chr' type'boolean' />
+        <cvalue name="CHR_PREFIX" value='chr' type='boolean' />
 
         <!-- GRCh38 annotation databases-->
         <cvalue name="KGENOME" value="${hg38DatabasesDirectory}/1000Genome/hg38/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz" type="path"/>
