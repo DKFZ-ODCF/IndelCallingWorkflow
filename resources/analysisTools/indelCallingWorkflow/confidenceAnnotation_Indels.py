@@ -534,7 +534,8 @@ def main(args):
             entries[2] = dbsnp_id + "_" + dbsnp_pos
 
         ### Change the columns to make sure control is always in column 9 and tumor in column 10 (0 based)
-        entries[9], entries[10] = entries[header_indices["CONTROL_COL"]], entries[header_indices["TUMOR_COL"]]
+        if not args.no_control:
+            entries[9], entries[10] = entries[header_indices["CONTROL_COL"]], entries[header_indices["TUMOR_COL"]]
 
         print '\t'.join(entries)
 
