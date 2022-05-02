@@ -65,6 +65,11 @@ TBD
 
 # Changelist
 
+* Version update to 3.1.1
+
+  - Patch (Bugfix): The nocontrol workflow is exempted from the tumor & control column swap introduced in 3.1.0.
+
+
 * Version update to 3.1.0 (2.6.0-deprecated) 
 
   - Bugfix: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
