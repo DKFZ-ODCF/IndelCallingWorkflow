@@ -21,7 +21,7 @@ use JSON::Create 'create_json';
 my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $tumorBAM, $controlBAM, $ref, 
   $gnomAD_genome, $gnomAD_exome, $split_mnps_script, $localControl_wgs, $localControl_wes,
   $TiN_R, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
-  $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
+  $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, $chr_prefix,
   $bottomBorder, $outfile_tindaVCF, $outfile_SJ);
 
 # Filtering setting to assign common or rare variants
