@@ -279,6 +279,10 @@ def main(args):
                     VAFControl= (controlDP_V/float(controlDP))*100.0
                 VAFTumor  = (tumorDP_V/float(tumorDP))*100.0
 
+            if not args.no_control:
+                ssControlGP = list(map(float, controlGP.split(",")))
+            sstumorGP = list(map(float, tumorGP.split(",")))
+
             if not "PASS" in help["FILTER"]:
                 if "alleleBias" in help["FILTER"]:
                     confidence -= 2
@@ -322,14 +326,28 @@ def main(args):
                     filter["strandBias"] = 1
                     region_conf -= 2
                     reasons += "strandBias(-2)"
+                if "HapScore" in help["FILTER"]:
+                    confidence -= 2
+                    penalties += "HapScore_-2_"
+                    filter['HapScore'] = 1
                 if not args.no_control and controlDP_V > 0:
                     confidence -= 1
                     penalties += "alt_reads_in_control_-1_"
                     filter["ALTC"] = 1
-                if VAFTumor < 10:
+
+                # VAF based penalites
+                if args.runlowmaf:
+                    vaf_cutoff = 5
+                    vaf_pen_ann = "VAF<5_-1_"
+                else:
+                    vaf_cutoff = 10
+                    vaf_pen_ann = "VAF<10_-1_"
+
+                if VAFTumor < vaf_cutoff:
                     confidence -= 1
-                    penalties += "VAF<10_-1_"
+                    penalties += vaf_pen_ann
                     filter["VAF"] = 1
+
 
             # Minimum base quality, read depth and genotype quality
             if qual > 40 and (args.no_control or controlDP >=10) and tumorDP >= 10 and \
@@ -346,9 +364,13 @@ def main(args):
                 penalties += "bad_quality_values_-2_"
                 filter["QUAL"] = 1
 
-            if tumorDP_V < 3: # Less than three variant reads in tumor (-2)
-                confidence -= 2
-                penalties += "<3_reads_in_tumor_-2_"
+            if tumorDP_V < 3: # Less than three variant reads in tumor (-3)
+                if args.runlowmaf:
+                    confidence -= 3
+                    penalties += "<3_reads_in_tumor_-3_"
+                else:
+                    confidence -= 2
+                    penalties += "<3_reads_in_tumor_-2_"
                 filter["ALTT"] = 1
 
             if not args.no_control and controlDP_V > 0:
@@ -361,9 +383,6 @@ def main(args):
                     penalties += "alt_reads_in_control(VAF>=0.05_or_tumor_VAF<=0.05)_-3_"
                     filter["VAFC"] = 1
 
-            if not args.no_control:
-                ssControlGP = list(map(float, controlGP.split(",")))
-            sstumorGP = list(map(float, tumorGP.split(",")))
 
             # Genotype probability
             if tumorGT == "1/0" or tumorGT == "0/1":
@@ -522,7 +541,7 @@ def main(args):
                 entries[header_indices["FILTER"]] = "PASS"
             else:
                 filter_list = []
-                filteroptions = ["GOF","badReads","alleleBias","MQ","strandBias","SC","QD","ALTC","VAF","VAFC","QUAL","ALTT","GTQ","GTQFRT",]
+                filteroptions = ["GOF","badReads","alleleBias","MQ","strandBias","SC","QD","ALTC","VAF","VAFC","QUAL","ALTT","GTQ","GTQFRT","HapScore"]
                 for filteroption in filteroptions:
                     if filter.get(filteroption, 0) == 1:
                         filter_list.append(filteroption)
@@ -577,6 +596,8 @@ if __name__ == "__main__":
     parser.add_argument("-z", "--center", dest="center", nargs="?", default="DKFZ",
                         help="Center (unclear if the center where the data was produced or the center of the " \
                              "calling pipeline; default DKFZ).")
+    parser.add_argument("-l", "--runlowmaf", dest="runlowmaf", action="store_true", default=False,
+                        help="Set this option if you want to run the low maf punishment.")
     parser.add_argument("--hetcontr", dest="hetcontr", type=float, default=-4.60517,
                         help="Score that a 0/0 call in the control is actually 0/1 or 1/0 (the more negative, the less likely).")
     parser.add_argument("--homcontr", dest="homcontr", type=float, default=-4.60517,
