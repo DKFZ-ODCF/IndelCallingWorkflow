@@ -285,8 +285,8 @@ def main(args):
 
             if not "PASS" in help["FILTER"]:
                 if "alleleBias" in help["FILTER"]:
-                    confidence -= 2
-                    penalties += "alleleBias_-2_"
+                    confidence -= 1
+                    penalties += "alleleBias_-1_"
                     filter["alleleBias"] = 1
                     region_conf -= 2
                     reasons += "alleleBias(-2)"
@@ -338,13 +338,13 @@ def main(args):
                 # VAF based penalites
                 if args.runlowmaf:
                     vaf_cutoff = 5
-                    vaf_pen_ann = "VAF<5_-1_"
+                    vaf_pen_ann = "VAF<5_-0_"
                 else:
                     vaf_cutoff = 10
-                    vaf_pen_ann = "VAF<10_-1_"
+                    vaf_pen_ann = "VAF<10_-0_"
 
                 if VAFTumor < vaf_cutoff:
-                    confidence -= 1
+                    confidence -= 0
                     penalties += vaf_pen_ann
                     filter["VAF"] = 1
 

@@ -39,18 +39,18 @@ source ${TOOL_ANALYZE_BAM_HEADER}
 getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
 
 ${PLATYPUS_BINARY} callVariants \
-	--refFile=${REFERENCE_GENOME} \
-	--output=${FILENAME_VCF_RAW}.tmp.platypus \
-	--bamFiles=${bamFiles} \
-	--nCPU=${CPU_COUNT} \
-	--genIndels=1 \
-	--genSNPs=${CALL_SNP} \
-	--logFileName=${LOG_TMP} \
-	--verbosity=1 \
-	--bufferSize=${PLATYPUS_BUFFER_SIZE} \
-	--maxReads=${PLATYPUS_MAX_READS} \
-        --minFlank=0 \
-	${PLATYPUS_PARAMS}
+  --refFile=${REFERENCE_GENOME} \
+  --output=${FILENAME_VCF_RAW}.tmp.platypus \
+  --bamFiles=${bamFiles} \
+  --nCPU=${CPU_COUNT} \
+  --genIndels=1 \
+  --genSNPs=${CALL_SNP} \
+  --logFileName=${LOG_TMP} \
+  --verbosity=1 \
+  --bufferSize=${PLATYPUS_BUFFER_SIZE} \
+  --maxReads=${PLATYPUS_MAX_READS} \
+  --minFlank=0 \
+  ${PLATYPUS_PARAMS}
 
 [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 1
 

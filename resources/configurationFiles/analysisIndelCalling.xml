@@ -214,8 +214,8 @@
                 <rset size="xs" memory="16" cores="8" nodes="1" walltime="1"/>
                 <rset size="s" memory="16" cores="8" nodes="1" walltime="5"/>
                 <rset size="m" memory="16" cores="8" nodes="1" walltime="25"/>
-                <rset size="l" memory="16" cores="8" nodes="1" walltime="50"/>
-                <rset size="xl" memory="16" cores="16" nodes="1" walltime="200"/>
+                <rset size="l" memory="32" cores="8" nodes="1" walltime="50"/>
+                <rset size="xl" memory="64" cores="16" nodes="1" walltime="200"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
