@@ -23,7 +23,7 @@
         <cvalue name="KGENOME" value="${hg38DatabasesDirectory}/1000Genome/hg38/ALL.wgs.shapeit2_integrated_snvindels_v2a.GRCh38.27022019.sites.vcf.gz" type="path"/>
         <cvalue name="DBSNP_SNV" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.SNV.vcf.gz" type="path"/>
         <cvalue name="DBSNP_INDEL" value="${hg38DatabasesDirectory}/dbSNP/dbSNP_151_GRCh38.p7/00-All_v151_GRCh38.INDEL.vcf.gz" type="path"/>
-        <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencode/gencodeV31/hg38_gencode.v31.annotation.plain_gene.bed' type="path" />
+        <cvalue name="GENE_MODEL_BEDFILE" value='${hg38DatabasesDirectory}/gencode/gencode39/gencode.v39.annotation.gene.bed' type="path" />
         
         <!-- GRCh38 local control liftover from hg19 local control -->
         <!-- For no control workflow-->
@@ -41,12 +41,12 @@
         <cvalue name="GNOMAD_WES_SNV_INDEL" value="${hg38DatabasesDirectory}/gnomAD/v2.1.1/exomes_liftover_grch38/gnomad.exomes.r2.1.1.sites.liftover_grch38.SNV.vcf.gz" type="path" />
          
         <!--ANNOVAR annotations-->
-        <cvalue name='ANNOVAR_BINARY' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/annotate_variation.pl' type='path'
+        <cvalue name='ANNOVAR_BINARY' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_Sept2022/annotate_variation.pl' type='path'
                 description="Full path to annotate_variation.pl script, which can be found in the bin/ directory in the AnnoVar distribution."/>
         <cvalue name='ANNOVAR_BUILDVER' value='hg38' type='string'/>
-        <cvalue name='ANNOVAR_DBPATH' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_April2018/humandb/' type='path'
+        <cvalue name='ANNOVAR_DBPATH' value='${hg38DatabasesDirectory}/ANNOVAR/annovar_Sept2022/humandb/' type='path'
                 description="Path to humandb/ directory in the AnnoVar distribution"/>
-        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV31'" type='string'
+        <cvalue name='ANNOVAR_DBTYPE' value="'-dbtype wgEncodeGencodeCompV39'" type='string'
                 description="-dbtype option used for the ANNOVAR_BINARY (see above)."/>
 
         <!--Reference annotations-->
