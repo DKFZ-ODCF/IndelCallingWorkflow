@@ -107,6 +107,7 @@ def main(args):
                   '##FORMAT=<ID=NR,Number=.,Type=Integer,Description="Number of reads covering variant location in this sample">\n' \
                   '##FORMAT=<ID=GL,Number=.,Type=Float,Description="Genotype log10-likelihoods for AA,AB and BB genotypes, where A = ref and B = variant. Only applicable for bi-allelic sites">\n' \
                   '##FORMAT=<ID=NV,Number=.,Type=Integer,Description="Number of reads containing variant in this sample">\n' \
+                  '##FILTER=<ID=FREQ,Description="High frequency in GnomAD(>0.1%) or in local control database (>0.05%)">\n' \
                   '##SAMPLE=<ID=CONTROL,SampleName=control_' + args.pid + ',Individual=' + args.pid + ',Description="Control">\n' \
                   '##SAMPLE=<ID=TUMOR,SampleName=tumor_' + args.pid + ',Individual=' + args.pid + ',Description="Tumor">\n' \
                   '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t'
@@ -133,12 +134,12 @@ def main(args):
             variable_headers = { "ANNOVAR_SEGDUP_COL": "^SEGDUP$", "KGENOMES_COL": "^1K_GENOMES$", "DBSNP_COL": "^DBSNP$",
                                  "CONTROL_COL": "^" + args.controlColName + "$", "TUMOR_COL": "^" + args.tumorColName + "$"}
 
-            if args.no_control:
+            if args.no_control or args.refgenome[0] == 'GRCh38' or args.skipREMAP:
                 variable_headers["GNOMAD_EXOMES_COL"] = "^GNOMAD_EXOMES$"
                 variable_headers["GNOMAD_GENOMES_COL"] = "^GNOMAD_GENOMES$"
                 variable_headers["LOCALCONTROL_WGS_COL"] = "^LocalControlAF_WGS$"
                 variable_headers["LOCALCONTROL_WES_COL"] = "^LocalControlAF_WES$"
-            else:
+            if not args.no_control:
                 fixed_headers += [ "^INFO_control", "^ANNOTATION_control$", ]
 
             header_indices = get_header_indices(headers, args.configfile, fixed_headers, variable_headers)
@@ -216,7 +217,7 @@ def main(args):
         penalties = ""
         infos = []
 
-        if args.no_control:
+        if args.no_control or args.refgenome[0] == 'GRCh38' or args.skipREMAP:
             in1KG_AF = False
             indbSNP = False
 
@@ -250,19 +251,19 @@ def main(args):
                     in1KG_AF = True
             infos.append("1000G")
 
-        if args.no_control:
+        if args.no_control or args.refgenome[0] == 'GRCh38' or args.skipREMAP:
             if help["GNOMAD_EXOMES_COL_VALID"] and any(af > args.gnomAD_WES_maxMAF for af in map(float, extract_info(help["GNOMAD_EXOMES_COL"], "AF").split(','))):
                 inGnomAD_WES = True
-                infos.append("gnomAD_Exomes")
+                #infos.append("gnomAD_Exomes")
             if help["GNOMAD_GENOMES_COL_VALID"] and any(af > args.gnomAD_WGS_maxMAF for af in map(float, extract_info(help["GNOMAD_GENOMES_COL"], "AF").split(','))):
                 inGnomAD_WGS = True
-                infos.append("gnomAD_Genomes")
+                #infos.append("gnomAD_Genomes")
             if help["LOCALCONTROL_WGS_COL_VALID"] and any(af > args.localControl_WGS_maxMAF for af in map(float, extract_info(help["LOCALCONTROL_WGS_COL"], "AF").split(','))):
                 inLocalControl_WGS = True
-                infos.append("LOCALCONTROL_WGS")
+                #infos.append("LOCALCONTROL_WGS")
             if help["LOCALCONTROL_WES_COL_VALID"] and any(af > args.localControl_WES_maxMAF for af in map(float, extract_info(help["LOCALCONTROL_WES_COL"], "AF").split(','))):
                 inLocalControl_WES = True
-                infos.append("LOCALCONTROL_WES")
+                #infos.append("LOCALCONTROL_WES")
 
         qual = help["QUAL"]
         ### variants with more than one alternative are still skipped e.g. chr12	19317131	.	GTT	GT,G	...
@@ -423,6 +424,17 @@ def main(args):
         if args.no_control and (in1KG_AF or (indbSNP and is_commonSNP and not is_clinic) or inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS or inLocalControl_WES):
             classification = "SNP_support_germline"
 
+        # Nov 2022: If the variant is present in the gnomAD or local control WGS
+        # the confidence are reduced and thrown out. This is implemented for hg38 and could be
+        # used with skipREMAP option for hg19.
+        # inLocalControl_WES: Needs to be generated from a new hg38 dataset
+        if args.refgenome[0] == 'GRCh38' or args.skipREMAP:
+            if inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS:
+                #classification = "SNP_support_germline"
+                penalties += 'commonSNP_or_technicalArtifact_-3_'
+                confidence -= 3
+                filter["FREQ"] = 1
+
         if confidence < 1:	# Set confidence to 1 if it is below one
             confidence = 1
         if confidence > 10:	# Set confidence to 10 if above (will not happen at the moment as we never give a bonus)
@@ -435,7 +447,7 @@ def main(args):
         # Duke excluded and ENCODE DAC blacklist, only consider if not already annotated as suspicious repeat
 
         ## DUKE, DAC, Hiseq, Self chain are only available for hg19 reference genome
-        if args.refgenome[0] == "hs37d5":
+        if args.refgenome[0] == "hs37d5" or args.skipREMAP:
 
             if help["DUKE_EXCLUDED_VALID"] or help["DAC_BLACKLIST_VALID"] or help["HISEQDEPTH_VALID"]:
                 region_conf -= 3 # really bad region, usually centromeric repeats
@@ -445,53 +457,53 @@ def main(args):
                 region_conf -= 1
                 reasons += "SelfchainAndOrSegdup(-1)"
 
-        if help["ANNOVAR_SEGDUP_COL_VALID"]:
-            region_conf -= 1
-            reasons += "Segdup(-1)"
-
-        if any(word in help["REPEAT_MASKER"] for word in ["Simple_repeat", "Low_", "Satellite", ]) or help["SIMPLE_TANDEMREPEATS_VALID"]:
-            region_conf -= 2
-            reasons += "Repeat(-2)"
-        # other repeat elements to penalize at least a bit
-        elif help["REPEAT_MASKER_VALID"]:
-            region_conf -= 1
-            reasons += "Other_repeat(-1)"
-
-        # Mapability is 1 for unique regions, 0.5 for regions appearing twice, 0.33... 3times, ...
-        # Everything with really high number of occurences is artefacts
-        # does not always correlate with the above regions
-        # is overestimating badness bc. of _single_ end read simulations
-        if help["MAPABILITY"] == ".":
-            # in very rare cases (CEN), there is no mapability => ".", which is not numeric but interpreted as 0
-            region_conf -= 5
-            reasons += "Not_mappable(-5)"
-        else:
-            reduce = 0
-            # can have several entries for indels, e.g. 0.5&0.25 - take worst (lowest) or best (highest)?!
-            mapability = min(map(float, help["MAPABILITY"].split("&"))) # just chose one - here: min
-            if mapability < 0.5:
-                # 0.5 does not seem to be that bad: region appears another time in
-                # the genome and we have paired end data!
+            if help["ANNOVAR_SEGDUP_COL_VALID"]:
                 region_conf -= 1
-                reduce += 1
+                reasons += "Segdup(-1)"
 
-                #if mapability < 0.4: # 3-4 times appearing region is worse but still not too bad
-                #    region_conf -= 1
-                #    reduce += 1
+            if any(word in help["REPEAT_MASKER"] for word in ["Simple_repeat", "Low_", "Satellite", ]) or help["SIMPLE_TANDEMREPEATS_VALID"]:
+                region_conf -= 2
+                reasons += "Repeat(-2)"
+            # other repeat elements to penalize at least a bit
+            elif help["REPEAT_MASKER_VALID"]:
+                region_conf -= 1
+                reasons += "Other_repeat(-1)"
 
-                if mapability < 0.25: # > 4 times appearing region
+            # Mapability is 1 for unique regions, 0.5 for regions appearing twice, 0.33... 3times, ...
+            # Everything with really high number of occurences is artefacts
+            # does not always correlate with the above regions
+            # is overestimating badness bc. of _single_ end read simulations
+            if help["MAPABILITY"] == ".":
+                # in very rare cases (CEN), there is no mapability => ".", which is not numeric but interpreted as 0
+                region_conf -= 5
+                reasons += "Not_mappable(-5)"
+            else:
+                reduce = 0
+                # can have several entries for indels, e.g. 0.5&0.25 - take worst (lowest) or best (highest)?!
+                mapability = min(map(float, help["MAPABILITY"].split("&"))) # just chose one - here: min
+                if mapability < 0.5:
+                    # 0.5 does not seem to be that bad: region appears another time in
+                    # the genome and we have paired end data!
                     region_conf -= 1
                     reduce += 1
 
-                if mapability < 0.1: # > 5 times is bad
-                    region_conf -= 2
-                    reduce += 2
+                    #if mapability < 0.4: # 3-4 times appearing region is worse but still not too bad
+                    #    region_conf -= 1
+                    #    reduce += 1
 
-                if mapability < 0.05: # these regions are clearly very bad (Lego stacks)
-                    region_conf -= 3
-                    reduce += 3
+                    if mapability < 0.25: # > 4 times appearing region
+                        region_conf -= 1
+                        reduce += 1
 
-                reasons += "Low_mappability(%s=>-%d)"%(help["MAPABILITY"], reduce)
+                    if mapability < 0.1: # > 5 times is bad
+                        region_conf -= 2
+                        reduce += 2
+
+                    if mapability < 0.05: # these regions are clearly very bad (Lego stacks)
+                        region_conf -= 3
+                        reduce += 3
+
+                    reasons += "Low_mappability(%s=>-%d)"%(help["MAPABILITY"], reduce)
 
         if classification != "somatic" and not "PASS" in help["FILTER"]:
             # such an indel is probably also "unclear" and not "germline"
@@ -541,7 +553,7 @@ def main(args):
                 entries[header_indices["FILTER"]] = "PASS"
             else:
                 filter_list = []
-                filteroptions = ["GOF","badReads","alleleBias","MQ","strandBias","SC","QD","ALTC","VAF","VAFC","QUAL","ALTT","GTQ","GTQFRT","HapScore"]
+                filteroptions = ["GOF","badReads","alleleBias","MQ","strandBias","SC","QD","ALTC","VAF","VAFC","QUAL","ALTT","GTQ","GTQFRT","HapScore", "FREQ"]
                 for filteroption in filteroptions:
                     if filter.get(filteroption, 0) == 1:
                         filter_list.append(filteroption)
@@ -607,10 +619,11 @@ if __name__ == "__main__":
     parser.add_argument("--tumaltgen", dest="tumaltgen", type=float, default=0,
                         help="Score that a 0/1 or 1/0 call in tumor is actually 1/1 or that a 1/1 call in tumor is " \
                              "actually 1/0 or 0/1 (the more negative, the less likely).")
+    parser.add_argument('--skipREMAP', dest='skipREMAP', action='store_true', default=False)
     parser.add_argument("--gnomAD_WGS_maxMAF", dest="gnomAD_WGS_maxMAF", type=float, help="Max gnomAD WGS AF", default=0.001)
     parser.add_argument("--gnomAD_WES_maxMAF", dest="gnomAD_WES_maxMAF", type=float, help="Max gnomAD WES AF", default=0.001)
     parser.add_argument("--localControl_WGS_maxMAF", dest="localControl_WGS_maxMAF", type=float, help="Max local control WGS AF", default=0.01)
-    parser.add_argument("--localControl_WES_maxMAF", dest="localControl_WES_maxMAF", type=float, help="Max local control WES AF", default=0.01)    
+    parser.add_argument("--localControl_WES_maxMAF", dest="localControl_WES_maxMAF", type=float, help="Max local control WES AF", default=0.01)
     parser.add_argument("--1000genome_maxMAF", dest="kgenome_maxMAF", type=float, help="Max 1000 genome AF", default=0.01)
 args = parser.parse_args()
 main(args)
