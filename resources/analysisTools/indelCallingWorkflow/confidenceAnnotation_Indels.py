@@ -447,7 +447,7 @@ def main(args):
         # Duke excluded and ENCODE DAC blacklist, only consider if not already annotated as suspicious repeat
 
         ## DUKE, DAC, Hiseq, Self chain are only available for hg19 reference genome
-        if args.refgenome[0] == "hs37d5" or args.skipREMAP:
+        if args.refgenome[0] == "hs37d5" and not args.skipREMAP:
 
             if help["DUKE_EXCLUDED_VALID"] or help["DAC_BLACKLIST_VALID"] or help["HISEQDEPTH_VALID"]:
                 region_conf -= 3 # really bad region, usually centromeric repeats
