@@ -13,7 +13,7 @@ The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and c
   Nature volume 578, pages 82–93 (2020).<br>
   DOI [10.1038/s41586-020-1969-6](https://doi.org/10.1038/s41586-020-1969-6)
 
-Containers are available in [Dockstore](https://dockstore.org/containers/quay.io/pancancer/pcawg-dkfz-workflow)
+Containers are available in [Dockstore](https://dockstore.org/containers/quay.io/pancancer/pcawg-dkfz-workflow).
 
 Furthermore, the workflow is regularly used at the DKFZ throug the automation system [One-Touch Pipeline](https://gitlab.com/one-touch-pipeline/otp):
 
@@ -83,17 +83,21 @@ TBD
 
 # Changelist
 
+## General Remarks 
+
+Changes in the TiNDA and no-control functionalities do not trigger a major version bump.
+
+The currently supported branches are 3 (master), 2.4.1, 2.2, 2.0.0-1, and 1.2.177. Unfortunately, the results from these branches are not compatible with each other. For larger studies you may want to use only versions that produce comparable results.
+
+Note that only on `master` new features are implemented, so the other branches are only for bugfixes.
+
+## Change-Log
+
 * Version update to 3.1.1
 
   - Patch (Bugfix): The nocontrol workflow is exempted from the tumor & control column swap introduced in 3.1.0.
 
 * Version update to 3.1.0 (2.6.0-deprecated) 
-
-The currently supported branches are 3 (master), 2.4.1, 2.2, 2.0.0-1, and 1.2.177. Unfortunately, the results from these branches are not compatible with each other. For larger studies you may want to use only versions that produce comparable results. 
-
-Note that only on `master` new features are implemented, so the other branches are only for bugfixes. 
-
-Here is a list of the most recent release on each of supported branches:
 
 * Version update to 3.1.0 (2.6.0-deprecated, master)
 
@@ -134,7 +138,7 @@ The following are older versions of the workflow on which no further development
 
 * Version update to 2.4.2 ([Column bug](#column-bug))
 
-  - Fixed missed annotations due to unsorted VCF
+  - Fixed missed annotations due to unsorted VCF (sort multi-SNP after variant normalization; only TiNDA affected, but not significantly)
   
 * Version update to 2.4.1 ([Column bug](#column-bug))
 
@@ -150,8 +154,8 @@ The following are older versions of the workflow on which no further development
 * Version update 2.3.0 ([Column bug](#column-bug))
 
   - Added `isNoControlWorkflow` variable and make FILTER_database work with it
-  - Removed usage of ExAC from filtering, gnomAD includes ExAC
-  - Report only exact matches for database annotation
+  - Removed usage of ExAC from filtering, gnomAD includes ExAC (only no-control affected)
+  - Report only exact matches for database annotation (only no-control affected)
   
 * Version update to 2.2.1 ([Column bug](#column-bug))
 
