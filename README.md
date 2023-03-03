@@ -13,9 +13,9 @@ The Indel workflow was in the pan-cancer analysis of whole genomes (PCAWG) and c
   Nature volume 578, pages 82–93 (2020).<br>
   DOI [10.1038/s41586-020-1969-6](https://doi.org/10.1038/s41586-020-1969-6)
 
-Containers are available in [Dockstore](https://dockstore.org/containers/quay.io/pancancer/pcawg-dkfz-workflow).
+The containers used for the PCAWG study are available in [Dockstore](https://dockstore.org/containers/quay.io/pancancer/pcawg-dkfz-workflow). Note that these contain the [versions used for PCAWG](https://github.com/ICGC-TCGA-PanCancer/dkfz_dockered_workflows/blob/00aeec8fb45ce14a3682298ade4f6a625ac5e9ad/runwrapper.sh#L112) and have not been updated. 
 
-Furthermore, the workflow is regularly used at the DKFZ throug the automation system [One-Touch Pipeline](https://gitlab.com/one-touch-pipeline/otp):
+The workflow is regularly used at the DKFZ through the automation system [One-Touch Pipeline](https://gitlab.com/one-touch-pipeline/otp):
 
 * OTP: An automatized system for managing and processing NGS data.<br>
   Eva Reisinger, Lena Genthner, Jules Kerssemakers, Philip Kensche, Stefan Borufka, Alke Jugold, Andreas Kling, Manuel Prinz, Ingrid Scholz, Gideon Zipprich, Roland Eils, Christian Lawerenz, Jürgen Eils.<br>
@@ -81,17 +81,17 @@ Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github
 
 TBD
 
-# Changelist
+# Changes
 
 ## General Remarks 
 
-Changes in the TiNDA and no-control functionalities do not trigger a major version bump.
+Note that changes in the no-control functionalities do not trigger a major version bump.
 
 The currently supported branches are 3 (master), 2.4.1, 2.2, 2.0.0-1, and 1.2.177. Unfortunately, the results from these branches are not compatible with each other. For larger studies you may want to use only versions that produce comparable results.
 
 Note that only on `master` new features are implemented, so the other branches are only for bugfixes.
 
-## Change-Log
+## Changelist
 
 * Version update to 3.1.1
 
@@ -134,11 +134,12 @@ The following are older versions of the workflow on which no further development
 
 * Version update to 2.4.3 ([Column bug](#column-bug))
 
-  - Bugfix: `platypusIndelAnnotation.sh` now checks output of annovar execution for error code != 0. Without this the workflow will continue even if annovar throws an exception.
+  - Patch: Bugfix: `platypusIndelAnnotation.sh` now checks output of annovar execution for error code != 0. Without this the workflow will continue even if annovar throws an exception.
 
 * Version update to 2.4.2 ([Column bug](#column-bug))
 
-  - Fixed missed annotations due to unsorted VCF (sort multi-SNP after variant normalization; only TiNDA affected, but not significantly)
+  - Major: Fixed missed annotations due to unsorted VCF (sort multi-SNP after variant normalization; only TiNDA affected, but not significantly)
+   > Note that this is a bugfix that breaks backwards compatibility of the results.
   
 * Version update to 2.4.1 ([Column bug](#column-bug))
 
