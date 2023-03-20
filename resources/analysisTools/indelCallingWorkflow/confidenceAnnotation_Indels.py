@@ -431,8 +431,8 @@ def main(args):
         if args.refgenome[0] == 'GRCh38' or args.skipREMAP:
             if inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS:
                 #classification = "SNP_support_germline"
-                penalties += 'commonSNP_or_technicalArtifact_-3_'
-                confidence -= 3
+                #penalties += 'commonSNP_or_technicalArtifact_-3_'
+                #confidence -= 3
                 filter["FREQ"] = 1
 
         if confidence < 1:	# Set confidence to 1 if it is below one
