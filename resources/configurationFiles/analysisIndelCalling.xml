@@ -11,7 +11,11 @@
         <cvalue name="condaEnvironmentName" value="IndelCallingWorkflow" type="string"/>
 
         <cvalue name='INDELFILE_PREFIX' value='indel_' type="string"/>
-        <cvalue name='PLATYPUS_PARAMS' value="''" type="string"/>
+
+	<!-- GRCh37 specific params, excluding reads with distant mates (not to deviate from the current settings)  -->
+	<!-- countOnlyExactIndelMatches=1 will exclude inexact indels counts to the NV -->
+        <cvalue name='PLATYPUS_PARAMS' value="--countOnlyExactIndelMatches=1 --filterReadsWithDistantMates=1" type="string"/>
+
         <cvalue name='INDEL_ANNOTATION_PADDING' value="10" type="string"/>
         <cvalue name='INDEL_ANNOTATION_MINOVERLAPFRACTION' value="0.7" type="string"/>
         <cvalue name='INDEL_ANNOTATION_MAXBORDERDISTANCESUM' value="20" type="string"/>
