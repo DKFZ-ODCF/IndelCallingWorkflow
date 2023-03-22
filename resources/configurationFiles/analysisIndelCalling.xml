@@ -29,7 +29,7 @@
         <cvalue name='runTinda' value="true" type="boolean" description="Check for sample swaps."/>
 
         <cvalue name="CONFIDENCE_OPTS_INDEL" value="" type="string"
-                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+                description="max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be omitted to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
 
         <cvalue name='VCF_SCREENSHOTS_PREFIX' value="indel_" type="string"/>
         <cvalue name='WINDOW_SIZE' value="100" type="string"/>
@@ -58,8 +58,6 @@
         <cvalue name="LOCAL_CONTROL_PLATYPUS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
 
-        <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
-        <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string"/>
         <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
         <cvalue name="ExAC_COL" value="ExAC" type="string"/>

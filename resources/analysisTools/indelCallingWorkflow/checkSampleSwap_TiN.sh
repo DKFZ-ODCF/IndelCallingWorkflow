@@ -5,24 +5,37 @@
 # Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/IndelCallingWorkflow).
 #
 ## Bam header analysis
-source ${TOOL_ANALYZE_BAM_HEADER}
-getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
+source "$TOOL_ANALYZE_BAM_HEADER"
+getRefGenomeAndChrPrefixFromHeader "$FILENAME_TUMOR_BAM" # Sets CHR_PREFIX and REFERENCE_GENOME
 
 ## Getting tumor and control header
-VCF_TUMOR_HEADER_COL=`samtools view -H ${FILENAME_TUMOR_BAM} | grep -P "^@RG" | perl -ne 'chomp; @s=split(/\t/, $_) ; map{if($_=~/SM:/){$_=~/SM:(.*)/; print "$1\n"}} @s;' | sort | uniq`
-VCF_NORMAL_HEADER_COL=`samtools view -H ${FILENAME_CONTROL_BAM} | grep -P "^@RG" | perl -ne 'chomp; @s=split(/\t/, $_) ; map{if($_=~/SM:/){$_=~/SM:(.*)/; print "$1\n"}} @s;' | sort | uniq`
+bamExtractSmTag() {
+  local filename="${1:?No BAM file provided}"
+  samtools view -H "$filename" \
+    | grep -P "^@RG" \
+    | perl -ne 'chomp; @s=split(/\t/, $_) ; map{if($_=~/SM:/){$_=~/SM:(.*)/; print "$1\n"}} @s;' \
+    | sort -u
+}
 
-if [[ -z $VCF_TUMOR_HEADER_COL ]] 
-then
-  VCF_TUMOR_HEADER_COL=`basename ${FILENAME_TUMOR_BAM} | sed 's/.bam$//'`
-fi
+defaultToBamBasename() {
+  local bamFile="${1:?No BAM provided}"
+  local name="${2:?No argument}"
+  if [[ -z "$name" ]]; then
+    basename "$bamFile" .bam
+  else
+    echo "$name"
+  fi
+}
 
-if [[ -z $VCF_NORMAL_HEADER_COL ]]
-then
-  VCF_NORMAL_HEADER_COL=`basename ${FILENAME_CONTROL_BAM} | sed 's/.bam$//'`
-fi
+getColumnName() {
+  local bamFile="${1:?No BAM provided}"
+  defaultToBamBasename "$bamFile" "$(bamExtractSmTag "$bamFile")"
+}
 
-LOGFILE=$(dirname "$FILENAME_RARE_GERMLINE")/checkSampleSwap_TiN.log
+VCF_TUMOR_HEADER_COL="$(getColumnName "$FILENAME_TUMOR_BAM")"
+VCF_NORMAL_HEADER_COL="$(getColumnName "$FILENAME_CONTROL_BAM")"
+
+LOGFILE="$(dirname "$FILENAME_RARE_GERMLINE")/checkSampleSwap_TiN.log"
 
 ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
@@ -39,8 +52,8 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --TiN_R_script=${TOOL_TUMOR_IN_NORMAL_PLOT_RSCRIPT} \
     --canopyFunction=${TOOL_CANOPY_CLUSTER_FUNCTION_RSCRIPT} \
     --chrLengthFile=${TOOL_CANOPY_LINEAR_CHR_DATA} \
-    --normal_header_col=${VCF_NORMAL_HEADER_COL} \
-    --tumor_header_col=${VCF_TUMOR_HEADER_COL} \
+    --normal_header_substr=${VCF_NORMAL_HEADER_COL} \
+    --tumor_header_substr=${VCF_TUMOR_HEADER_COL} \
     --sequenceType=${SEQUENCE_TYPE} \
     --exome_capture_kit_bed=${EXOME_CAPTURE_KIT_BEDFILE} \
     --gene_model_bed=${GENE_MODEL_BEDFILE} \

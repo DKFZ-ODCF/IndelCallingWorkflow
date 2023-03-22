@@ -36,29 +36,40 @@ There are quite extensive requirements in annotation etc. data required for the 
 
 # Configuration Values
 
-|Switch                    |  Default     | Description
-|--------------------------|--------------|-----------------------------------------------|
-| runIndelAnnotation       |  true        | Run the annotation step or stop the workflow before it. |
-| runIndelDeepAnnotation   |  true        | Run the deep annotation step or stop the workflow before it. |
-| runIndelVCFFilter        |  true        | Run the filter step or stop the workflow before it. |
-| runTinda                 |  true        | Check for sample swaps with TiNDA. |
-| bamfile_list             | empty        | Semicolon-separated list of BAM files, starting with the control's BAM. Each BAM file needs an index file with the same name as the BAM, but ".bai" suffixed. |
-| sample_list              | empty        | Semicolon-separated list of sample names in the same order as `bamfile_list` |
-| possibleTumorSampleNamePrefixes | "( tumor )" | Bash-array of tumor sample name prefixes. |
-| possibleControlSampleNamePrefixes | "( control )" | Bash-array of control sample name prefixes. |
-| REFERENCE_GENOME | empty | |
-| CHR_SUFFIX | "" | Suffix added to the chromosome names |
-| CHR_PREFIX | "" | Prefix added to the chromosome names |
-| extractSamplesFromOutputFiles | true | |
-| CHROMOSOME_INDICES | empty | Bash-array of chromosome names to which the analysis should be restricted |
+| Switch                            | Default                                    | Description                                                                                                                                                   
+|-----------------------------------|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| runIndelAnnotation                | true                                       | Run the annotation step or stop the workflow before it.                                                                                                       |
+| runIndelDeepAnnotation            | true                                       | Run the deep annotation step or stop the workflow before it.                                                                                                  |
+| runIndelVCFFilter                 | true                                       | Run the filter step or stop the workflow before it.                                                                                                           |
+| runTinda                          | true                                       | Check for sample swaps with TiNDA.                                                                                                                            |
+| bamfile_list                      | empty                                      | Semicolon-separated list of BAM files, starting with the control's BAM. Each BAM file needs an index file with the same name as the BAM, but ".bai" suffixed. |
+| sample_list                       | empty                                      | Semicolon-separated list of sample names in the same order as `bamfile_list`                                                                                  |
+| possibleTumorSampleNamePrefixes   | "( tumor )"                                | Bash-array of tumor sample name prefixes.                                                                                                                     |
+| possibleControlSampleNamePrefixes | "( control )"                              | Bash-array of control sample name prefixes.                                                                                                                   |
+| REFERENCE_GENOME                  | empty                                      |                                                                                                                                                               |
+| CHR_SUFFIX                        | ""                                         | Suffix added to the chromosome names                                                                                                                          |
+| CHR_PREFIX                        | ""                                         | Prefix added to the chromosome names                                                                                                                          |
+| extractSamplesFromOutputFiles     | true                                       |                                                                                                                                                               |
+| CHROMOSOME_INDICES                | empty                                      | Bash-array of chromosome names to which the analysis should be restricted                                                                                     |
+| SEQUENCE_TYPE                     | WGS                                        | "WES" or "WGS"                                                                                                                                                |
+| EXOME_CAPTURE_KIT_BEDFILE         | see `analysisIndelCalling.xml`              | If `runTinda=true` and `SEQUENCE_TYPE=WES` you need a BED file with target regions.                                                                           |
 
-Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.4.1+ with an alternative algorithm for extracting sample names from BAM files.
+Since version 2.2.0 the workflow uses the [COWorkflowsBasePlugin](https://github.com/DKFZ-ODCF/COWorkflowsBasePlugin) 1.4.1+ with an alternative algorithm for extracting sample names from BAM files. You may have to set some of the variables defined there also when running this workflow, in particular `sharedFilesBaseDirectory`, `CHROM_SIZES_FILE`, and maybe `hg19DatabasesDirectory`.
 
 # Example call
 
 TBD
 
 # Changelist
+
+* Version update to 2.4.1-2
+
+  * Minor: Changed comparison-operator in `checkSampleSwap_TiN.pl` to allow for `+` signs in PID names.
+  * Patch: Add exit-code tests on Perl-backtick invocations.
+
+* Version update to 2.4.1-1
+
+  * Major: Fix of column swap bug introduced before 1.0.167. Output VCF with swapped control and tumor genotype columns if they are in the 11th and 10th column respectively.
 
 * Version update to 2.4.1
 
