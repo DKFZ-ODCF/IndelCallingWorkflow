@@ -42,6 +42,14 @@ runTinda                    true    Check for sample swaps with TiNDA.
 
 # Changelist
 
+* Version update to 1.2.177-602
+
+- Add the local control annotation via the deepAnnotation pipe
+
+* Version update to 1.2.177-601
+
+- Fix the control-tumor column swap bug
+
 * Version update to 1.2.177
 
 - Roddy 3.0 support
