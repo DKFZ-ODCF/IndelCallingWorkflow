@@ -60,6 +60,14 @@ TBD
 
 # Changelist
 
+* Version update to 2.4.1-2
+  
+  * Add local control annotations via deepAnnotation pipe
+
+* Version update to 2.4.1-1
+  
+  * Column swap bug fix 
+  
 * Version update to 2.4.1
 
   * Create __non-empty__ sample swap JSON even if less than 50 germline variants
