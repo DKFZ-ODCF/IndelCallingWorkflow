@@ -44,11 +44,11 @@ runTinda                    true    Check for sample swaps with TiNDA.
 
 * Version update to 1.2.177-602
 
-- Add the local control annotation via the deepAnnotation pipe
+- Minor: Adding the local control annotation (WGS + WES) via the deepAnnotation pipe. These annotations will be used downstream for filtering variants from the reduced control coverage settings in the WGS samples.
 
 * Version update to 1.2.177-601
 
-- Fix the control-tumor column swap bug
+- Major: Fix the control-tumor column swap bug
 
 * Version update to 1.2.177
 
