@@ -62,7 +62,7 @@ TBD
 
 * Version update to 2.4.1-2
   
-  * Add local control annotations via deepAnnotation pipe
+  * patch: Adding two columns of local control annotations (WGS, WES) via deepAnnotation pipe. The annotations will be used for the reduced coverage filters in the downstream workflows.
 
 * Version update to 2.4.1-1
   
