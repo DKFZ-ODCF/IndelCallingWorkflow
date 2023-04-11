@@ -65,6 +65,7 @@ TBD
 * Version update to 2.4.1-2
 
   * Minor: Changed comparison-operator in `checkSampleSwap_TiN.pl` to allow for `+` signs in PID names.
+  * Minor: Adding local control AF annotations from WES cohort via deepAnnotation pipe. The WGS local control annotation is already available in the `2.4.1` version. These annotations will be used for the reduced coverage filters in the downstream workflows.
   * Patch: Add exit-code tests on Perl-backtick invocations.
 
 * Version update to 2.4.1-1
