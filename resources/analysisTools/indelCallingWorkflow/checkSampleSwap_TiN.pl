@@ -103,12 +103,16 @@ my %json = (
 my $updated_rawFile;
 # update in WES
 if($seqType eq 'WES') {
-   $updated_rawFile = $rawFile.".intersect.gz";
-   `bedtools slop -i $geneModel -b 5 -g $chrLengthFile | \
+  $updated_rawFile = $rawFile.".intersect.gz";
+  my $bedtools_command = "set -euo pipefail; bedtools slop -i $geneModel -b 5 -g $chrLengthFile | \
     cut -f1-3 | awk '{if(\$3<\$2){print \$1"\t"\$3"\t"\$2}else{print \$0}}' | \
     bedtools merge -i - | \
     bedtools intersect -header -a $rawFile -b - | \
-    bgzip -f > $updated_rawFile && tabix -f -p vcf $updated_rawFile`;
+    bgzip -f > $updated_rawFile && tabix -f -p vcf $updated_rawFile";
+    my $bedtools_result = system($bedtools_command);
+    if ($bedtools_result != 0) {
+      die "Error during WES bedtools intersect execution";
+    }
    #$updated_rawFile = $rawFile;
 }
 elsif($seqType eq 'WGS') {
