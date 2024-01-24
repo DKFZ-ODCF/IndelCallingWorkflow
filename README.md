@@ -83,7 +83,6 @@ TBD
 
 # Changes
 
-
 ## General Remarks 
 
 Note that changes in the no-control functionalities do not trigger a major version bump.
@@ -98,7 +97,7 @@ Note that only on `master` new features are implemented, so the other branches a
 
   - Major: Support for hg38/GRCh38 reference.
   - Major: Updating the confidence scoring script.
-    - hg38: Adding gnomAD and local-control based confidence annotation (-3). Annotated with `FREQ` in the filter column and marked as `commonSNP_or_technicalArtifact_-3_` in penalties column.
+    - hg38: Annotated with `FREQ` in the filter column and if the variant has higher MAF in gnomAD and local-control than the threshold. It is not filtered out.
     - hg38: Remove `HISEQDEPTH, DUKE_EXCLUDED, DAC_BLACKLIST, SELFCHAIN, REPEAT & MAPABILITY` from hg38 annotations.
     - hg19: `--skipREMAP` option will perform the same for hg38.
     - Remove ExAC and EVS from annotation and no-control workflow filtering.
