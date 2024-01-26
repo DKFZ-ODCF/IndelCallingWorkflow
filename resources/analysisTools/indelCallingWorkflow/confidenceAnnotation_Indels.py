@@ -111,6 +111,7 @@ def main(args):
         header += '##INFO=<ID=SOMATIC,Number=0,Type=Flag,Description="Indicates if record is a somatic mutation">\n' \
                   '##INFO=<ID=GERMLINE,Number=0,Type=Flag,Description="Indicates if record is a germline mutation">\n' \
                   '##INFO=<ID=UNCLEAR,Number=0,Type=Flag,Description="Indicates if the somatic status of a mutation is unclear">\n' \
+                  '##INFO=<ID=MAFCommon,Number=0,Type=Flag,Description="Indicates if the variant is present in the gnomAD or local control database">\n' \
                   '##INFO=<ID=FR,Number=.,Type=Float,Description="Estimated population frequency of variant">\n' \
                   '##INFO=<ID=MMLQ,Number=1,Type=Float,Description="Median minimum base quality for bases around variant">\n' \
                   '##INFO=<ID=TCR,Number=1,Type=Integer,Description="Total reverse strand coverage at this locus">\n' \
@@ -160,7 +161,6 @@ def main(args):
                   '##FORMAT=<ID=NR,Number=.,Type=Integer,Description="Number of reads covering variant location in this sample">\n' \
                   '##FORMAT=<ID=GL,Number=.,Type=Float,Description="Genotype log10-likelihoods for AA,AB and BB genotypes, where A = ref and B = variant. Only applicable for bi-allelic sites">\n' \
                   '##FORMAT=<ID=NV,Number=.,Type=Integer,Description="Number of reads containing variant in this sample">\n' \
-                  '##FILTER=<ID=FREQ,Description="High frequency in GnomAD(>0.1%) or in local control database (>5%)">\n' \
                   '##SAMPLE=<ID=CONTROL,SampleName=control_' + args.pid + ',Individual=' + args.pid + ',Description="Control">\n' \
                   '##SAMPLE=<ID=TUMOR,SampleName=tumor_' + args.pid + ',Individual=' + args.pid + ',Description="Tumor">\n' \
                   '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t'
@@ -458,12 +458,10 @@ def main(args):
         # the confidence are reduced and thrown out. This is implemented for hg38 and could be
         # used with skipREMAP option for hg19.
         # inLocalControl_WES: Needs to be generated from a new hg38 dataset
+        common_tag = ""
         if is_hg38(args) or args.skipREMAP:
             if inGnomAD_WES or inGnomAD_WGS or inLocalControl_WGS:
-                #classification = "SNP_support_germline"
-                #penalties += 'commonSNP_or_technicalArtifact_-3_'
-                #confidence -= 3
-                filter["FREQ"] = 1
+                common_tag = "MAFCommon;"
 
         if confidence < 1:	# Set confidence to 1 if it is below one
             confidence = 1
@@ -578,20 +576,20 @@ def main(args):
                 entries[idx_reasons] = reasons
 
         if classification == "somatic":
-            entries[header_indices["INFO"]] = 'SOMATIC;' + entries[header_indices["INFO"]]
+            entries[header_indices["INFO"]] = 'SOMATIC;' + common_tag + entries[header_indices["INFO"]]
             if confidence >= 8:
                 entries[header_indices["FILTER"]] = "PASS"
             else:
                 filter_list = []
-                filteroptions = ["GOF","badReads","alleleBias","MQ","strandBias","SC","QD","ALTC","VAF","VAFC","QUAL","ALTT","GTQ","GTQFRT","HapScore", "FREQ"]
+                filteroptions = ["GOF","badReads","alleleBias","MQ","strandBias","SC","QD","ALTC","VAF","VAFC","QUAL","ALTT","GTQ","GTQFRT","HapScore"]
                 for filteroption in filteroptions:
                     if filter.get(filteroption, 0) == 1:
                         filter_list.append(filteroption)
                 entries[header_indices["FILTER"]] = ';'.join(filter_list)
         elif classification == "germline" or (args.no_control and classification == "SNP_support_germline"):
-            entries[header_indices["INFO"]] = 'GERMLINE;' + entries[header_indices["INFO"]]
+            entries[header_indices["INFO"]] = 'GERMLINE;' + common_tag + entries[header_indices["INFO"]]
         else:
-            entries[header_indices["INFO"]] = 'UNCLEAR;' + entries[header_indices["INFO"]]
+            entries[header_indices["INFO"]] = 'UNCLEAR;' + common_tag + entries[header_indices["INFO"]]
 
         entries[header_indices["QUAL"]] = "."
         if dbsnp_id is not None and dbsnp_pos is not None:
