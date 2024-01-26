@@ -93,6 +93,22 @@ Note that only on `master` new features are implemented, so the other branches a
 
 ## Changelist
 
+* Version update to 4.0.0
+
+  - Major: Support for hg38/GRCh38 reference.
+  - Major: Updating the confidence scoring script.
+    - hg38: Annotated with `FREQ` in the filter column and if the variant has higher MAF in gnomAD and local-control than the threshold. It is not filtered out.
+    - hg38: Remove `HISEQDEPTH, DUKE_EXCLUDED, DAC_BLACKLIST, SELFCHAIN, REPEAT & MAPABILITY` from hg38 annotations.
+    - hg19: `--skipREMAP` option will perform the same for hg38.
+    - Remove ExAC and EVS from annotation and no-control workflow filtering.
+    - `runlowmaf` option to include variants with a VAF of 5-10% in high confidence somatic variants.
+    - `HapScore` filter tag in platypus is punished now(-2).
+  - Minor: TiNDA related updates
+    - Remove bias filtering from TiNDA downstream analysis.
+    - Update to TiNDA plots.
+    - Environment script for the `checkSampleSwap` job.
+  - Patch: Update `COWorkflowsBasePlugin` to 1.4.2.
+
 * Version update to 3.1.1
 
   - Patch (Bugfix): The nocontrol workflow is exempted from the tumor & control column swap introduced in 3.1.0.

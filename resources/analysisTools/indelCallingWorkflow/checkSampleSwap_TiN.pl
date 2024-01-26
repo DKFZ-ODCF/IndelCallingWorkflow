@@ -18,11 +18,11 @@ use Getopt::Long;
 use JSON::Create 'create_json';
 
 ### Input Files and parameters and paths ############################################
-my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $biasScript, $tumorBAM, $controlBAM, $ref, 
+my ($pid, $rawFile, $ANNOTATE_VCF, $DBSNP, $tumorBAM, $controlBAM, $ref, 
   $gnomAD_genome, $gnomAD_exome, $split_mnps_script, $localControl_wgs, $localControl_wes,
   $TiN_R, $chrLengthFile, $normal_header_pattern, $tumor_header_pattern, $geneModel,
-  $localControl_2, $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, 
-  $bottomBorder, $outfile_RG, $outfile_SR, $outfile_AS, $outfile_SJ);
+  $canopy_Function, $seqType, $captureKit, $bedtoolsBinary, $rightBorder, $chr_prefix,
+  $bottomBorder, $outfile_tindaVCF, $outfile_SJ);
 
 # Filtering setting to assign common or rare variants
 my $AF_cutoff;
@@ -34,34 +34,30 @@ GetOptions ("pid=s"                      => \$pid,
             "gnomAD_exome=s"             => \$gnomAD_exome,
             "localControl_WGS=s"         => \$localControl_wgs,
             "localControl_WES=s"         => \$localControl_wes,
-            "split_mnps_script=s"        => \$split_mnps_script,
-            "bias_script=s"              => \$biasScript,
+            "split_mnps_script=s"        => \$split_mnps_script,            
             "tumor_bam=s"                => \$tumorBAM,
             "control_bam=s"              => \$controlBAM,
             "reference=s"                => \$ref,
+            "chr_prefix=s"               => \$chr_prefix,
             "TiN_R_script=s"             => \$TiN_R,
             "canopyFunction=s"           => \$canopy_Function,
             "chrLengthFile=s"            => \$chrLengthFile,
             "normal_header_col=s"        => \$normal_header_pattern,
             "tumor_header_col=s"         => \$tumor_header_pattern,
             "sequenceType=s"             => \$seqType,
-            "exome_capture_kit_bed=s"    => \$captureKit,
             "gene_model_bed=s"           => \$geneModel,
             "TiNDA_rightBorder:f"        => \$rightBorder,
             "TiNDA_bottomBorder:f"       => \$bottomBorder,
             "maf_thershold:f"            => \$AF_cutoff,
-            "outfile_rareGermline:s"     => \$outfile_RG,
-            "outfile_somaticRescue:s"    => \$outfile_SR,
-            "outfile_allSomatic:s"       => \$outfile_AS,
+            "outfile_tindaVCF:s"         => \$outfile_tindaVCF,
             "outfile_swapJSON:s"         => \$outfile_SJ)
-  or die("Error in SwapChecker input parameters");
+or die("Error in SwapChecker input parameters");
 
 die("ERROR: PID is not provided\n") unless defined $pid;
 die("ERROR: Raw vcf file is not provided\n") unless defined $rawFile;
 die("ERROR: annotate_vcf.pl script path is missing\n") unless defined $ANNOTATE_VCF;
 die("ERROR: gnomAD genome is not provided\n") unless defined $gnomAD_genome;
 die("ERROR: gnomAD exome is not provided\n") unless defined $gnomAD_exome;
-die("ERROR: strand bias script path is missing\n") unless defined $ANNOTATE_VCF;
 die("ERROR: Tumor bam is missing\n") unless defined $tumorBAM;
 die("ERROR: Control bam is missing\n") unless defined $controlBAM;
 die("ERROR: Genome reference file is missing\n") unless defined $ref;
@@ -75,12 +71,8 @@ my $snvsGT_germlineRare        = $analysisBasePath."/snvs_${pid}.GTfiltered_gnom
 my $snvsGT_germlineRare_txt    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.txt";
 my $snvsGT_germlineRare_png    = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.png";
 my $snvsGT_germlineRare_oFile  = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.txt";
-my $snvsGT_germlineRare_oVCF   = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf";
-my $snvsGT_germlineRare_oVCF_annovar      = $analysisBasePath."/snvs_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.ANNOVAR.vcf";
-my $snvsGT_germlineRare_oVCF_annovar_rG   = $outfile_RG;
-my $snvsGT_germlineRare_oVCF_annovar_sR   = $outfile_SR;
-my $snvsGT_somaticRareBiasFile            = $outfile_AS;
-my $jsonFile                              = $analysisBasePath."/checkSampleSwap.json"; # checkSwap.json
+my $snvsGT_germlineRare_oVCF   = $outfile_tindaVCF;
+my $jsonFile                   = $outfile_SJ; # checkSwap.json
 
 ###########################################################################################
 ### For JSON file
@@ -95,10 +87,6 @@ my %json = (
   somaticSmallVarsInTumorCommonInGnomadPer => 0,
   somaticSmallVarsInControlCommonInGnomad => 0,
   somaticSmallVarsInControlCommonInGnomadPer => 0,
-  somaticSmallVarsInTumorInBias => 0,
-  somaticSmallVarsInTumorInBiasPer => 0,
-  somaticSmallVarsInControlInBias => 0,
-  somaticSmallVarsInControlInBiasPer => 0,
   somaticSmallVarsInTumorPass => 0,
   somaticSmallVarsInTumorPassPer => 0,
   somaticSmallVarsInControlPass => 0,
@@ -115,9 +103,17 @@ my %json = (
 my $updated_rawFile;
 # update in WES
 if($seqType eq 'WES') {
-   $updated_rawFile = $rawFile.".intersect.gz";
-  `bedtools slop -i $geneModel -b 5 -g $chrLengthFile | bedtools merge -i - | bedtools intersect -header -a $rawFile -b - | bgzip -f > $updated_rawFile ; tabix -f -p vcf $updated_rawFile`;
-  #$updated_rawFile = $rawFile;
+  $updated_rawFile = $rawFile.".intersect.gz";
+  my $bedtools_command = "set -euo pipefail; bedtools slop -i $geneModel -b 5 -g $chrLengthFile | \
+    cut -f1-3 | awk '{if(\$3<\$2){print \$1"\t"\$3"\t"\$2}else{print \$0}}' | \
+    bedtools merge -i - | \
+    bedtools intersect -header -a $rawFile -b - | \
+    bgzip -f > $updated_rawFile && tabix -f -p vcf $updated_rawFile";
+    my $bedtools_result = system($bedtools_command);
+    if ($bedtools_result != 0) {
+      die "Error during WES bedtools intersect execution";
+    }
+   #$updated_rawFile = $rawFile;
 }
 elsif($seqType eq 'WGS') {
    $updated_rawFile = $rawFile;
@@ -194,7 +190,7 @@ while(!eof($IN)) {
 
     # Removing extra chr contigs, Indels and bad quality snvs
     # Including both indels and snvs - removed as we will have issue with bias Filter
-    if($chr=~/^(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
+    if($chr=~/^($chr_prefix)?(X|Y|[1-9]|1[0-9]|2[0-2])$/ && $filter =~/^(PASS|alleleBias)$/) {
 
 
       my @tumor_dp = split(/,/, $tumor[$iDP]);
@@ -245,8 +241,14 @@ if($run_resolve_complex !=0){
 }
 
 ## Annotating with gnomAD and local control 
-my $runAnnotation = system("cat '$snvsGT_RawFile' | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl_wgs' --columnName='LocalControl_WGS' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 | perl '$ANNOTATE_VCF' -a - -b '$localControl_wes' --columnName='LocalControl_WES' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'");
+my $annotation_command = "cat '$snvsGT_RawFile' | \
+                          perl '$ANNOTATE_VCF' -a - -b '$gnomAD_genome' --columnName='gnomAD_GENOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | \
+                          perl '$ANNOTATE_VCF' -a - -b '$gnomAD_exome' --columnName='gnomAD_EXOMES' --bAdditionalColumn=2 --reportMatchType --reportLevel 1 | \
+                          perl '$ANNOTATE_VCF' -a - -b '$localControl_wgs' --columnName='LocalControl_WGS' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 | \
+                          perl '$ANNOTATE_VCF' -a - -b '$localControl_wes' --columnName='LocalControl_WES' --bAdditionalColumn=2  --reportMatchType --reportLevel 1 > '$snvsGT_gnomADFile'";
 
+print "\n$annotation_command\n";
+my $runAnnotation = system($annotation_command);
 
 if($runAnnotation != 0 ) {
   `rm $jsonFile`;
@@ -388,18 +390,6 @@ while(!eof(TINDA_rareOutput)) {
 }
 close TINDA_rareOutput;
 
-## Median function
-sub median {
-    my @vals = sort {$a <=> $b} @_;
-    my $len = @vals;
-    if($len%2) {
-        return $vals[int($len/2)];
-    }
-    else {
-        return ($vals[int($len/2)-1] + $vals[int($len/2)])/2;
-    }
-}
-
 if($json{'tindaSomaticAfterRescue'} > 0) {
   $json{'tindaSomaticAfterRescueMedianAlleleFreqInControl'} = median(@SomaticRescue_control_AF);
 } else {
@@ -407,107 +397,52 @@ if($json{'tindaSomaticAfterRescue'} > 0) {
 }
 
 #######################################
-### Annovar annotations
-#
-`cat $snvsGT_germlineRare_oVCF | perl \$TOOL_VCF_TO_ANNOVAR > $snvsGT_germlineRare_oVCF.forAnnovar.bed`;
+### Counting the somatic numbers 
+open(my $SOMATIC_FH, "<$snvsGT_somatic")
+    || die "Can't open the file $snvsGT_somatic\n";
 
-`\${ANNOVAR_BINARY} --buildver=\${ANNOVAR_BUILDVER} \${ANNOVAR_DBTYPE} $snvsGT_germlineRare_oVCF.forAnnovar.bed \${ANNOVAR_DBPATH}`;
-
-`perl \${TOOL_PROCESS_ANNOVAR} $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function > $snvsGT_germlineRare_oVCF.forAnnovar.temp`;
-
-`perl \${TOOL_NEW_COLS_TO_VCF} -vcfFile=$snvsGT_germlineRare_oVCF --newColFile=$snvsGT_germlineRare_oVCF.forAnnovar.temp --newColHeader=ANNOVAR_FUNCTION,GENE,EXONIC_CLASSIFICATION,ANNOVAR_TRANSCRIPTS --reportColumns=3,4,5,6 --bChrPosEnd=0,1,2 > $snvsGT_germlineRare_oVCF_annovar`;
-
-## Separating rare germline and rescued somatic variants
-open(RG, ">$snvsGT_germlineRare_oVCF_annovar_rG") || die "$snvsGT_germlineRare_oVCF_annovar_rG can't be open for writing. $!";
-open(SR, ">$snvsGT_germlineRare_oVCF_annovar_sR") || die "$snvsGT_germlineRare_oVCF_annovar_sR can't be open for writing. $!";
-open(GRA, "<$snvsGT_germlineRare_oVCF_annovar") || die "can't open $snvsGT_germlineRare_oVCF_annovar $!";
-
-while(<GRA>){
-  my $tmp_GRA = $_;
-  chomp $tmp_GRA;
-  if($tmp_GRA=~/^#/) {
-    print RG "$tmp_GRA\n";
-    print SR "$tmp_GRA\n";
-  }
-  elsif($tmp_GRA=~/Germline|SomaticControlRare/){
-    print RG "$tmp_GRA\n";
-  }
-  elsif($tmp_GRA=~/Somatic_Rescue/){
-    print SR "$tmp_GRA\n";
-  }
-}
-close RG;
-close SR;
-close GRA;
-#######################################
-## Running Bias Filters
-
-my $runBiasScript_command = join("", "python '$biasScript' '$snvsGT_somatic' '$tumorBAM' '$ref' '$snvsGT_somaticRareBiasFile'",
-  " --tempFolder $analysisBasePath",
-  " --maxOpRatioPcr=0.34",
-  " --maxOpRatioSeq=0.34",
-  " --maxOpReadsPcrWeak=2",
-  " --maxOpReadsPcrStrong=2");
+while(!eof($SOMATIC_FH)) {
+  my $line = readline($SOMATIC_FH)
+    || die("Error reading from zcatted '$snvsGT_somatic': $!");
+  chomp $line;
   
-my $runBiasScript = system($runBiasScript_command);
-
-if($runBiasScript != 0) {
-  die "Error while running $biasScript in swapChecker: exit code = $runBiasScript\n";
-}
-
-
-### Counting The Numbers 
-open(SOM_RareBias, "<$snvsGT_somaticRareBiasFile")
-    || die "Can't open the file $snvsGT_somaticRareBiasFile\n";
-
-while(<SOM_RareBias>) {
-  chomp;
-  if($_!~/^#/) {
-    if($_=~/Tumor_Somatic_Common/ && $_!~/bPcr|bSeq/) {
+  if($line!~/^#/) {
+    if($line=~/Tumor_Somatic_Common/) {
       $json{'somaticSmallVarsInTumorCommonInGnomad'}++;
     }
-    elsif($_=~/Tumor_Somatic/ && $_=~/bPcr|bSeq/) {
-      $json{'somaticSmallVarsInTumorInBias'}++;
-    }
-    elsif($_=~/Tumor_Somatic_Rare/) {
+    elsif($line=~/Tumor_Somatic_Rare/) {
       $json{'somaticSmallVarsInTumorPass'}++;
     }
 
-    if($_=~/Control_Somatic_Common/ && $_!~/bPcr|bSeq/) {
+    if($line=~/Control_Somatic_Common/) {
       $json{'somaticSmallVarsInControlCommonInGnomad'}++;    
     }
-    elsif($_=~/Control_Somatic/ && $_=~/bPcr|bSeq/) {
-      $json{'somaticSmallVarsInControlInBias'}++;
-    }
-    elsif($_=~/Control_Somatic_Rare/) {
+    elsif($line=~/Control_Somatic_Rare/) {
       $json{'somaticSmallVarsInControlPass'}++;
     }   
   }
 }
+close $SOMATIC_FH;
 
 ##################
 ## Creating sample swap json file 
 
 ## Percentage calculations
 if($json{'somaticSmallVarsInTumor'} > 0) {
-  $json{'somaticSmallVarsInTumorCommonInGnomadPer'} = $json{'somaticSmallVarsInTumorCommonInGnomad'}/$json{'somaticSmallVarsInTumor'};
-  $json{'somaticSmallVarsInTumorInBiasPer'} = $json{'somaticSmallVarsInTumorInBias'}/$json{'somaticSmallVarsInTumor'};
+  $json{'somaticSmallVarsInTumorCommonInGnomadPer'} = $json{'somaticSmallVarsInTumorCommonInGnomad'}/$json{'somaticSmallVarsInTumor'};  
   $json{'somaticSmallVarsInTumorPassPer'} = $json{'somaticSmallVarsInTumorPass'}/$json{'somaticSmallVarsInTumor'};
 }
 else {
-  $json{'somaticSmallVarsInTumorCommonInGnomadPer'} = 0;
-  $json{'somaticSmallVarsInTumorInBiasPer'} = 0;
+  $json{'somaticSmallVarsInTumorCommonInGnomadPer'} = 0;  
   $json{'somaticSmallVarsInTumorPassPer'} = 0;
 }
 
 if($json{'somaticSmallVarsInControl'} > 0) {
-  $json{'somaticSmallVarsInControlCommonInGnomasPer'} = $json{'somaticSmallVarsInControlCommonInGnomad'}/$json{'somaticSmallVarsInControl'};
-  $json{'somaticSmallVarsInControlInBiasPer'} = $json{'somaticSmallVarsInControlInBias'}/$json{'somaticSmallVarsInControl'};
+  $json{'somaticSmallVarsInControlCommonInGnomasPer'} = $json{'somaticSmallVarsInControlCommonInGnomad'}/$json{'somaticSmallVarsInControl'};  
   $json{'somaticSmallVarsInControlPassPer'} = $json{'somaticSmallVarsInControlPass'}/$json{'somaticSmallVarsInControl'};
 }
 else {
-  $json{'somaticSmallVarsInControlCommonInGnomadPer'} = 0;
-  $json{'somaticSmallVarsInControlInBiasPer'} = 0;
+  $json{'somaticSmallVarsInControlCommonInGnomadPer'} = 0;  
   $json{'somaticSmallVarsInControlPassPer'} = 0;
 
 }
@@ -518,17 +453,11 @@ close JSON;
 ######################################
 #### Cleaning up files 
 `rm $snvsGT_RawFile $snvsGT_gnomADFile`;
-`rm $snvsGT_germlineRare_oVCF.forAnnovar.bed $snvsGT_germlineRare_oVCF.forAnnovar.bed.variant_function $snvsGT_germlineRare_oVCF.forAnnovar.bed.exonic_variant_function`;
-`rm $snvsGT_germlineRare_oVCF.forAnnovar.temp $snvsGT_germlineRare_oVCF`;
 
-`rm $snvsGT_somatic $snvsGT_germlineRare`;
-`rm $snvsGT_germlineRare_txt`;
-`rm $snvsGT_germlineRare_oVCF_annovar`;
-
+`rm $snvsGT_somatic $snvsGT_germlineRare $snvsGT_germlineRare_txt`;
 
 #####################################
-# Subroutine to parse AF from multiple or single match
-# ## 
+## Subroutine to parse AF from multiple or single match 
 sub parse_AF{
 
   my $line = $_[0];
@@ -546,4 +475,16 @@ sub parse_AF{
     ($AF) = $line =~ /;AF=(\d(\.\d+(e-\d+)?)?);/;
   }
   return($AF);
+}
+
+## Median function
+sub median {
+    my @vals = sort {$a <=> $b} @_;
+    my $len = @vals;
+    if($len%2) {
+        return $vals[int($len/2)];
+    }
+    else {
+        return ($vals[int($len/2)-1] + $vals[int($len/2)])/2;
+    }
 }

@@ -52,10 +52,8 @@ set -o pipefail
 cmdAnnotation="zcat ${FILENAME_VCF_RAW} | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${DBSNP_INDEL} --columnName=${DBSNP_COL} --reportMatchType  --bAdditionalColumn=2 --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${KGENOME} --columnName=${KGENOMES_COL} --reportMatchType --bAdditionalColumn=2  --reportBFeatCoord --padding=${INDEL_ANNOTATION_PADDING} --minOverlapFraction=${INDEL_ANNOTATION_MINOVERLAPFRACTION} --maxBorderDistanceSum=${INDEL_ANNOTATION_MAXBORDERDISTANCESUM} --maxNrOfMatches=${INDEL_ANNOTATION_MAXNROFMATCHES} | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${ExAC} --columnName=${ExAC_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${EVS} --columnName=${EVS_COL} --bFileType vcf --reportLevel 4 --reportMatchType| \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WES_ALL_INDEL} --columnName=${GNOMAD_WES_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
-    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WGS_ALL_INDEL} --columnName=${GNOMAD_WGS_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WES_INDEL} --columnName=${GNOMAD_WES_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
+    ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${GNOMAD_WGS_INDEL} --columnName=${GNOMAD_WGS_COL} --bFileType vcf --reportLevel 4 --reportMatchType | \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL_WGS} --columnName=${LOCALCONTROL_WGS_COL} --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType| \
     ${PERL_BINARY} ${TOOL_ANNOTATE_VCF_FILE} -a - -b ${LOCALCONTROL_WES} --columnName=${LOCALCONTROL_WES_COL} --minOverlapFraction 1 --bFileType vcf --reportLevel 4 --reportMatchType| \
     tee ${filenameVCFTemp} | perl ${TOOL_VCF_TO_ANNOVAR} ${CHR_PREFIX} ${CHR_SUFFIX} > ${FOR_ANNOVAR}.tmp"
@@ -126,7 +124,8 @@ if [[ ${isControlWorkflow} == true ]]; then
     control_column=`${SAMTOOLS_BINARY} view -H ${FILENAME_CONTROL_BAM} | grep -m 1 SM: | ${PERL_BINARY} -ne 'chomp;$_=~m/SM:(\S+)/;print "$1\n";'`
     ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --infile=${filenameVCFFinalUnzipped} --controlColName=${control_column} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 else
-    ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --nocontrol --infile=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
+    ${PYPY_BINARY} -u ${TOOL_PLATYPUS_CONFIDENCE_ANNOTATION} --nocontrol --infile=${filenameVCFFinalUnzipped} --tumorColName=${tumor_column} \
+        --gnomAD_WGS_maxMAF=${CRIT_GNOMAD_GENOMES_maxMAF} --gnomAD_WES_maxMAF=${CRIT_GNOMAD_EXOMES_maxMAF} --localControl_WGS_maxMAF=${CRIT_LOCALCONTROL_maxMAF} --localControl_WES_maxMAF=${CRIT_LOCALCONTROL_maxMAF} --1000genome_maxMAF=${CRIT_1KGENOMES_maxMAF} ${CONFIDENCE_OPTS_INDEL} | tee ${filenameVCFTemp} | cut -f 1-11 > ${target}
 fi
 
 [[ "$?" != 0 ]] && echo "There was a non-zero exit code in the confidence annotation; temp file ${filenameVCFTemp} not moved back" && exit 6

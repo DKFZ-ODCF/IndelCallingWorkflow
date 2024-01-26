@@ -28,29 +28,26 @@ ${PERL_BINARY} ${TOOL_CHECK_SAMPLE_SWAP_SCRIPT} \
     --pid=${PID} \
     --raw_file=${FILENAME_VCF_RAW} \
     --annotate_vcf=${TOOL_ANNOTATE_VCF_FILE} \
-    --gnomAD_genome=${GNOMAD_V2_1_GENOME_SNV_INDEL} \
-    --gnomAD_exome=${GNOMAD_V2_1_EXOME_SNV_INDEL} \
-    --localControl_WGS=${LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL} \
-    --localControl_WES=${LOCAL_CONTROL_PLATYPUS_WES_SNV_INDEL} \
+    --gnomAD_genome=${GNOMAD_WGS_SNV_INDEL} \
+    --gnomAD_exome=${GNOMAD_WES_SNV_INDEL} \
+    --localControl_WGS=${LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL} \
+    --localControl_WES=${LOCALCONTROL_PLATYPUS_WES_SNV_INDEL} \
     --split_mnps_script=${TOOL_SPLIT_MNPS_SCRIPT} \
-    --bias_script=${TOOL_STRAND_BIAS_FILTER_PYTHON_FILE} \
     --tumor_bam=${FILENAME_TUMOR_BAM} \
     --control_bam=${FILENAME_CONTROL_BAM} \
     --reference=${REFERENCE_GENOME} \
+    --chr_prefix=${CHR_PREFIX} \
     --TiN_R_script=${TOOL_TUMOR_IN_NORMAL_PLOT_RSCRIPT} \
     --canopyFunction=${TOOL_CANOPY_CLUSTER_FUNCTION_RSCRIPT} \
-    --chrLengthFile=${TOOL_CANOPY_LINEAR_CHR_DATA} \
+    --chrLengthFile=${CHROM_SIZES_FILE} \
     --normal_header_col=${VCF_NORMAL_HEADER_COL} \
     --tumor_header_col=${VCF_TUMOR_HEADER_COL} \
     --sequenceType=${SEQUENCE_TYPE} \
-    --exome_capture_kit_bed=${EXOME_CAPTURE_KIT_BEDFILE} \
     --gene_model_bed=${GENE_MODEL_BEDFILE} \
     --TiNDA_rightBorder=${TINDA_RIGHT_BORDER} \
     --TiNDA_bottomBorder=${TINDA_BOTTOM_BORDER} \
     --maf_thershold=${TINDA_MAX_MAF_CUTOFF} \
-    --outfile_rareGermline=${FILENAME_RARE_GERMLINE} \
-    --outfile_somaticRescue=${FILENAME_SOMATIC_RESCUE} \
-    --outfile_allSomatic=${FILENAME_ALL_SOMATIC} \
+    --outfile_tindaVCF=${FILENAME_TINDA_VCF} \
     --outfile_swapJson=${FILENAME_SWAP_JSON} \
     2>&1 | tee "$LOGFILE"
 

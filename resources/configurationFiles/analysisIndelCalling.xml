@@ -6,11 +6,16 @@
                usedToolFolders="indelCallingWorkflow,tools">
     <configurationvalues>
 
-	    <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
+	<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
+        <cvalue name="checkSampleSwapEnvironmentScript" value="checkSampleSwapEnvironment_tbiCluster" type="string"/>
         <cvalue name="condaEnvironmentName" value="IndelCallingWorkflow" type="string"/>
 
         <cvalue name='INDELFILE_PREFIX' value='indel_' type="string"/>
-        <cvalue name='PLATYPUS_PARAMS' value="''" type="string"/>
+
+	<!-- GRCh37 specific params, excluding reads with distant mates (not to deviate from the current settings)  -->
+	<!-- countOnlyExactIndelMatches=1 will exclude inexact indels counts to the NV -->
+        <cvalue name='PLATYPUS_PARAMS' value="--countOnlyExactIndelMatches=1 --filterReadsWithDistantMates=1" type="string"/>
+
         <cvalue name='INDEL_ANNOTATION_PADDING' value="10" type="string"/>
         <cvalue name='INDEL_ANNOTATION_MINOVERLAPFRACTION' value="0.7" type="string"/>
         <cvalue name='INDEL_ANNOTATION_MAXBORDERDISTANCESUM' value="20" type="string"/>
@@ -38,7 +43,8 @@
 
         <cvalue name="CHROM_SIZES_FILE" value="${hg19DatabaseDirectory}/stats/hg19_1-22_X_Y_M.fa.chrLenOnlyACGT.tab" type="path"
                 description="Required by getRefGenomeAndChrPrefixFromHeader() from the parent/COWorkflow plugin. Per chromosome counts of only A, T, C ond G IUPAC codes."/>
-
+	
+	 
         <!--## Databases
 
          All .vcf.gz and .bed.gz files needs to be accompanied by a tabix index (same path + .tbi suffix).
@@ -50,22 +56,25 @@
         <cvalue name="ExAC" value="${hg19DatabasesDirectory}/ExAC/ExAC_nonTCGA.r0.3.1.sites.vep.vcf.gz" type="path"/>
         <cvalue name="EVS" value="${hg19DatabasesDirectory}/EVS/ESP6500SI-V2-SSA137.updatedProteinHgvs.ALL.snps_indels.vcf.gz" type="path"/>
         <cvalue name="LOCALCONTROL_WGS" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_HIPO-PCAWG_MP_PL_WGS.INDELs.AFgt1.vcf.gz" type="path"/>
-        <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>
-        <cvalue name='EXOME_CAPTURE_KIT_BEDFILE' value='${hg19DatabasesDirectory}/../targetRegions/Agilent5withUTRs_plain.bed.gz' />
+        <cvalue name="LOCALCONTROL_WES" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/MPsnvs_PLindels/ExclusionList_2019_H021_MP_PL_WES.INDELs.AFgt1.vcf.gz" type="path"/>        
         <cvalue name="GENE_MODEL_BEDFILE" value='${hg19DatabasesDirectory}/gencode/gencode19/GencodeV19_Exons_plain.bed.gz' type="path" />
         
-        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
+        <cvalue name="GNOMAD_V2_1_GENOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />        
         <cvalue name="GNOMAD_V2_1_EXOME_SNV_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.SNV-INDEL.vcf.gz" type="path" />
         <cvalue name="LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_HIPO-PCAWG_PL_WGS.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
         <cvalue name="LOCAL_CONTROL_PLATYPUS_WES_SNV_INDEL" value="${hg19DatabasesDirectory}/LocalControls/ExclusionList_2019/PLsnvs_PLindels/version3/ExclusionList_2019_H021_PL_WES.SNVs-INDELs.AFgt1.vcf.gz" type="path" />
+        
+        <cvalue name="GNOMAD_WGS_SNV_INDEL" value="${GNOMAD_V2_1_GENOME_SNV_INDEL}" type="path" />
+        <cvalue name="GNOMAD_WES_SNV_INDEL" value="${GNOMAD_V2_1_EXOME_SNV_INDEL}" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WGS_SNV_INDEL" value="${LOCAL_CONTROL_PLATYPUS_WGS_SNV_INDEL}" type="path" />
+        <cvalue name="LOCALCONTROL_PLATYPUS_WES_SNV_INDEL" value="${LOCAL_CONTROL_PLATYPUS_WES_SNV_INDEL}" type="path" />
+        
         <cvalue name="TINDA_MAX_MAF_CUTOFF" value="0.001" type='float' />
 
         <cvalue name="VCF_NORMAL_HEADER_COL" value='"blood|normal|control|buffy_coat|germline"' type="string"/>
         <cvalue name="VCF_TUMOR_HEADER_COL" value='"tumor|metastasis|disease|relapse|autopsy"' type="string"/>
         <cvalue name="DBSNP_COL" value="DBSNP" type="string"/>
         <cvalue name="KGENOMES_COL" value="1K_GENOMES" type="string"/>
-        <cvalue name="ExAC_COL" value="ExAC" type="string"/>
-        <cvalue name="EVS_COL" value="EVS" type="string"/>
         <cvalue name="GNOMAD_WES_COL" value="GNOMAD_EXOMES" type="string"/>
         <cvalue name="GNOMAD_WGS_COL" value="GNOMAD_GENOMES" type="string"/>
         <cvalue name="LOCALCONTROL_WGS_COL" value="LocalControlAF_WGS" type="string"/>
@@ -74,8 +83,7 @@
         <cvalue name="TINDA_RIGHT_BORDER" value="0.45" type='float'/>
         <cvalue name="TINDA_BOTTOM_BORDER" value="0.01" type='float'/>
         <cvalue name="TINDA_RUN_RSCRIPT" value="0" type='string'/>
-        <cvalue name="SEQUENCE_TYPE" value='WGS' type='string'
-                description="Only required for TiNDA."/>
+        <cvalue name="SEQUENCE_TYPE" value='WGS' type='string' description="Only required for TiNDA."/>
 
         <cvalue name='ANNOVAR_BINARY' value='${sharedFilesBaseDirectory}/annovar/annovar_Feb2016/annotate_variation.pl' type='path'
                 description="Full path to annotate_variation.pl script, which can be found in the bin/ directory in the AnnoVar distribution."/>
@@ -90,13 +98,10 @@
         <cvalue name="ANNOVAR_CYTOBAND_COL" value="CYTOBAND" type="string"/>
         
         <!-- gnomAD files for no-control workflow -->
-        <cvalue name="GNOMAD_WGS_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.INDEL.vcf.gz" />
-        <cvalue name="GNOMAD_WES_ALL_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.INDEL.vcf.gz" />
- 
-        <!-- More configuration options -->
-        <cvalue name="CONFIDENCE_OPTS" value='"-t 500 -c 0 -p 0"' type="string"
-                description="Required in the indelAnnotation step. Max read depth in control (-t INT default 150 for genomes, set to 500 for exomes) can now be ommited to avoid depth dependent punishing by setting -c 0. It is also possible to get a justification for the confidence score by setting the -p 1 flag"/>
+        <cvalue name="GNOMAD_WGS_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.genomes.r2.1.sites.INDEL.vcf.gz" />
+        <cvalue name="GNOMAD_WES_INDEL" value="${hg19DatabasesDirectory}/gnomAD/gnomad_v2.1/gnomad.exomes.r2.1.sites.INDEL.vcf.gz" />
 
+        <!-- More configuration options -->        
         <cvalue name="MINCOV" value="0" type="integer" description="minimal coverage for somatic SNVs (MAF plot)"/>
         <cvalue name="ALLELE_FREQ" value="0" type="integer" description="ignore SNVs with MAF below that value (rainfall plot)"/>
         <cvalue name="CLINICALANNO" value='""' type="string" description="tab separated file with fields in the following order: ID, decoded PID, gender, age, subgroup"/>
@@ -125,8 +130,6 @@
         <!--#### EXTRA ANNOTATION AND FILTERING -->
         <!--#### BELOW VALUES WILL BE NEGLECTED WHEN THE WORKFLOW IS RUN WITH CONTROL -->
         <!--## Filter switch -->
-        <cvalue name="FILTER_ExAC" value="${isNoControlWorkflow}" type="boolean"/>
-        <cvalue name="FILTER_EVS" value="${isNoControlWorkflow}" type="boolean"/>
         <cvalue name="FILTER_GNOMAD_EXOMES" value="${isNoControlWorkflow}" type="boolean"/>
         <cvalue name="FILTER_GNOMAD_GENOMES" value="${isNoControlWorkflow}" type="boolean"/>
         <cvalue name="FILTER_1KGENOMES" value="${isNoControlWorkflow}" type="boolean"/>
@@ -136,13 +139,11 @@
 
         <!--## Filter criteria -->
         <!--## The rows with corresponding values larger than below criteria will be filtered out. -->
-        <cvalue name="CRIT_ExAC_maxMAF" value="1.0" type="float"/>
-        <cvalue name="CRIT_EVS_maxMAF" value="1.0" type="float"/>
         <cvalue name="CRIT_GNOMAD_EXOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_GNOMAD_GENOMES_maxMAF" value="0.001" type="float"/>
         <cvalue name="CRIT_1KGENOMES_maxMAF" value="0.01" type="float"/>
         <cvalue name="CRIT_RECURRENCE" value="7" type="integer"/>
-        <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.01" type="float"/>
+        <cvalue name="CRIT_LOCALCONTROL_maxMAF" value="0.05" type="float"/>
         <!--#### END EXTRA ANNOTATION AND FILTERING -->
 
         <!-- PIPE_CONFIG configuration bundles are needed for the createpipes.pl script (from the COWorkflow plugin). The createpipes.pl script
@@ -193,6 +194,7 @@
     <processingTools>
         <tool name="workflowEnvironment_conda" value="conda.sh" basepath="indelCallingWorkflow/environments"/>
     	<tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="indelCallingWorkflow/environments"/>
+        <tool name="checkSampleSwapEnvironment_tbiCluster" value="tbi-cluster_checkSampleSwap.sh" basepath="indelCallingWorkflow/environments"/>
 
         <tool name="platypusConfidenceAnnotation" value="confidenceAnnotation_Indels.py" basepath="indelCallingWorkflow"/>
         <tool name="platypusConfidenceAnnotationNoControl" value="platypusConfidenceAnnotation_noControl.pl" basepath="indelCallingWorkflow"/>
@@ -205,11 +207,9 @@
 
         <!--## SwapChecker -->
         <tool name="checkSampleSwapScript" value="checkSampleSwap_TiN.pl" basepath="indelCallingWorkflow"/>
-        <tool name="splitMnpsScript" value="splitMNPsAndComplex.py" basepath="indelCallingWorkflow"/>
-        <tool name="strandBiasFilterPythonFile" value="biasFilter.py" basepath='indelCallingWorkflow'/>
+        <tool name="splitMnpsScript" value="splitMNPsAndComplex.py" basepath="indelCallingWorkflow"/>        
         <tool name="tumorInNormalPlotRscript" value="TiN_CanopyBasedClustering.R" basepath='indelCallingWorkflow'/>
         <tool name="canopyClusterFunctionRscript" value="canopyCluster_updatedFunction.R" basepath='indelCallingWorkflow'/>
-        <tool name="CanopyLinearChrData" value="chrlengths.plain.sorted.txt" basepath='indelCallingWorkflow'/>
         <!--# SwapChecker end (but note, that the checkSampleSwap with and without control are also part of this.-->
 
         <!-- With control bam / germline -->
@@ -218,8 +218,8 @@
                 <rset size="xs" memory="16" cores="8" nodes="1" walltime="1"/>
                 <rset size="s" memory="16" cores="8" nodes="1" walltime="5"/>
                 <rset size="m" memory="16" cores="8" nodes="1" walltime="25"/>
-                <rset size="l" memory="16" cores="8" nodes="1" walltime="50"/>
-                <rset size="xl" memory="16" cores="8" nodes="1" walltime="100"/>
+                <rset size="l" memory="32" cores="8" nodes="1" walltime="50"/>
+                <rset size="xl" memory="64" cores="16" nodes="1" walltime="200"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
@@ -228,26 +228,24 @@
         <tool name="checkSampleSwap" value="checkSampleSwap_TiN.sh" basepath="indelCallingWorkflow">
             <resourcesets>
                 <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
-                <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
-                <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
-                <rset size="xl" memory="3" cores="3" nodes="1" walltime="24"/>
+                <rset size="m" memory="4" cores="3" nodes="1" walltime="5"/>
+                <rset size="l" memory="6" cores="3" nodes="1" walltime="10"/>
+                <rset size="xl" memory="8" cores="3" nodes="1" walltime="24"/>
             </resourcesets>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF_RAW"/>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
             <output type="tuple" >
                 <output type="file" typeof="TextFile" scriptparameter="FILENAME_CHECKPOINT_SWAP"/>
-                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_RARE_GERMLINE" />
-                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_SOMATIC_RESCUE" />
-                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_ALL_SOMATIC" />
+                <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_TINDA_VCF" />
                 <output type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_SWAP_JSON" />
             </output>
         </tool>
         <tool name="indelAnnotation" value="platypusIndelAnnotation.sh" basepath="indelCallingWorkflow">
             <resourcesets>
                 <rset size="s" memory="3" cores="3" nodes="1" walltime="2"/>
-                <rset size="m" memory="3" cores="3" nodes="1" walltime="5"/>
-                <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
+                <rset size="m" memory="4" cores="3" nodes="1" walltime="5"/>
+                <rset size="l" memory="6" cores="3" nodes="1" walltime="10"/>
                 <rset size="xl" memory="8" cores="3" nodes="1" walltime="10"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
@@ -260,9 +258,9 @@
         </tool>
         <tool name="indelDeepAnnotation" value="vcf_pipeAnnotator.sh" basepath="indelCallingWorkflow">
             <resourcesets>
-                <rset size="s" memory="1" cores="3" nodes="1" walltime="2"/>
-                <rset size="m" memory="1" cores="3" nodes="1" walltime="2"/>
-                <rset size="l" memory="1" cores="3" nodes="1" walltime="20"/>
+                <rset size="s" memory="2" cores="3" nodes="1" walltime="2"/>
+                <rset size="m" memory="4" cores="3" nodes="1" walltime="2"/>
+                <rset size="l" memory="6" cores="3" nodes="1" walltime="20"/>
                 <rset size="xl" memory="8" cores="2" nodes="1" walltime="10"/>
             </resourcesets>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF"/>
@@ -274,10 +272,10 @@
         </tool>
         <tool name="indelVcfFilter" value="filter_vcf.sh" basepath="indelCallingWorkflow">
             <resourcesets>
-                <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
-                <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
-                <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
+                <rset size="s" memory="2" cores="1" nodes="1" walltime="1"/>
+                <rset size="m" memory="2" cores="1" nodes="1" walltime="2"/>
+                <rset size="l" memory="2" cores="1" nodes="1" walltime="10"/>
+                <rset size="xl" memory="2" cores="1" nodes="1" walltime="72"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
@@ -314,10 +312,10 @@
         </tool>
         <tool name="indelVcfFilterWithoutControl" value="filter_vcf.sh" basepath="indelCallingWorkflow">
             <resourcesets>
-                <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
-                <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
-                <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
+                <rset size="s" memory="2" cores="1" nodes="1" walltime="1"/>
+                <rset size="m" memory="2" cores="1" nodes="1" walltime="2"/>
+                <rset size="l" memory="2" cores="1" nodes="1" walltime="10"/>
+                <rset size="xl" memory="2" cores="1" nodes="1" walltime="72"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="VCFFileForIndels" scriptparameter="FILENAME_VCF"/>
@@ -342,9 +340,7 @@
         <filename class='CPFileFilter'   onTool="indelVcfFilterWithoutControl" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
 
         <filename class='TextFile' onScriptParameter='FILENAME_CHECKPOINT_SWAP' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/>
-        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_RARE_GERMLINE' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.rareGermline.vcf'/>
-        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_SOMATIC_RESCUE' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.somaticRescue.vcf'/>
-        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_ALL_SOMATIC' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.allSomatic.vcf'/>
+        <filename class='VCFFileForIndels' onScriptParameter='FILENAME_TINDA_VCF' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/smallVariants_${pid}.GTfiltered_gnomAD.Germline.Rare.Rescue.vcf'/>
         <filename class='VCFFileForIndels' onScriptParameter='FILENAME_SWAP_JSON' pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/checkSampleSwap.json'/>
 
         <!--filename class='CPFileSwap'   onTool="checkSampleSwap" pattern='${outputAnalysisBaseDirectory}/${mpileupPlatypusOutputDirectory}/indelCallingCheckPoint_${TOOL_ID}'/-->
