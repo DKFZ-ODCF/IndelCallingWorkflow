@@ -47,10 +47,12 @@ def exit_column_header(sample_name, nocontrol=False):
 
 ## Helper functions
 def is_hg37(args):
-    return args.refgenome[0] == "hs37d5"
+    hg37_refs = ["hs37d5", "GRCh37", "hg19"]
+    return args.refgenome[0] in hg37_refs
 
 def is_hg38(args):
-    return args.refgenome[0] == "GRCh38"
+    hg38_refs = ["GRCh38", "hg38"]
+    return args.refgenome[0] in hg38_refs
 
 def get_fixed_headers(args):
     fixed_headers = ["^QUAL$", "^INFO$", "^FILTER$", "MAPABILITY", "SIMPLE_TANDEMREPEATS",
@@ -631,8 +633,9 @@ if __name__ == "__main__":
     parser.add_argument("-g", "--refgenome", dest="refgenome", nargs=2,
                         default=["hs37d5", "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/" \
                                            "phase2_reference_assembly_sequence/hs37d5.fa.gz", ],
-                        help="reference genome used for calling ID, path (default hs37d5, ftp://ftp.1000genomes.ebi" \
-                             ".ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz)")
+                        help="Reference genome used for calling ID, path (default hs37d5, ftp://ftp.1000genomes.ebi" \
+                             ".ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz)." \
+                             "For hg19, use hs37d5 or hg19 or GRCh37. For hg38, use hg38 or GRCh38.")
     parser.add_argument("-z", "--center", dest="center", nargs="?", default="DKFZ",
                         help="Center (unclear if the center where the data was produced or the center of the " \
                              "calling pipeline; default DKFZ).")
