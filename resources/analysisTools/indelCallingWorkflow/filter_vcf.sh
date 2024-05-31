@@ -22,6 +22,16 @@
 source ${TOOL_ANALYZE_BAM_HEADER}
 getRefGenomeAndChrPrefixFromHeader ${FILENAME_TUMOR_BAM} # Sets CHR_PREFIX and REFERENCE_GENOME
 
+########################################## VEP annotation #######################################
+## Run VEP on the somatic high confidence SNVs
+${TOOL_ANNOTATE_VEP} ${FILENAME_VCF} ${FILENAME_VCF}.tmp
+[[ "$?" != 0 ]] && echo "There was a non-zero exit code in VEP annotation" && exit 8
+
+# Overwrite the original VCF file with the VEP annotated one
+# NOTE: If there is an error here, one has to rerun the Annotation and DeepAnnotation steps
+mv ${FILENAME_VCF}.tmp ${FILENAME_VCF} && ${TABIX_BINARY} -f -p vcf ${FILENAME_VCF}
+[[ "$?" != 0 ]] && echo "There was a non-zero exit code in VEP annotation" && exit 9
+
 ########################################## Filter ###############################################
 
 outputFilenamePrefix=${FILENAME_VCF%.vcf.gz}
