@@ -49,7 +49,7 @@ ${PLATYPUS_BINARY} callVariants \
 	--verbosity=1 \
 	--bufferSize=${PLATYPUS_BUFFER_SIZE} \
 	--maxReads=${PLATYPUS_MAX_READS} \
-        --minFlank=0 \
+	--minFlank=0 \
 	${PLATYPUS_PARAMS}
 
 [[ $? -gt 0 ]] && echo "Error during platypus indel calling." && exit 1

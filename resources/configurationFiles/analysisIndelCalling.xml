@@ -160,6 +160,12 @@
 
              -->
 
+        <cvalue name='VEP_VERSION' value='110.1' type='string' />
+        <cvalue name='VEP_SW_PATH' value='/software/vep/${VEP_VERSION}/vep' type='path' />
+        <cvalue name='VEP_FORKS' value='3' type='integer'/>
+        <cvalue name='VEP_FA_INDEX' value='${assembliesHG191000GenomesDirectory}/tools_data/germlineSmVs/VEP/reference/hs37d5_PhiX.fa' type ='path' />
+        <cvalue name='VEP_CACHE_BASE' value='/omics/odcf/reference_data/by-tool/vep' type='path' />
+
         <configurationValueBundle name='PIPE_CONFIG:INDEL_RELIABILITY'>
             <cvalue name='MAPABILITY' value='"${hg19DatabaseUCSCDirectory}/wgEncodeCrgMapabilityAlign100mer_chr.bedGraph.gz:::--breakPointMode --aEndOffset=1"' type="path"/>
             <cvalue name='HISEQDEPTH' value='${hg19DatabaseUCSCDirectory}/HiSeqDepthTop10Pct_chr.bed.gz' type="path"/>
@@ -270,10 +276,10 @@
         </tool>
         <tool name="indelVcfFilter" value="filter_vcf.sh" basepath="indelCallingWorkflow">
             <resourcesets>
-                <rset size="s" memory="1" cores="1" nodes="1" walltime="1"/>
-                <rset size="m" memory="1" cores="1" nodes="1" walltime="2"/>
-                <rset size="l" memory="1" cores="1" nodes="1" walltime="10"/>
-                <rset size="xl" memory="1" cores="1" nodes="1" walltime="72"/>
+                <rset size="s" memory="2" cores="3" nodes="1" walltime="1"/>
+                <rset size="m" memory="3" cores="3" nodes="1" walltime="2"/>
+                <rset size="l" memory="3" cores="3" nodes="1" walltime="10"/>
+                <rset size="xl" memory="4" cores="3" nodes="1" walltime="72"/>
             </resourcesets>
             <input type="file" typeof="TumorBamFile" scriptparameter="FILENAME_TUMOR_BAM"/>
             <input type="file" typeof="ControlBamFile" scriptparameter="FILENAME_CONTROL_BAM"/>
